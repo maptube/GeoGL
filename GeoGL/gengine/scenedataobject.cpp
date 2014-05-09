@@ -5,13 +5,13 @@
 
 namespace gengine {
 
-SceneDataObject::SceneDataObject(void)
-{
-}
+	SceneDataObject::SceneDataObject(void)
+	{
+	}
 
 
-SceneDataObject::~SceneDataObject(void)
-{
-}
+	SceneDataObject::~SceneDataObject(void)
+	{
+	}
 
-}
+} //namespace gengine

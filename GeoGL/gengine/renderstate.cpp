@@ -3,13 +3,13 @@
 
 namespace gengine {
 
-RenderState::RenderState(void)
-{
-}
+	RenderState::RenderState(void)
+	{
+	}
 
 
-RenderState::~RenderState(void)
-{
-}
+	RenderState::~RenderState(void)
+	{
+	}
 
-}
+} //namespace gengine
