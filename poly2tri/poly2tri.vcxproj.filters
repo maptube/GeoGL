@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\sweep">
+      <UniqueIdentifier>{2bbf65a5-da31-4fbe-a177-8424b3ea31b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{7e222aa8-3b96-460f-8005-c6e1d4a62840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{50eafaf4-5952-4e3f-9de2-071250179adb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sweep">
+      <UniqueIdentifier>{3a3f86dd-0138-439e-8880-209178b34987}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="common\shapes.cc">
+      <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="sweep\advancing_front.cc">
+      <Filter>Source Files\sweep</Filter>
+    </ClCompile>
+    <ClCompile Include="sweep\cdt.cc">
+      <Filter>Source Files\sweep</Filter>
+    </ClCompile>
+    <ClCompile Include="sweep\sweep.cc">
+      <Filter>Source Files\sweep</Filter>
+    </ClCompile>
+    <ClCompile Include="sweep\sweep_context.cc">
+      <Filter>Source Files\sweep</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="poly2tri.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\utils.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\shapes.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="sweep\advancing_front.h">
+      <Filter>Header Files\sweep</Filter>
+    </ClInclude>
+    <ClInclude Include="sweep\cdt.h">
+      <Filter>Header Files\sweep</Filter>
+    </ClInclude>
+    <ClInclude Include="sweep\sweep.h">
+      <Filter>Header Files\sweep</Filter>
+    </ClInclude>
+    <ClInclude Include="sweep\sweep_context.h">
+      <Filter>Header Files\sweep</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

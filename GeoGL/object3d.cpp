@@ -1,0 +1,142 @@
+//Object3D.cpp
+#include "object3d.h"
+#include "opengl4.h"
+
+using namespace std;
+
+/// <summary>Constructor</summary>
+Object3D::Object3D() {
+	//modelMatrix = glm::scale(glm::mat4(0.1f), glm::vec3(0.5f));  // Create our model matrix
+	//modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.0f));
+	//model matrix gets initialised to identity anyway
+}
+
+/// <summary>Destructor</summary>
+Object3D::~Object3D() {
+	//tidy up the buffers?
+	//glDeleteBuffers(1, &iboID[0]); //delete the buffer
+	//and tidy up children?
+}
+
+/// <summary>
+/// Get the absolute (no - relative to parent!) position of the object
+/// </summary>
+/// <param name="X"></param>
+/// <param name="Y"></param>
+/// <param name="Z"></param>
+void Object3D::GetPos(float& X, float& Y, float& Z)
+{
+	X = modelMatrix[3][0];
+	Y = modelMatrix[3][1];
+	Z = modelMatrix[3][2];
+}
+
+/// <summary>
+/// Set the absolute (no - relative to parent!) position of the object
+/// </summary>
+/// <param name="X"></param>
+/// <param name="Y"></param>
+/// <param name="Z"></param>
+void Object3D::SetPos(float X, float Y, float Z) {
+	//TODO:
+	//Also, you need to translate the bounding box as well
+	glm::vec3 Txyz(X, Y, Z);
+	//modelMatrix = glm::translate(modelMatrix,Txyz); //TODO: check what this does!!!! it's a relative translation not absolute
+	//direct manipulation of position
+	modelMatrix[3][0]=X;
+	modelMatrix[3][1]=Y;
+	modelMatrix[3][2]=Z;
+	//need to recompute bounding box, so just need to translate it
+	bounds.max = bounds.max + Txyz;
+	bounds.min = bounds.min + Txyz;
+}
+
+
+/// <summary>Rotate model view matrix</summary>
+/// <param name="Angle">Angle is in radians</param>
+/// <param name="Vector">Vector is line to rotate around</param>
+void Object3D::Rotate(float Angle,glm::vec3 V) {
+	modelMatrix = glm::rotate(modelMatrix,Angle,V);
+}
+
+/// <summary>Add a child object to the scene graph</summary>
+/// <param name="Child"></param>
+void Object3D::AddChild(Object3D* Child) {
+	Children.push_back(Child);
+}
+
+
+/// <summary>Get bounding box for this object and all its children, but only for the geometry that you can actually see.
+/// A pure Object3D returns nothing as you can't see it. A mesh and its subclasses return the bounds of their contained face vertices.</summary>
+BBox Object3D::GetGeometryBounds() {
+	BBox box;
+	//box.Union(bounds); //initialise to parent
+	for (vector<Object3D*>::iterator it=Children.begin(); it!=Children.end(); ++it) {
+		Object3D* o3d = *it;
+		//take child box, transform by model matrix and add on to this object's box
+		BBox childBox = o3d->GetGeometryBounds(); //get bounds for child and all its children recursively
+		childBox.min = glm::vec3( modelMatrix * glm::vec4(childBox.min,1) );
+		childBox.max = glm::vec3( modelMatrix * glm::vec4(childBox.max,1) );
+		box.Union(childBox); //this should return the bounds for the object and all its children
+	}
+	return box;
+}
+
+/// <summary>TODO: Compute Bounds</summary>
+void Object3D::ComputeBounds() {
+	//recalculate the bounding box for this object
+	//TODO: needs to have the geometry
+}
+
+
+/// <summary>Render the object to the OpenGL context
+/// NOTE: you could use a static stack for the parent matrix
+/// </summary>
+/// <param name="ShaderId">ShaderId is the id of the shader which render is going to need to set the modelview matrix of</param>
+/// <param name="ParentMat">ParentMat is matrix of the object that is the parent of this object (i.e. we are relative to this matrix)</param>
+void Object3D::Render(unsigned int ShaderId, glm::mat4 ParentMat) {
+	
+	//shouldn't we be multiplying these?
+	//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]); // Send our model matrix to the shader
+	//multiplying...
+	glm::mat4 mm = ParentMat * modelMatrix; //post multiply child matrix
+
+	if (OpenGLContext::hasProgrammableShaders) { //or ShaderId==-1 ?
+		int modelMatrixLocation = glGetUniformLocation(ShaderId, "modelMatrix"); // Get the location of our model matrix in the shader
+
+		//glm::mat4 save_modelMatrix;
+		//glGetFloatv(GL_MODELVIEW_MATRIX, &save_modelMatrix[0][0]); //apparently, there is a time penalty for this and is it deprecated?
+	
+		
+		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &mm[0][0]); // Send our model matrix to the shader
+
+		//render top level element if it has any geometry
+		if (NumElements>0) {
+			//generic indexed triangles buffer render 
+			glBindVertexArray(vaoID);
+			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,iboID);
+			//glBindBuffer(GL_ARRAY_BUFFER,vcboID);
+			glDrawElements(GL_TRIANGLES,NumElements,GL_UNSIGNED_INT/*GL_UNSIGNED_BYTE*/,(void*)0);
+			//glBindVertexArray(0);
+			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+		}
+	}
+	else {
+		//fallback if no shaders supported
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(&mm[0][0]); //check this...
+		if (NumElements>0) {
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glVertexPointer(3,GL_FLOAT,0,mem_vertexbuffer);
+			glEnableClientState(GL_COLOR_ARRAY);
+			glColorPointer(3,GL_FLOAT,0,mem_colourbuffer);
+			glDrawElements(GL_TRIANGLES,NumElements,GL_UNSIGNED_INT,mem_indexbuffer);
+		}
+	}
+	
+	//then go on to render all the children
+	for (vector<Object3D*>::iterator childIT=Children.begin(); childIT!=Children.end(); ++childIT) {
+		(*childIT)->Render(ShaderId,mm);
+	}
+
+}

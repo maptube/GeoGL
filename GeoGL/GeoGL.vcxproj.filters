@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\clipper">
+      <UniqueIdentifier>{1cdb44f9-9e2f-4d04-8c1c-23d42524d2ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\clipper">
+      <UniqueIdentifier>{50b25e6e-ecea-476d-89d9-edca0815c592}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gengine">
+      <UniqueIdentifier>{473f26b6-2736-48ff-9c00-b5fb99801df2}</UniqueIdentifier>
+      <Extensions>cpp</Extensions>
+    </Filter>
+    <Filter Include="Header Files\gengine">
+      <UniqueIdentifier>{99769a1e-c744-4f3a-99dd-d25b06aaf49e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gengine\events">
+      <UniqueIdentifier>{5eaf100d-c1ee-4534-a72f-7fc41607a034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gengine\events">
+      <UniqueIdentifier>{19277c84-081f-40c7-bb98-d1ea6d1174b6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="shader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="shader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="object3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cuboid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cylinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tubegeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshcube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="trefoilknot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="netgraphgeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FlyController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Agents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Agent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="turtle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model_tubenetwork.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sierpinskipyramid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Link.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Links.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LogoVariantOwns.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LeapController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geojson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clipper\clipper.hpp">
+      <Filter>Header Files\clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="ellipsoid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\indexbuffer.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\drawobject.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\glbuffertypes.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\graphicscontext.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\ogldevice.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\primitivetypes.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\renderstate.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\scenedataobject.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\shader.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\shaderattribute.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\shaderattributecollection.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\shaderuniform.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\shaderuniformcollection.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\vertexarrayobject.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\vertexbuffer.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\vertexdata.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\Camera.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\gengine.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\events\EventListener.h">
+      <Filter>Header Files\gengine\events</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\events\EventManager.h">
+      <Filter>Header Files\gengine\events</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="object3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cuboid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cylinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tubegeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshcube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="trefoilknot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="netgraphgeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FlyController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Agents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Agent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="turtle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model_tubenetwork.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sierpinskipyramid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Link.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Links.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LogoVariantOwns.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LeapController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geojson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="clipper\clipper.cpp">
+      <Filter>Source Files\clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="ellipsoid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="globe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\ogldevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\graphicscontext.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\shaderattribute.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\renderstate.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\shaderattributecollection.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\shaderuniform.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\shaderuniformcollection.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\scenedataobject.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\indexbuffer.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\shader.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\vertexarrayobject.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\vertexbuffer.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\vertexdata.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\Camera.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\events\EventListener.cpp">
+      <Filter>Source Files\gengine\events</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\events\EventManager.cpp">
+      <Filter>Source Files\gengine\events</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
