@@ -158,7 +158,10 @@ void Globe::RenderScene(void)
 	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
 		//(*sceneIT)->Render(ShaderId,modelMatrix);
 		Object3D* o3d=(*sceneIT);
-		GC->Render();
+		if (o3d->HasGeometry()) {
+			const DrawObject& dobj = o3d->GetDrawObject();
+			GC->Render(dobj,*_sdo);
+		}
 	}
 
 	GC->SwapBuffers();

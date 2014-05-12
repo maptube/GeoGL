@@ -141,7 +141,7 @@ void Object3D::ComputeBounds() {
 //
 //}
 
-//new render
+//new render - not strictly necessary as we're using the GetDrawObject method
 void Object3D::Render(glm::mat4 ParentMat) {
 	//default implementation of an Object3D has no geometry, so you can't render anything
 	
@@ -152,3 +152,7 @@ void Object3D::Render(glm::mat4 ParentMat) {
 		(*childIT)->Render(mm);
 	}
 }
+
+//const gengine::DrawObject& Object3D::GetDrawObject() {
+//	return NULL;
+//}

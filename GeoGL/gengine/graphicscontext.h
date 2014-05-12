@@ -34,8 +34,8 @@ namespace gengine {
 		~GraphicsContext(void);
 
 		void Clear(); //clear before rendering
-		void Render(DrawObject& obj, SceneDataObject& sceneobj);
-		void RenderFallback(DrawObject& obj, SceneDataObject& sceneobj);
+		void Render(const DrawObject& obj, const SceneDataObject& sceneobj);
+		void RenderFallback(const DrawObject& obj, const SceneDataObject& sceneobj);
 		void SwapBuffers(void);
 
 		virtual void WindowSizeCallback(GLFWwindow* window, int w, int h);

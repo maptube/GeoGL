@@ -453,6 +453,7 @@ void Mesh2::AttachShader(gengine::Shader* pshader) {
 	drawObject._ShaderProgram = pshader;
 }
 
+//not strictly used as we're using the GetDrawObject method
 void Mesh2::Render(glm::mat4 ParentMat) {
 	glm::mat4 mm = ParentMat * modelMatrix; //post multiply child matrix
 
@@ -466,6 +467,15 @@ void Mesh2::Render(glm::mat4 ParentMat) {
 		(*childIT)->Render(mm);
 	}
 }
+
+/// <summary>
+/// Return the draw object, which is needed by the graphics context to draw this object. Contains all opengl state, buffers and matrix.
+/// </summary>
+/// <returns>The draw object containing everything needed to do the drawing</returns>
+const gengine::DrawObject& Mesh2::GetDrawObject() {
+	return drawObject;
+}
+
 
 //void TestMesh2() {
 //	//Creates a mesh object directly for testing purposes

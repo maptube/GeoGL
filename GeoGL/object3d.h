@@ -3,6 +3,11 @@
 #include "BBox.h"
 #include <vector>
 
+//forward references
+namespace gengine {
+	class DrawObject;
+}
+
 //base class of all 3D objects in the world
 //TODO: maybe pass the shader into the object so you can have different parts of the tree rendered with different shaders?
 class Object3D {
@@ -19,9 +24,12 @@ public:
 	void Rotate(float Angle,glm::vec3 V);
 	//void Render(unsigned int ShaderId, glm::mat4 ParentMat);
 	virtual void Render(glm::mat4 ParentMat);
+	virtual bool HasGeometry() { return false; } //no, this object has no geometry and cannot be rendered
+	virtual const gengine::DrawObject& GetDrawObject(); //not implemented in this class
 	void AddChild(Object3D* Child);
 	virtual BBox GetGeometryBounds();
 	virtual void ComputeBounds();
+	//TODO: SetMatrix - VERY IMPORTANT!
 
 protected:
 	//glm::mat4 modelMatrix; // Store the model matrix

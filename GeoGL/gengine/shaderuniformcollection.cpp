@@ -65,7 +65,7 @@ namespace gengine {
 	/// <summary>
 	/// Send a matrix to the shader using its name
 	/// </summary>
-	void ShaderUniformCollection::SetMatrix4fv(const std::string& Name, glm::mat4& m)
+	void ShaderUniformCollection::SetMatrix4fv(const std::string& Name, const glm::mat4& m)
 	{
 		//TODO: not exactly elegant, but there aren't going to be many uniforms and a hash is probably overkill?
 		bool Found=false;

@@ -54,7 +54,7 @@ namespace gengine {
 	/// HOW???
 	/// TODO: this is a very naive implementation without any optimisation. In other words, the shaders only need to be bound if they change and uniforms only get done once.
 	/// </summary>
-	void GraphicsContext::Render(DrawObject& obj, SceneDataObject& sceneobj /* DrawElements? DrawObjects? */)
+	void GraphicsContext::Render(const DrawObject& obj, const SceneDataObject& sceneobj /* DrawElements? DrawObjects? */)
 	{
 		//sync the global render state
 		//attach shaders
@@ -120,7 +120,7 @@ namespace gengine {
 	/// <summary>
 	/// Fallback for when there are no shaders to use for rendering.
 	/// </summary>
-	void GraphicsContext::RenderFallback(DrawObject& obj, SceneDataObject& sceneobj)
+	void GraphicsContext::RenderFallback(const DrawObject& obj, const SceneDataObject& sceneobj)
 	{
 		//fallback if no shaders supported
 		//TODO: this should check existing state and only change if needed
