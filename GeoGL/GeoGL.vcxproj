@@ -109,6 +109,7 @@
     <ClInclude Include="LogoVariantOwns.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="mesh2.h" />
     <ClInclude Include="meshcube.h" />
     <ClInclude Include="gengine\Camera.h" />
     <ClInclude Include="Model.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="LogoVariantOwns.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="mesh2.cpp" />
     <ClCompile Include="meshcube.cpp" />
     <ClCompile Include="gengine\Camera.cpp" />
     <ClCompile Include="Model.cpp" />

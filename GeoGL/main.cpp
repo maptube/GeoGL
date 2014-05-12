@@ -29,6 +29,7 @@
 #include "gengine/vertexdata.h"
 #include "gengine/shaderattributecollection.h"
 #include "gengine/primitivetypes.h"
+#include "mesh2.h"
 
 //#define PROGRAM_NAME "GeoGL"
 
@@ -142,70 +143,69 @@ int main(int argc, char *argv[])
 {
 	OGLDevice::Initialise(); //device initialisation
 
-	GraphicsContext* GC = OGLDevice::XCreateWindow(512,512);
-	VertexBuffer* vb=OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,3*4*sizeof(float));
-	float mem_vertices[] = {
-		0,0,0,
-		0,1,0,
-		1,1,0,
-		1,0,0
-	};
-	vb->CopyFromMemory(mem_vertices);
-	VertexBuffer* vc=OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,3*4*sizeof(float));
-	float mem_colours[] = {
-		1.0, 0.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 0.0, 1.0,
-		1.0, 1.0, 1.0
-	};
-	vc->CopyFromMemory(mem_colours);
-	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,3*2*sizeof(unsigned int));
-	unsigned int mem_indices[] = {
-		0,1,2,
-		0,2,3
-	};
-	ib->CopyFromMemory(mem_indices);
-	//int v_inPosition=0;
-	//int v_inColor=1;
-	//VertexArrayObject* vao = new VertexArrayObject();
-	//vao->AddVertexAttribute(v_inPosition,"in_Position");
-	//vao->AddVertexAttribute(v_inColor,"in_Color");
+	//GraphicsContext* GC = OGLDevice::XCreateWindow(512,512);
+	//VertexBuffer* vb=OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,3*4*sizeof(float));
+	//float mem_vertices[] = {
+	//	0,0,0,
+	//	0,1,0,
+	//	1,1,0,
+	//	1,0,0
+	//};
+	//vb->CopyFromMemory(mem_vertices);
+	//VertexBuffer* vc=OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,3*4*sizeof(float));
+	//float mem_colours[] = {
+	//	1.0, 0.0, 0.0,
+	//	0.0, 1.0, 0.0,
+	//	0.0, 0.0, 1.0,
+	//	1.0, 1.0, 1.0
+	//};
+	//vc->CopyFromMemory(mem_colours);
+	//IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,3*2*sizeof(unsigned int));
+	//unsigned int mem_indices[] = {
+	//	0,1,2,
+	//	0,2,3
+	//};
+	//ib->CopyFromMemory(mem_indices);
+	////int v_inPosition=0;
+	////int v_inColor=1;
+	////VertexArrayObject* vao = new VertexArrayObject();
+	////vao->AddVertexAttribute(v_inPosition,"in_Position");
+	////vao->AddVertexAttribute(v_inColor,"in_Color");
+	//
+	//VertexData* vertexData=new VertexData();
+	////manual push of vertex attributes
+	////vertexData->_vertexattributes->AddVertexAttribute("v_inPosition",v_inPosition,"");
+	////vertexData->_vertexattributes->AddVertexAttribute("v_inColor",v_inColor,"");
+	//
+	//vertexData->_vb.push_back(vb); //push the vertex buffer
+	//vertexData->_vb.push_back(vc); //push the colour buffer
+	//vertexData->_ib=ib; //set the index buffer
+	//vertexData->_NumElements=6; //6; //3=one triangle, 6=indexed square
+	//RenderState* rs = new RenderState();
+	//Shader* shader = new Shader("shader.vert", "shader.frag");
+	////TODO: get shader uniforms and vertex attributes from here by querying the shader
+	////the draw object is everything you need to draw an object
+	//DrawObject tri;
+	//tri._PrimType=ptTriangles;
+	//tri._rs=rs;
+	////tri._vao=vao;
+	//tri._vertexData=vertexData;
+	//tri._ShaderProgram=shader;
+	//glm::mat4 mm=glm::translate(glm::mat4(1.0f),glm::vec3(0,0,-2));
+	//tri._ModelMatrix = mm;
+	////TODO: need to delete these later
+
 	
-	VertexData* vertexData=new VertexData();
-	//manual push of vertex attributes
-	//vertexData->_vertexattributes->AddVertexAttribute("v_inPosition",v_inPosition,"");
-	//vertexData->_vertexattributes->AddVertexAttribute("v_inColor",v_inColor,"");
-	
-	vertexData->_vb.push_back(vb); //push the vertex buffer
-	vertexData->_vb.push_back(vc); //push the colour buffer
-	vertexData->_ib=ib; //set the index buffer
-	vertexData->_NumElements=6; //6; //3=one triangle, 6=indexed square
-	RenderState* rs = new RenderState();
-	Shader* shader = new Shader("shader.vert", "shader.frag");
-	//TODO: get shader uniforms and vertex attributes from here by querying the shader
-	//the draw object is everything you need to draw an object
-	DrawObject tri;
-	tri._PrimType=ptTriangles;
-	tri._rs=rs;
-	//tri._vao=vao;
-	tri._vertexData=vertexData;
-	tri._ShaderProgram=shader;
-	glm::mat4 mm=glm::translate(glm::mat4(1.0f),glm::vec3(0,0,-2));
-	tri._ModelMatrix = mm;
-	//TODO: need to delete these later
 
 	//now scene specifics
-	Camera camera;
-	camera.SetupPerspective(512,512,1,100);
-	SceneDataObject sdo;
-	sdo._camera=&camera;
+	//Camera camera;
+	//camera.SetupPerspective(512,512,1,100);
+	//SceneDataObject sdo;
+	//sdo._camera=&camera;
 
-	//Globe globe;
+	Globe globe;
 	
-	//if (!openglContext.create30ContextGLFW()) { // Create a window and an OpenGL context to run in it
-	//	std::cerr<<"Error creating OpenGL context - abort"<<std::endl;
-	//	exit(-1);
-	//}
+	
 	//openglContext.setupScene(); // Setup our OpenGL scene
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
@@ -293,13 +293,14 @@ int main(int argc, char *argv[])
 	while (!glfwWindowShouldClose(GC->window /*globe.GetWindow()*/ /*openglContext.window*/)) {
 		glfwPollEvents(); //or glfwWaitEvents(); ?
 
-		tri._ModelMatrix=glm::rotate(tri._ModelMatrix,0.001f,glm::vec3(0,1,0));
+		//tri._ModelMatrix=glm::rotate(tri._ModelMatrix,0.001f,glm::vec3(0,1,0));
 
 		//todo: need to get the clear colour out!
-		glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
-		GC->Clear();
-		GC->Render(tri,sdo);
-		GC->SwapBuffers();
+		//glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
+		//GC->Clear();
+		//GC->Render(tri,sdo);
+		//GC->Render(mesh2->drawObject,sdo);
+		//GC->SwapBuffers();
 
 		//model update
 		//tn->Step();
@@ -310,7 +311,7 @@ int main(int argc, char *argv[])
 		//openglContext.SceneGraph.at(0)->Rotate(0.0001f,glm::vec3(0.0f,1.0f,0.0f)); //@50FPS, this is 0.29 degrees per second
 		
 		//openglContext.renderScene(&camera);
-		//globe.Render();
+		globe.RenderScene();
 
 		//camera.viewMatrix[3][0]=10*glm::sin<float>(a);
 		//camera.viewMatrix[3][1]=0;

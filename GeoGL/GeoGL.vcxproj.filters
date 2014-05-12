@@ -199,6 +199,9 @@
     <ClInclude Include="gengine\events\EventManager.h">
       <Filter>Header Files\gengine\events</Filter>
     </ClInclude>
+    <ClInclude Include="mesh2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -338,6 +341,9 @@
     </ClCompile>
     <ClCompile Include="gengine\events\EventManager.cpp">
       <Filter>Source Files\gengine\events</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh2.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

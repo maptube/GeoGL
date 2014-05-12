@@ -5,7 +5,6 @@ namespace gengine {
 	//forward declarations
 	class RenderState;
 	class Shader;
-	//class VertexArrayObject;
 	class VertexData;
 	enum PrimitiveType;
 
@@ -17,10 +16,7 @@ namespace gengine {
 		RenderState* _rs;
 		Shader* _ShaderProgram;
 		PrimitiveType _PrimType;
-		//VertexArrayObject* _vao;
 		VertexData* _vertexData;
-		//VertexArray va;
-		//IndexArray ia;
 		glm::mat4 _ModelMatrix;
 	};
 

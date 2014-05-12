@@ -94,49 +94,61 @@ void Object3D::ComputeBounds() {
 /// </summary>
 /// <param name="ShaderId">ShaderId is the id of the shader which render is going to need to set the modelview matrix of</param>
 /// <param name="ParentMat">ParentMat is matrix of the object that is the parent of this object (i.e. we are relative to this matrix)</param>
-void Object3D::Render(unsigned int ShaderId, glm::mat4 ParentMat) {
+//void Object3D::Render(unsigned int ShaderId, glm::mat4 ParentMat) {
+//	
+//	//shouldn't we be multiplying these?
+//	//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]); // Send our model matrix to the shader
+//	//multiplying...
+//	glm::mat4 mm = ParentMat * modelMatrix; //post multiply child matrix
+//
+//	if (OpenGLContext::hasProgrammableShaders) { //or ShaderId==-1 ?
+//		int modelMatrixLocation = glGetUniformLocation(ShaderId, "modelMatrix"); // Get the location of our model matrix in the shader
+//
+//		//glm::mat4 save_modelMatrix;
+//		//glGetFloatv(GL_MODELVIEW_MATRIX, &save_modelMatrix[0][0]); //apparently, there is a time penalty for this and is it deprecated?
+//	
+//		
+//		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &mm[0][0]); // Send our model matrix to the shader
+//
+//		//render top level element if it has any geometry
+//		if (NumElements>0) {
+//			//generic indexed triangles buffer render 
+//			glBindVertexArray(vaoID);
+//			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,iboID);
+//			//glBindBuffer(GL_ARRAY_BUFFER,vcboID);
+//			glDrawElements(GL_TRIANGLES,NumElements,GL_UNSIGNED_INT/*GL_UNSIGNED_BYTE*/,(void*)0);
+//			//glBindVertexArray(0);
+//			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+//		}
+//	}
+//	else {
+//		//fallback if no shaders supported
+//		glMatrixMode(GL_MODELVIEW);
+//		glLoadMatrixf(&mm[0][0]); //check this...
+//		if (NumElements>0) {
+//			glEnableClientState(GL_VERTEX_ARRAY);
+//			glVertexPointer(3,GL_FLOAT,0,mem_vertexbuffer);
+//			glEnableClientState(GL_COLOR_ARRAY);
+//			glColorPointer(3,GL_FLOAT,0,mem_colourbuffer);
+//			glDrawElements(GL_TRIANGLES,NumElements,GL_UNSIGNED_INT,mem_indexbuffer);
+//		}
+//	}
+//	
+//	//then go on to render all the children
+//	for (vector<Object3D*>::iterator childIT=Children.begin(); childIT!=Children.end(); ++childIT) {
+//		(*childIT)->Render(ShaderId,mm);
+//	}
+//
+//}
+
+//new render
+void Object3D::Render(glm::mat4 ParentMat) {
+	//default implementation of an Object3D has no geometry, so you can't render anything
 	
-	//shouldn't we be multiplying these?
-	//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]); // Send our model matrix to the shader
-	//multiplying...
 	glm::mat4 mm = ParentMat * modelMatrix; //post multiply child matrix
 
-	if (OpenGLContext::hasProgrammableShaders) { //or ShaderId==-1 ?
-		int modelMatrixLocation = glGetUniformLocation(ShaderId, "modelMatrix"); // Get the location of our model matrix in the shader
-
-		//glm::mat4 save_modelMatrix;
-		//glGetFloatv(GL_MODELVIEW_MATRIX, &save_modelMatrix[0][0]); //apparently, there is a time penalty for this and is it deprecated?
-	
-		
-		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &mm[0][0]); // Send our model matrix to the shader
-
-		//render top level element if it has any geometry
-		if (NumElements>0) {
-			//generic indexed triangles buffer render 
-			glBindVertexArray(vaoID);
-			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,iboID);
-			//glBindBuffer(GL_ARRAY_BUFFER,vcboID);
-			glDrawElements(GL_TRIANGLES,NumElements,GL_UNSIGNED_INT/*GL_UNSIGNED_BYTE*/,(void*)0);
-			//glBindVertexArray(0);
-			//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
-		}
-	}
-	else {
-		//fallback if no shaders supported
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixf(&mm[0][0]); //check this...
-		if (NumElements>0) {
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(3,GL_FLOAT,0,mem_vertexbuffer);
-			glEnableClientState(GL_COLOR_ARRAY);
-			glColorPointer(3,GL_FLOAT,0,mem_colourbuffer);
-			glDrawElements(GL_TRIANGLES,NumElements,GL_UNSIGNED_INT,mem_indexbuffer);
-		}
-	}
-	
 	//then go on to render all the children
 	for (vector<Object3D*>::iterator childIT=Children.begin(); childIT!=Children.end(); ++childIT) {
-		(*childIT)->Render(ShaderId,mm);
+		(*childIT)->Render(mm);
 	}
-
 }

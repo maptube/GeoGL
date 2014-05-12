@@ -5,6 +5,15 @@
 #include <iterator>
 #include "DebugUtils.h"
 
+#include "gengine/ogldevice.h"
+#include "gengine/glbuffertypes.h"
+#include "gengine/vertexbuffer.h"
+#include "gengine/indexbuffer.h"
+#include "gengine/vertexdata.h"
+#include "gengine/shader.h"
+#include "gengine/renderstate.h"
+#include "gengine/primitivetypes.h"
+
 using namespace std;
 
 using namespace gengine;
@@ -54,9 +63,12 @@ Mesh2::Mesh2(void)
 	epsilon = 0.0000001f;
 
 	//initialise fallback cpu buffers to null
-	mem_vertexbuffer = NULL;
-	mem_colourbuffer = NULL;
-	mem_indexbuffer = NULL;
+	//mem_vertexbuffer = NULL;
+	//mem_colourbuffer = NULL;
+	//mem_indexbuffer = NULL;
+
+	renderState = new RenderState();
+	drawObject._rs=renderState; //TODO: find a more elegant way of doing this
 }
 
 /// <summary>
@@ -70,6 +82,7 @@ Mesh2::~Mesh2(void)
 	//if (mem_indexbuffer!=NULL) delete mem_indexbuffer;
 
 	FreeBuffers();
+	delete renderState;
 }
 
 //Pattern: add vertices, then add faces OR just add faces?
@@ -271,18 +284,31 @@ void Mesh2::SetColour(glm::vec3 new_colour)
 /// </summary>
 void Mesh2::CreateBuffers() {
 	//fallback trap
-	if (!OpenGLContext::hasProgrammableShaders) {
-		CreateBuffersFallback();
-		return;
-	}
+	//if (!OGLDevice::hasProgrammableShaders) {
+	//	CreateBuffersFallback();
+	//	return;
+	//}
+
+	//these should be constants? From the shader...
+	//string AttributeName("in_Position");
+
 
 	unsigned int NumVertices = vertices.size();
 	unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
 
 	//graphics card buffer vertices, colours, indexes
-	GLfloat* buf_vertices = new GLfloat[NumVertices*3];
-	GLfloat* buf_colours = new GLfloat[NumVertices*3];
-	GLuint* buf_indices = new GLuint[NumFaces];
+	//GLfloat* buf_vertices = new GLfloat[NumVertices*3];
+	//GLfloat* buf_colours = new GLfloat[NumVertices*3];
+	//GLuint* buf_indices = new GLuint[NumFaces];
+	//TODO: the sizes are really GL sizes, but we shouldn't be using GL types directly outside gengine - how to best do this?
+	VertexBuffer* vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
+	VertexBuffer* vc = OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
+	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*3*sizeof(unsigned int));
+
+	//create internal memory blocks in format suitable for copying to opengl vertex and index buffers
+	float* buf_vertices = new float[NumVertices*3]; //technically it's a GLfloat
+	float* buf_colours = new float[NumVertices*3]; //GLfloat
+	unsigned int* buf_indices = new unsigned int[NumFaces]; //GLuint
 
 	//copy data from internal mesh vectors into array buffers for the graphics card
 	//int v=0, vc=0;
@@ -312,44 +338,34 @@ void Mesh2::CreateBuffers() {
 		buf_indices[fc++]=*fIT;
 	}
 
-	//now start setting up the buffers
+	//now copy the vertex, colour and index data to the buffers
+	vb->CopyFromMemory(buf_vertices);
+	vc->CopyFromMemory(buf_colours);
+	ib->CopyFromMemory(buf_indices);
 
-	NumElements = NumFaces; //*3; //needed for object3d, otherwise it doesn't know how many elements to render, NumElements is the count of face index elements (3 per triangle face)
-
-	glGenVertexArrays(1, &vaoID); // Create our Vertex Array Object
-
-	glBindVertexArray(vaoID); // Bind our Vertex Array Object so we can use it
-	
-	glGenBuffers(1, &vboID); // Generate our Vertex Buffer Object
-	
-	//be careful with the sizes here, as the buffers need real memory sizes, not numbers of points or indices
-	glBindBuffer(GL_ARRAY_BUFFER, vboID); // Bind our Vertex Buffer Object
-	glBufferData(GL_ARRAY_BUFFER, NumVertices*3 * sizeof(GLfloat), &buf_vertices[0], GL_STATIC_DRAW); // Set the size and data of our VBO and set it to STATIC_DRAW
-	glVertexAttribPointer((GLuint)Shader::v_inPosition, 3, GL_FLOAT, GL_FALSE, 0, 0); // Set up our vertex attributes pointer
-
-	//bind index array
-	glGenBuffers(1, &iboID); //generate 1 buffer object name, returned in the array
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboID); //bind index buffer object - this links the name to the binding point of the specified buffer type
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, NumFaces/**3*/ * sizeof(GLuint), &buf_indices[0], GL_STATIC_DRAW); //note: actually indices.size*sizeof(unsigned int) (=12*4?)
-
-	//bind colour array
-	glGenBuffers(1, &vcboID); //generate colour buffer object
-	glBindBuffer(GL_ARRAY_BUFFER, vcboID); //bind vertex colour buffer
-	glBufferData(GL_ARRAY_BUFFER, NumVertices*3 * sizeof(GLfloat), &buf_colours[0], GL_STATIC_DRAW);
-	glVertexAttribPointer((GLuint)Shader::v_inColor, 3, GL_FLOAT, GL_FALSE, 0, NULL); // (note enable later)
-
-	glEnableVertexAttribArray(Shader::v_inPosition); // Enable our vertex buffer in our Vertex Array Object
-	glEnableVertexAttribArray(Shader::v_inColor); // Enable our colour buffer in our Vertex Array Object
-
-	glBindVertexArray(0); // Disable our Vertex Buffer Object
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //disable vertex buffer object
-	glBindBuffer(GL_ARRAY_BUFFER, 0); //and the other one
-
-	//make sure we clean up after ourselves
+	//free the in-memory buffers as we don't need them any more
 	delete [] buf_vertices;
 	delete [] buf_colours;
 	delete [] buf_indices;
+	//todo: could clear vertices and faces as well to save memory as our original data still exists
+
+	//create a vertex data object that holds our buffer definitions
+	vertexData = new VertexData();
+	vertexData->_vb.push_back(vb); //push the vertex buffer
+	vertexData->_vb.push_back(vc); //push the colour buffer
+	vertexData->_ib=ib; //set the index buffer
+	vertexData->_NumElements=NumFaces; //*3;
+	drawObject._vertexData = vertexData; //attach the vertex data to the draw object so we know what buffers are needed for drawing
+
+	//set render state object for this mesh e.g. front face culling, CCW?
+	//do nothing for now, just use default
+
+	//OK, that's the buffers and render state done, now set up the draw object needed to do the drawing
+	drawObject._PrimType=ptTriangles;
+	//shader program set via attach shader
+
+
+	//TODO: render state, shaders etc here
 }
 
 /// <summary>
@@ -358,45 +374,45 @@ void Mesh2::CreateBuffers() {
 /// Buffers have to be created in memory and passed when drawing.
 /// Should only be called when hasProgrammableShaders==false
 /// </summary>
-void Mesh2::CreateBuffersFallback() {
-	unsigned int NumVertices = vertices.size();
-	unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
-
-	NumElements = NumFaces; //needed for object3d, otherwise it doesn't know how many elements to render, NumElements is the count of face index elements (3 per triangle face)
-
-	//create graphics card buffer vertices, colours, indexes
-	mem_vertexbuffer = new GLfloat[NumVertices*3];
-	mem_colourbuffer = new GLfloat[NumVertices*3];
-	mem_indexbuffer = new GLuint[NumFaces];
-
-	//copy data from internal mesh vectors into array buffers for the graphics card
-	//int v=0, vc=0;
-	for (vector<VertexColour>::iterator vIT=vertices.begin(); vIT!=vertices.end(); ++vIT) {
-		//VertexColour VC=*vIT;
-		//mem_vertexbuffer[v++]=VC.P.x;
-		//mem_vertexbuffer[v++]=VC.P.y;
-		//mem_vertexbuffer[v++]=VC.P.z;
-		////colours
-		//mem_colourbuffer[vc++]=VC.RGB.r;
-		//mem_colourbuffer[vc++]=VC.RGB.g;
-		//mem_colourbuffer[vc++]=VC.RGB.b;
-
-		//new code taking into account x ordering of vertices
-		VertexColour VC=*vIT;
-		int v=VC.Index*3;
-		mem_vertexbuffer[v]=VC.P.x;
-		mem_vertexbuffer[v+1]=VC.P.y;
-		mem_vertexbuffer[v+2]=VC.P.z;
-		//colours
-		mem_colourbuffer[v]=VC.RGB.r;
-		mem_colourbuffer[v+1]=VC.RGB.g;
-		mem_colourbuffer[v+2]=VC.RGB.b;
-	}
-	int fc=0;
-	for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
-		mem_indexbuffer[fc++]=*fIT;
-	}
-}
+//void Mesh2::CreateBuffersFallback() {
+//	unsigned int NumVertices = vertices.size();
+//	unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
+//
+//	NumElements = NumFaces; //needed for object3d, otherwise it doesn't know how many elements to render, NumElements is the count of face index elements (3 per triangle face)
+//
+//	//create graphics card buffer vertices, colours, indexes
+//	mem_vertexbuffer = new GLfloat[NumVertices*3];
+//	mem_colourbuffer = new GLfloat[NumVertices*3];
+//	mem_indexbuffer = new GLuint[NumFaces];
+//
+//	//copy data from internal mesh vectors into array buffers for the graphics card
+//	//int v=0, vc=0;
+//	for (vector<VertexColour>::iterator vIT=vertices.begin(); vIT!=vertices.end(); ++vIT) {
+//		//VertexColour VC=*vIT;
+//		//mem_vertexbuffer[v++]=VC.P.x;
+//		//mem_vertexbuffer[v++]=VC.P.y;
+//		//mem_vertexbuffer[v++]=VC.P.z;
+//		////colours
+//		//mem_colourbuffer[vc++]=VC.RGB.r;
+//		//mem_colourbuffer[vc++]=VC.RGB.g;
+//		//mem_colourbuffer[vc++]=VC.RGB.b;
+//
+//		//new code taking into account x ordering of vertices
+//		VertexColour VC=*vIT;
+//		int v=VC.Index*3;
+//		mem_vertexbuffer[v]=VC.P.x;
+//		mem_vertexbuffer[v+1]=VC.P.y;
+//		mem_vertexbuffer[v+2]=VC.P.z;
+//		//colours
+//		mem_colourbuffer[v]=VC.RGB.r;
+//		mem_colourbuffer[v+1]=VC.RGB.g;
+//		mem_colourbuffer[v+2]=VC.RGB.b;
+//	}
+//	int fc=0;
+//	for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
+//		mem_indexbuffer[fc++]=*fIT;
+//	}
+//}
 
 /// <summary>
 /// TODO:
@@ -404,18 +420,75 @@ void Mesh2::CreateBuffersFallback() {
 /// </summary>
 void Mesh2::FreeBuffers() {
 	//fallback trap
-	if (!OpenGLContext::hasProgrammableShaders) {
-		if (mem_vertexbuffer!=NULL) delete mem_vertexbuffer;
-		if (mem_colourbuffer!=NULL) delete mem_colourbuffer;
-		if (mem_indexbuffer!=NULL) delete mem_indexbuffer;
-	}
-	else {
-		glDeleteVertexArrays(1, &vaoID); // Delete our Vertex Array Object
-		glGenBuffers(1, &vboID); // Delete our Vertex Buffer Object
-		glGenBuffers(1, &iboID); //Delete index buffer object
-		glGenBuffers(1, &vcboID); //Delete colour buffer object
-	}
+	//if (!OpenGLContext::hasProgrammableShaders) {
+	//	if (mem_vertexbuffer!=NULL) delete mem_vertexbuffer;
+	//	if (mem_colourbuffer!=NULL) delete mem_colourbuffer;
+	//	if (mem_indexbuffer!=NULL) delete mem_indexbuffer;
+	//}
+	//else {
+	//	glDeleteVertexArrays(1, &vaoID); // Delete our Vertex Array Object
+	//	glGenBuffers(1, &vboID); // Delete our Vertex Buffer Object
+	//	glGenBuffers(1, &iboID); //Delete index buffer object
+	//	glGenBuffers(1, &vcboID); //Delete colour buffer object
+	//}
+
+	//this is easy, everything is taken care of in gengine
+	delete vb;
+	delete vc;
+	delete ib;
+
+	delete vertexData; //as all the buffers are now invalid anyway
+
+	vb=NULL; vc=NULL; ib=NULL; vertexData=NULL;
 
 }
 
+/// <summary>
+/// Shaders are attached to each mesh as a pointer to a shader in a global collection. This way, we're not
+/// using a separate shader for each mesh in the scene which would be very bad.
+/// Also, objects are drawn so as to minimise the number of shader program switches for optimisation.
+/// </summary>
+/// <param name=""></param>
+void Mesh2::AttachShader(gengine::Shader* pshader) {
+	drawObject._ShaderProgram = pshader;
+}
 
+void Mesh2::Render(glm::mat4 ParentMat) {
+	glm::mat4 mm = ParentMat * modelMatrix; //post multiply child matrix
+
+	//set model matrix for this model draw
+	drawObject._ModelMatrix = mm;
+	//OGLContext
+	//TODO: render here!
+
+	//then go on to render all the children
+	for (vector<Object3D*>::iterator childIT=Children.begin(); childIT!=Children.end(); ++childIT) {
+		(*childIT)->Render(mm);
+	}
+}
+
+//void TestMesh2() {
+//	//Creates a mesh object directly for testing purposes
+//	//test2 - the mesh2 object
+//	Mesh2* mesh2 = new Mesh2();
+//	glm::vec3 mesh_v[] = {
+//		glm::vec3(-1, -1, 0),
+//		glm::vec3(1, -1, 0),
+//		glm::vec3(1, 1, 0),
+//		glm::vec3(-1, 1, 0)
+//	};
+//	glm::vec3 mesh_c[] = {
+//		glm::vec3(1,0,0),
+//		glm::vec3(0,1,0),
+//		glm::vec3(0,0,1),
+//		glm::vec3(1,0,1)
+//	};
+//	mesh2->AddFace(mesh_v[0],mesh_v[1],mesh_v[2], mesh_c[0],mesh_c[1],mesh_c[2]);
+//	mesh2->AddFace(mesh_v[0],mesh_v[2],mesh_v[3], mesh_c[0],mesh_c[2],mesh_c[3]);
+//	mesh2->AttachShader(shader); //attach the same shader as the triangle
+//	mesh2->CreateBuffers();
+//	//position the mesh
+//	glm::mat4 mesh_mm=glm::translate(glm::mat4(1.0f),glm::vec3(0,0,-2));
+//	mesh2->drawObject._ModelMatrix = mm;
+//	//OK, that's a mesh set up - need to delete it later though!
+//}

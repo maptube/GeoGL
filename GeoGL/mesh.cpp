@@ -9,37 +9,37 @@ using namespace std;
 /// <summary>
 /// DEBUG: print out points to console NOT cout
 /// </summary>
-void printPoints(vector<struct VertexColour> vertices, glm::vec3 P) {
-	//debug print out points
-	DebugUtils::WriteString("Insert point: "); DebugUtils::WriteFloat(P.x); DebugUtils::WriteLine();
-	DebugUtils::WriteString("X: ");
-	for (vector<struct VertexColour>::iterator it=vertices.begin(); it!=vertices.end(); ++it) {
-		DebugUtils::WriteFloat((*it).P.x);
-		DebugUtils::WriteString(" ");
-	}
-	DebugUtils::WriteLine();
-}
+//void printPoints(vector<struct VertexColour> vertices, glm::vec3 P) {
+//	//debug print out points
+//	DebugUtils::WriteString("Insert point: "); DebugUtils::WriteFloat(P.x); DebugUtils::WriteLine();
+//	DebugUtils::WriteString("X: ");
+//	for (vector<struct VertexColour>::iterator it=vertices.begin(); it!=vertices.end(); ++it) {
+//		DebugUtils::WriteFloat((*it).P.x);
+//		DebugUtils::WriteString(" ");
+//	}
+//	DebugUtils::WriteLine();
+//}
 
 /// <summary>
 /// DEBUG
 /// <summary>
-void checkPointOrdering(vector<struct VertexColour> vertices) {
-	//debug check points in the vertices vector are in the correct x ordering
-	float x = -10000000; //hack max_float!
-	for (vector<struct VertexColour>::iterator it=vertices.begin(); it!=vertices.end(); ++it) {
-		if ((*it).P.x<x) {
-			float delta = (*it).P.x - x;
-			DebugUtils::WriteString("Error in x ");
-			DebugUtils::WriteFloat((*it).P.x);
-			DebugUtils::WriteString(" < ");
-			DebugUtils::WriteFloat(x);
-			DebugUtils::WriteString(" delta=");
-			DebugUtils::WriteFloat(delta);
-			DebugUtils::WriteLine();
-		}
-		x=(*it).P.x;
-	}
-}
+//void checkPointOrdering(vector<struct VertexColour> vertices) {
+//	//debug check points in the vertices vector are in the correct x ordering
+//	float x = -10000000; //hack max_float!
+//	for (vector<struct VertexColour>::iterator it=vertices.begin(); it!=vertices.end(); ++it) {
+//		if ((*it).P.x<x) {
+//			float delta = (*it).P.x - x;
+//			DebugUtils::WriteString("Error in x ");
+//			DebugUtils::WriteFloat((*it).P.x);
+//			DebugUtils::WriteString(" < ");
+//			DebugUtils::WriteFloat(x);
+//			DebugUtils::WriteString(" delta=");
+//			DebugUtils::WriteFloat(delta);
+//			DebugUtils::WriteLine();
+//		}
+//		x=(*it).P.x;
+//	}
+//}
 
 /// <summary>
 /// Constructor. Create an Object3D which has geometry. All geometric primitives derive from this class as it wraps the OpenGL buffer creation.
@@ -49,9 +49,9 @@ Mesh::Mesh(void)
 	epsilon = 0.0000001f;
 
 	//initialise fallback cpu buffers to null
-	mem_vertexbuffer = NULL;
-	mem_colourbuffer = NULL;
-	mem_indexbuffer = NULL;
+	//mem_vertexbuffer = NULL;
+	//mem_colourbuffer = NULL;
+	//mem_indexbuffer = NULL;
 }
 
 /// <summary>
@@ -123,43 +123,44 @@ int Mesh::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 
 
 //assumes x sorted vertices list
-	VertexColour item;
-	item.P=P;
-	item.P.x-=epsilon; //this is the lower bound on x
-	item.RGB=Colour;
-	vector<struct VertexColour>::iterator it = std::lower_bound(vertices.begin(), vertices.end(), item);
-	vector<struct VertexColour>::iterator insertPoint = it;
-	while ((it!=vertices.end())&&((*it).P.x<=P.x+epsilon)) {
-		struct VertexColour VC=*it;
-		glm::vec3 P2=VC.P, C2=VC.RGB;
-		float d = ManhattanDist(P,P2) + ManhattanDist(Colour,C2); //Manhattan dist between vertex pos and colour (could separate?)
-		if (d<epsilon) {
-			//DebugUtils::WriteString("return early"); DebugUtils::WriteLine();
-			//printPoints(vertices,P);
-			return VC.Index; //point at this position with this colour (<epsilon) is already in the list, so exit early
-		}
-		if (P.x>=P2.x) {
-			insertPoint=it; //keep track of where we might need to insert a new x value
-			//DebugUtils::WriteString("CMP: "); DebugUtils::WriteFloat(P.x);
-			//DebugUtils::WriteString(">="); DebugUtils::WriteFloat(P2.x);
-			//DebugUtils::WriteLine();
-		}
-		++it;
-	}
+	//this was the live code before mesh2
+	//VertexColour item;
+	//item.P=P;
+	//item.P.x-=epsilon; //this is the lower bound on x
+	//item.RGB=Colour;
+	//vector<struct VertexColour>::iterator it = std::lower_bound(vertices.begin(), vertices.end(), item);
+	//vector<struct VertexColour>::iterator insertPoint = it;
+	//while ((it!=vertices.end())&&((*it).P.x<=P.x+epsilon)) {
+	//	struct VertexColour VC=*it;
+	//	glm::vec3 P2=VC.P, C2=VC.RGB;
+	//	float d = ManhattanDist(P,P2) + ManhattanDist(Colour,C2); //Manhattan dist between vertex pos and colour (could separate?)
+	//	if (d<epsilon) {
+	//		//DebugUtils::WriteString("return early"); DebugUtils::WriteLine();
+	//		//printPoints(vertices,P);
+	//		return VC.Index; //point at this position with this colour (<epsilon) is already in the list, so exit early
+	//	}
+	//	if (P.x>=P2.x) {
+	//		insertPoint=it; //keep track of where we might need to insert a new x value
+	//		//DebugUtils::WriteString("CMP: "); DebugUtils::WriteFloat(P.x);
+	//		//DebugUtils::WriteString(">="); DebugUtils::WriteFloat(P2.x);
+	//		//DebugUtils::WriteLine();
+	//	}
+	//	++it;
+	//}
 	//if we've got to this point, then we need to add a new point, and as we bailed out when *it.P.x>P.x, then *it is the position to insert
 	//NO - you need to go to x+epsilon as you can have x1=x2+e, y1=y2 and z1=z2 for a match.
 	//The problem then is that the x ordering is wrong! The solution is to use the insertPoint that we've set to the correct position while iterating earlier.
 	//InsertPoint holds last iteration of place while P.x>=P2.x holds, which is the correct insert point
-	item.Index=vertices.size(); //TODO: check how efficient count is
-	item.P=P; //put x back to its real value
-	
-	vertices.insert(insertPoint,item);
-	//int insertPos = std::distance(insertPoint,vertices.begin());
-	//DebugUtils::WriteString("Insert at: "); DebugUtils::WriteInt(insertPos); DebugUtils::WriteLine();
-	//printPoints(vertices,P);
-	//std::sort(vertices.begin(),vertices.end()); //hack!
-	bounds.ExpandToIncludePoint(item.P);
-	return item.Index;
+	//item.Index=vertices.size(); //TODO: check how efficient count is
+	//item.P=P; //put x back to its real value
+	//
+	//vertices.insert(insertPoint,item);
+	////int insertPos = std::distance(insertPoint,vertices.begin());
+	////DebugUtils::WriteString("Insert at: "); DebugUtils::WriteInt(insertPos); DebugUtils::WriteLine();
+	////printPoints(vertices,P);
+	////std::sort(vertices.begin(),vertices.end()); //hack!
+	//bounds.ExpandToIncludePoint(item.P);
+	//return item.Index;
 
 
 //original non ordered version
@@ -179,6 +180,7 @@ int Mesh::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 	bounds.ExpandToIncludePoint(VC.P);
 	return idx;
 */
+	return 0; //HACK - added this as the rest is commented out
 }
 
 /// <summary>
@@ -188,13 +190,13 @@ int Mesh::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 /// <param name="Sy">Scale factor for Y axis</param>
 /// <param name="Sz">Scale factor for Z axis</param>
 void Mesh::ScaleVertices(float Sx, float Sy, float Sz) {
-	vector<struct VertexColour>::iterator it;
-	for (it = vertices.begin(); it!=vertices.end(); ++it) {
-		//this is horrible, how about std::algorithms?
-		(*it).P.x*=Sx;
-		(*it).P.y*=Sy;
-		(*it).P.z*=Sz;
-	}
+	//vector<struct VertexColour>::iterator it;
+	//for (it = vertices.begin(); it!=vertices.end(); ++it) {
+	//	//this is horrible, how about std::algorithms?
+	//	(*it).P.x*=Sx;
+	//	(*it).P.y*=Sy;
+	//	(*it).P.z*=Sz;
+	//}
 }
 
 /// <summary>
@@ -250,12 +252,12 @@ void Mesh::AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3, glm::vec3 Colour1, 
 /// <param name="new_colour"></param>
 void Mesh::SetColour(glm::vec3 new_colour)
 {
-	//basically, what I'm going to do here is to change all the colours assigned to the faces and then re-create the buffers
-	for (vector<struct VertexColour>::iterator it = vertices.begin(); it!=vertices.end(); ++it) {
-		it->RGB=new_colour;
-	}
-	FreeBuffers();
-	CreateBuffers();
+	////basically, what I'm going to do here is to change all the colours assigned to the faces and then re-create the buffers
+	//for (vector<struct VertexColour>::iterator it = vertices.begin(); it!=vertices.end(); ++it) {
+	//	it->RGB=new_colour;
+	//}
+	//FreeBuffers();
+	//CreateBuffers();
 }
 
 
@@ -355,43 +357,43 @@ void Mesh::CreateBuffers() {
 /// Should only be called when hasProgrammableShaders==false
 /// </summary>
 void Mesh::CreateBuffersFallback() {
-	unsigned int NumVertices = vertices.size();
-	unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
+	//unsigned int NumVertices = vertices.size();
+	//unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
 
-	NumElements = NumFaces; //needed for object3d, otherwise it doesn't know how many elements to render, NumElements is the count of face index elements (3 per triangle face)
+	//NumElements = NumFaces; //needed for object3d, otherwise it doesn't know how many elements to render, NumElements is the count of face index elements (3 per triangle face)
 
-	//create graphics card buffer vertices, colours, indexes
-	mem_vertexbuffer = new GLfloat[NumVertices*3];
-	mem_colourbuffer = new GLfloat[NumVertices*3];
-	mem_indexbuffer = new GLuint[NumFaces];
+	////create graphics card buffer vertices, colours, indexes
+	//mem_vertexbuffer = new GLfloat[NumVertices*3];
+	//mem_colourbuffer = new GLfloat[NumVertices*3];
+	//mem_indexbuffer = new GLuint[NumFaces];
 
-	//copy data from internal mesh vectors into array buffers for the graphics card
-	//int v=0, vc=0;
-	for (vector<VertexColour>::iterator vIT=vertices.begin(); vIT!=vertices.end(); ++vIT) {
-		//VertexColour VC=*vIT;
-		//mem_vertexbuffer[v++]=VC.P.x;
-		//mem_vertexbuffer[v++]=VC.P.y;
-		//mem_vertexbuffer[v++]=VC.P.z;
-		////colours
-		//mem_colourbuffer[vc++]=VC.RGB.r;
-		//mem_colourbuffer[vc++]=VC.RGB.g;
-		//mem_colourbuffer[vc++]=VC.RGB.b;
+	////copy data from internal mesh vectors into array buffers for the graphics card
+	////int v=0, vc=0;
+	//for (vector<VertexColour>::iterator vIT=vertices.begin(); vIT!=vertices.end(); ++vIT) {
+	//	//VertexColour VC=*vIT;
+	//	//mem_vertexbuffer[v++]=VC.P.x;
+	//	//mem_vertexbuffer[v++]=VC.P.y;
+	//	//mem_vertexbuffer[v++]=VC.P.z;
+	//	////colours
+	//	//mem_colourbuffer[vc++]=VC.RGB.r;
+	//	//mem_colourbuffer[vc++]=VC.RGB.g;
+	//	//mem_colourbuffer[vc++]=VC.RGB.b;
 
-		//new code taking into account x ordering of vertices
-		VertexColour VC=*vIT;
-		int v=VC.Index*3;
-		mem_vertexbuffer[v]=VC.P.x;
-		mem_vertexbuffer[v+1]=VC.P.y;
-		mem_vertexbuffer[v+2]=VC.P.z;
-		//colours
-		mem_colourbuffer[v]=VC.RGB.r;
-		mem_colourbuffer[v+1]=VC.RGB.g;
-		mem_colourbuffer[v+2]=VC.RGB.b;
-	}
-	int fc=0;
-	for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
-		mem_indexbuffer[fc++]=*fIT;
-	}
+	//	//new code taking into account x ordering of vertices
+	//	VertexColour VC=*vIT;
+	//	int v=VC.Index*3;
+	//	mem_vertexbuffer[v]=VC.P.x;
+	//	mem_vertexbuffer[v+1]=VC.P.y;
+	//	mem_vertexbuffer[v+2]=VC.P.z;
+	//	//colours
+	//	mem_colourbuffer[v]=VC.RGB.r;
+	//	mem_colourbuffer[v+1]=VC.RGB.g;
+	//	mem_colourbuffer[v+2]=VC.RGB.b;
+	//}
+	//int fc=0;
+	//for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
+	//	mem_indexbuffer[fc++]=*fIT;
+	//}
 }
 
 /// <summary>
@@ -399,18 +401,18 @@ void Mesh::CreateBuffersFallback() {
 /// Free any GPU buffers that have been created. Should be called in the destroy code.
 /// </summary>
 void Mesh::FreeBuffers() {
-	//fallback trap
-	if (!OpenGLContext::hasProgrammableShaders) {
-		if (mem_vertexbuffer!=NULL) delete mem_vertexbuffer;
-		if (mem_colourbuffer!=NULL) delete mem_colourbuffer;
-		if (mem_indexbuffer!=NULL) delete mem_indexbuffer;
-	}
-	else {
-		glDeleteVertexArrays(1, &vaoID); // Delete our Vertex Array Object
-		glGenBuffers(1, &vboID); // Delete our Vertex Buffer Object
-		glGenBuffers(1, &iboID); //Delete index buffer object
-		glGenBuffers(1, &vcboID); //Delete colour buffer object
-	}
+	////fallback trap
+	//if (!OpenGLContext::hasProgrammableShaders) {
+	//	if (mem_vertexbuffer!=NULL) delete mem_vertexbuffer;
+	//	if (mem_colourbuffer!=NULL) delete mem_colourbuffer;
+	//	if (mem_indexbuffer!=NULL) delete mem_indexbuffer;
+	//}
+	//else {
+	//	glDeleteVertexArrays(1, &vaoID); // Delete our Vertex Array Object
+	//	glGenBuffers(1, &vboID); // Delete our Vertex Buffer Object
+	//	glGenBuffers(1, &iboID); //Delete index buffer object
+	//	glGenBuffers(1, &vcboID); //Delete colour buffer object
+	//}
 
 }
 

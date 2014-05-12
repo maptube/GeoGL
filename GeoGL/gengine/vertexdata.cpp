@@ -79,8 +79,10 @@ namespace gengine {
 			//TODO: need a better way of doing this - where is the buffer type?
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glVertexPointer(3,GL_FLOAT,0,_vb[0]->_mem_vertexbuffer);
-			//glEnableClientState(GL_COLOR_ARRAY);
-			//glColorPointer(3,GL_FLOAT,0,mem_colourbuffer);
+			if (_vb.size()>1) { //if there is a second buffer, assume it's a colour one
+				glEnableClientState(GL_COLOR_ARRAY);
+				glColorPointer(3,GL_FLOAT,0,_vb[1]->_mem_vertexbuffer);
+			}
 		}
 	}
 

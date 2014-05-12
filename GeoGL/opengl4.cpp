@@ -495,53 +495,53 @@ glm::mat4 OpenGLContext::fitViewMatrix() {
 	Finally we are going to swap buffers.
 */
 void OpenGLContext::renderScene(Camera* camera) {
-    glViewport(0, 0, windowWidth, windowHeight); // Set the viewport size to fill the window
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear required buffers
+ //   glViewport(0, 0, windowWidth, windowHeight); // Set the viewport size to fill the window
+ //   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear required buffers
 
-	//viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.f)); // Create our view matrix
-	//modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));  // Create our model matrix
-	//modelMatrix = glm::scale(glm::mat4(0.1f), glm::vec3(0.5f));  // Create our model matrix
-	//modelMatrix = glm::rotate(modelMatrix,rotateAngle,glm::vec3(0.0f,1.0f,0.0f));
-	//viewMatrix = fitViewMatrix();
-	
-	//SceneGraph.at(0)->Rotate(0.0001f,glm::vec3(0.0f,1.0f,0.0f)); //@50FPS, this is 0.29 degrees per second
+	////viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.f)); // Create our view matrix
+	////modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));  // Create our model matrix
+	////modelMatrix = glm::scale(glm::mat4(0.1f), glm::vec3(0.5f));  // Create our model matrix
+	////modelMatrix = glm::rotate(modelMatrix,rotateAngle,glm::vec3(0.0f,1.0f,0.0f));
+	////viewMatrix = fitViewMatrix();
+	//
+	////SceneGraph.at(0)->Rotate(0.0001f,glm::vec3(0.0f,1.0f,0.0f)); //@50FPS, this is 0.29 degrees per second
 
-	unsigned int ShaderId = 0;
-	if (hasProgrammableShaders) {
-		shader->bind(); // Bind our shader
-		ShaderId = shader->id();
+	//unsigned int ShaderId = 0;
+	//if (hasProgrammableShaders) {
+	//	shader->bind(); // Bind our shader
+	//	ShaderId = shader->id();
 
-		int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix"); // Get the location of our projection matrix in the shader
-		int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix"); // Get the location of our view matrix in the shader
-		int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix"); // Get the location of our model matrix in the shader
+	//	int projectionMatrixLocation = glGetUniformLocation(shader->id(), "projectionMatrix"); // Get the location of our projection matrix in the shader
+	//	int viewMatrixLocation = glGetUniformLocation(shader->id(), "viewMatrix"); // Get the location of our view matrix in the shader
+	//	int modelMatrixLocation = glGetUniformLocation(shader->id(), "modelMatrix"); // Get the location of our model matrix in the shader
 
-		glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &camera->projectionMatrix[0][0]); // Send our projection matrix to the shader
-		glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &camera->viewMatrix[0][0]); // Send our view matrix to the shader
-		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]); // Send our model matrix to the shader
-	}
-	else {
-		//fallback - no shaders and have to push matrices onto a stack
-		//I'm going to push the projection and handle the model view myself
-		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf(&camera->projectionMatrix[0][0]);
-		//TODO: don't need this? it gets changed for each model
-		//glMatrixMode(GL_MODELVIEW);
-		//glLoadMatrixf(&viewMatrix[0][0]); //OK, this is just the view matrix
-		//todo: fix this! Might have to change viewMatrix for lighting calculations? Works fine for flat shading
-		modelMatrix=camera->viewMatrix; //modelmatrix is (1) at this point anyway and we need to setup a chain of matrix muls for objects 
-	}
+	//	glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, &camera->projectionMatrix[0][0]); // Send our projection matrix to the shader
+	//	glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &camera->viewMatrix[0][0]); // Send our view matrix to the shader
+	//	glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]); // Send our model matrix to the shader
+	//}
+	//else {
+	//	//fallback - no shaders and have to push matrices onto a stack
+	//	//I'm going to push the projection and handle the model view myself
+	//	glMatrixMode(GL_PROJECTION);
+	//	glLoadMatrixf(&camera->projectionMatrix[0][0]);
+	//	//TODO: don't need this? it gets changed for each model
+	//	//glMatrixMode(GL_MODELVIEW);
+	//	//glLoadMatrixf(&viewMatrix[0][0]); //OK, this is just the view matrix
+	//	//todo: fix this! Might have to change viewMatrix for lighting calculations? Works fine for flat shading
+	//	modelMatrix=camera->viewMatrix; //modelmatrix is (1) at this point anyway and we need to setup a chain of matrix muls for objects 
+	//}
 
-	//go through all scene objects and render each in turn (modelMatrix should be identity really?)
-	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
-		(*sceneIT)->Render(ShaderId,modelMatrix);
-	}
+	////go through all scene objects and render each in turn (modelMatrix should be identity really?)
+	//for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
+	//	(*sceneIT)->Render(ShaderId,modelMatrix);
+	//}
 
-	if (hasProgrammableShaders)
-		shader->unbind(); // Unbind our shader
+	//if (hasProgrammableShaders)
+	//	shader->unbind(); // Unbind our shader
 
-	glfwSwapBuffers(window);
-	//SDL_GL_SwapWindow(mainwindow); // Swap buffers so we can see our rendering
-	//SwapBuffers(hdc); // Swap buffers so we can see our rendering
+	//glfwSwapBuffers(window);
+	////SDL_GL_SwapWindow(mainwindow); // Swap buffers so we can see our rendering
+	////SwapBuffers(hdc); // Swap buffers so we can see our rendering
 }
 
 

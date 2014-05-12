@@ -12,6 +12,7 @@
 #include "globe.h"
 #include "gengine/ogldevice.h"
 #include "gengine/graphicscontext.h"
+#include "gengine/scenedataobject.h"
 //#include "opengl4.h"
 #include "object3d.h"
 #include "sphere.h"
@@ -49,6 +50,8 @@ Globe::Globe(void)
 	camera.SetCameraPos(glm::vec3(0.0f,0.0f,18000000.0f));
 	//glm::vec3 vCam = camera.GetCameraPos();
 	//std::cout<<"Globe Setup: camera ("<<vCam.x<<","<<vCam.y<<","<<vCam.z<<")"<<std::endl;
+	_sdo = new SceneDataObject();
+	_sdo->_camera=&camera;
 
 	//set up events manager
 	//EventManager& eventmanager = EventManager::getInstance(); //singleton pattern
@@ -65,6 +68,7 @@ Globe::~Globe(void)
 	//glfwTerminate();
 
 	DestroyScene();
+	delete _sdo;
 
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();
@@ -144,12 +148,20 @@ void Globe::RenderScene(void)
 	//camera?
 	//fallback?
 
+	//TODO: need to get this gl reference out!!!
+	glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
+	GC->Clear();
+
+	//this assumes all the matrices are right
+
 	//go through all scene objects and render each in turn (modelMatrix should be identity really?)
 	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
 		//(*sceneIT)->Render(ShaderId,modelMatrix);
-//		GC->Render();
+		Object3D* o3d=(*sceneIT);
+		GC->Render();
 	}
 
+	GC->SwapBuffers();
 }
 
 

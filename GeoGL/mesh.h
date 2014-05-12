@@ -9,12 +9,12 @@
 #include "opengl4.h"
 #include <vector>
 
-struct VertexColour {
-	glm::vec3 P; //vertex (point)
-	glm::vec3 RGB; //colour
-	int Index; //face index number (labels point uniquely)
-	bool operator < (const VertexColour &rhs) const { return P.x < rhs.P.x; } //x order sort
-};
+//struct VertexColour {
+//	glm::vec3 P; //vertex (point)
+//	glm::vec3 RGB; //colour
+//	int Index; //face index number (labels point uniquely)
+//	bool operator < (const VertexColour &rhs) const { return P.x < rhs.P.x; } //x order sort
+//};
 
 class Mesh : public Object3D
 {
@@ -31,7 +31,7 @@ public:
 	void FreeBuffers();
 	virtual BBox GetGeometryBounds();
 protected:
-	std::vector<struct VertexColour> vertices;
+//	std::vector<struct VertexColour> vertices;
 	std::vector<int> faces; //indexed into vertices
 	void CreateBuffersFallback();
 };

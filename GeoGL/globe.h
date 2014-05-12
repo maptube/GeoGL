@@ -24,6 +24,7 @@ class GeoJSON;
 
 namespace gengine {
 	class GraphicsContext;
+	class SceneDataObject;
 }
 
 namespace ABM {
@@ -45,6 +46,7 @@ private:
 	Ellipsoid ellipsoid;
 	//OpenGLContext openglContext;
 	gengine::GraphicsContext* GC; //the context that we can render to
+	gengine::SceneDataObject* _sdo; //scene data objects i.e. camera
 
 	//std::vector<Object3D*> SceneGraph; //list of object to be rendered on "renderScene"
 	SceneGraphType SceneGraph;
