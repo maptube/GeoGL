@@ -60,6 +60,7 @@ public:
 	Globe(void);
 	~Globe(void);
 
+	bool IsRunning(void);
 	//GLFWwindow* GetWindow() { return openglContext.window; }
 	//SceneGraphType* GetSceneGraph() { return &openglContext.SceneGraph; }
 

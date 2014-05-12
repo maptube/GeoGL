@@ -75,6 +75,14 @@ Globe::~Globe(void)
 }
 
 /// <summary>
+/// Return false if glfwWindowShouldClose(GC->window)
+/// </summary>
+/// <returns>True if the application should terminate due to the fact that the globe window has been closed by the user</returns>
+bool Globe::IsRunning(void) {
+	return !glfwWindowShouldClose(GC->window);
+}
+
+/// <summary>
 /// Destroy all the objects in the scene and their associated buffers
 /// </summary>
 void Globe::DestroyScene(void) {

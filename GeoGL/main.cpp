@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 	
 	//float a=0;
 	float startTicks = glfwGetTime();
-	while (!glfwWindowShouldClose(globe.GetWindow() /*openglContext.window*/)) {
+	while (globe.IsRunning()) {
 		glfwPollEvents(); //or glfwWaitEvents(); ?
 
 		//tri._ModelMatrix=glm::rotate(tri._ModelMatrix,0.001f,glm::vec3(0,1,0));
