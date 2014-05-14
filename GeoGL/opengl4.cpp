@@ -1,13 +1,13 @@
-//#include "opengl4.h"
+#include "opengl4.h"
 //#include <SDL_opengl.h>
-#include "cuboid.h"
-#include "cylinder.h"
-#include "sphere.h"
-#include "meshcube.h"
-#include "tubegeometry.h"
-#include "trefoilknot.h"
-#include "turtle.h"
-#include "sierpinskipyramid.h"
+//#include "cuboid.h"
+//#include "cylinder.h"
+//#include "sphere.h"
+//#include "meshcube.h"
+//#include "tubegeometry.h"
+//#include "trefoilknot.h"
+//#include "turtle.h"
+//#include "sierpinskipyramid.h"
 //#include "netgraphgeometry.h"
 //#include "DebugUtils.h"
 
@@ -374,10 +374,10 @@ void OpenGLContext::setupScene(void) {
 	//end debug
 
 	//create a simple scene graph with objects in it
-	Cuboid* cuboid = new Cuboid(0.02f,0.01f,0.01f);
+//	Cuboid* cuboid = new Cuboid(0.02f,0.01f,0.01f);
 	//cuboid->SetPos(-1.0,0,0);
-	cuboid->SetPos(-0.11464,51.46258,0); //Brixton
-	SceneGraph.push_back(cuboid);
+//	cuboid->SetPos(-0.11464,51.46258,0); //Brixton
+//	SceneGraph.push_back(cuboid);
 	//Cylinder* cyl = new Cylinder(1,0.5,12);
 	//cuboid->AddChild(cyl);
 	//Cuboid* cuboid2 = new Cuboid(1,1,1);

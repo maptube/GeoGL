@@ -1,6 +1,8 @@
 
 #include "netgraphgeometry.h"
+#include "graph.h"
 #include <sstream>
+#include <unordered_map>
 
 using namespace std;
 

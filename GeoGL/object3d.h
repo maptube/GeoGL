@@ -1,5 +1,6 @@
 #pragma once
 #include "main.h"
+#include "gengine/drawobject.h"
 #include "BBox.h"
 #include <vector>
 
@@ -41,6 +42,8 @@ protected:
 
 	//hierarchy
 	std::vector<Object3D*> Children;
+
+	gengine::NullDrawObject drawObject;
 
 	//fallback for OpenGL<2.0, storage for vertex, colour and index buffers
 	//GLfloat* mem_vertexbuffer;

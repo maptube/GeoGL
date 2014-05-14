@@ -1,11 +1,11 @@
 #pragma once
 
-#include "mesh.h"
+#include "mesh2.h"
 
 /// <summary>
 /// 3D Sierpinski pyramid fractal
 /// </summary>
-class SierpinskiPyramid : public Mesh
+class SierpinskiPyramid : public Mesh2
 {
 public:
 	int PyramidCount; //count of how many pyramids have been created

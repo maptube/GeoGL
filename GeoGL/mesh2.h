@@ -37,7 +37,6 @@ class Mesh2 : public Object3D
 {
 public:
 	float epsilon;
-	gengine::DrawObject drawObject; //promoted from protected
 	Mesh2(void);
 	~Mesh2(void);
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);
@@ -60,7 +59,7 @@ protected:
 	//gengine::Shader* shader;
 	gengine::VertexData* vertexData; //collection of vertex and index buffers
 	gengine::RenderState* renderState;
-	//gengine::DrawObject drawObject;
+	gengine::DrawObject drawObject;
 
 	std::vector<struct VertexColour> vertices;
 	std::vector<int> faces; //indexed into vertices

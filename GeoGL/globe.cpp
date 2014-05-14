@@ -13,6 +13,7 @@
 #include "gengine/ogldevice.h"
 #include "gengine/graphicscontext.h"
 #include "gengine/scenedataobject.h"
+#include "gengine/shader.h"
 //#include "opengl4.h"
 #include "object3d.h"
 #include "sphere.h"
@@ -38,8 +39,11 @@ Globe::Globe(void)
 	//}
 	//openglContext.setupScene(); // Setup our OpenGL scene
 	
+	Shader* shader = new Shader("shader.vert", "shader.frag");
+
 	//add sphere representing the earth
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),20,20);
+	sphere->AttachShader(shader);
 	//openglContext.SceneGraph.push_back(sphere);
 	SceneGraph.push_back(sphere);
 

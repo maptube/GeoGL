@@ -1,8 +1,12 @@
 #pragma once
-#include "opengl4.h"
-#include "mesh.h"
+//#include "opengl4.h"
+//#include "mesh2.h"
 #include "tubegeometry.h"
-#include "graph.h"
+//#include "graph.h"
+#include <unordered_map>
+
+//forward references
+class Graph;
 
 /**
 * Used to join Name on network graph with a location.

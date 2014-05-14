@@ -9,7 +9,7 @@
 #include "json/json.h"
 #include "json/reader.h"
 
-#include "mesh.h"
+#include "mesh2.h"
 #include "ellipsoid.h"
 
 #include "poly2tri.h"
@@ -35,7 +35,7 @@ void GeoJSON::SetColour(glm::vec3 new_colour)
 	for (vector<Object3D*>::iterator it=Children.begin(); it!=Children.end(); ++it) {
 		Object3D* o3d = *it;
 		//all the geojson children are meshes, and Object3D doesn't contain a SetColour (no geometry)
-		((Mesh*)o3d)->SetColour(new_colour);
+		((Mesh2*)o3d)->SetColour(new_colour);
 	}
 }
 
@@ -111,7 +111,7 @@ void GeoJSON::LoadFile(std::string Filename)
 		//ParseJSONGeometry(jsGeometry);
 		const Json::Value& jsGeometry = (*it)["geometry"];
 		//cout<<jsGeometry["type"].asString()<<endl;
-		Mesh* feature_mesh = ParseJSONGeometry(jsGeometry);
+		Mesh2* feature_mesh = ParseJSONGeometry(jsGeometry);
 		AddChild(feature_mesh);
 	}
 	//cout<<"GeoJSON loaded "<<feature_count<<" features"<<endl;
@@ -130,8 +130,8 @@ void GeoJSON::LoadFile(std::string Filename)
 /// </summary>
 /// <param name="jsGeometry">The features[i].geometry part of the GeoJSON FeatureCollection</param>
 /// <returns>A mesh object containing the geometry</returns>
-Mesh* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
-	Mesh* geom = new Mesh();
+Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
+	Mesh2* geom = new Mesh2();
 
 	Json::Value jsType = jsGeometry["type"];
 	std::string strType = jsType.asString();
@@ -177,7 +177,7 @@ Mesh* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 /// </summary>
 /// <param name="geom">The mesh that this polygon is to be added to (could be part of a multi set)</param>
 /// <param name="jsPolygon">The javascript geojson data describing the points</param>
-void GeoJSON::ParseJSONPolygon(Mesh& geom, const Json::Value& jsPolygon) {
+void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 	
 	//use Clipper to do the polygon cleaning: http://www.angusj.com/delphi/clipper.php
 	//use poly2tri to do the triangulation see: http://threejsdoc.appspot.com/doc/three.js/src.source/extras/core/Shape.js.html

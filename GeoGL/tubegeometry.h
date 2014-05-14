@@ -1,6 +1,6 @@
 #pragma once
-#include "opengl4.h"
-#include "mesh.h"
+//#include "opengl4.h"
+#include "mesh2.h"
 
 #include <vector>
 
@@ -8,7 +8,7 @@
 * Geometry representing a spline which has a physical radius (a tube in other words). In 3DS Max they call this a renderable spline, but this is specifically circular.
 * Technically, a spline is a single line, but this handles a list of splines.
 */
-class TubeGeometry : public Mesh
+class TubeGeometry : public Mesh2
 {
 public:
 	TubeGeometry(void);

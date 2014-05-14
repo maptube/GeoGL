@@ -153,6 +153,7 @@ void Object3D::Render(glm::mat4 ParentMat) {
 	}
 }
 
-//const gengine::DrawObject& Object3D::GetDrawObject() {
-//	return NULL;
-//}
+const gengine::DrawObject& Object3D::GetDrawObject() {
+	//this is also a nasty NullDrawObject kludge that I would like to get rid of
+	return (gengine::DrawObject &)drawObject; //this returns a reference to a null one
+}

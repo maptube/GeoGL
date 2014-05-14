@@ -1,5 +1,5 @@
 #pragma once
-#include "opengl4.h"
+//#include "opengl4.h"
 //#include "mesh.h"
 #include "object3d.h"
 
@@ -11,7 +11,7 @@ namespace Json {
 class Value;
 }
 
-class Mesh;
+class Mesh2;
 
 
 /// <summary>
@@ -23,8 +23,8 @@ public:
 	GeoJSON(void);
 	~GeoJSON(void);
 	void LoadFile(std::string Filename);
-	Mesh* ParseJSONGeometry(const Json::Value& jsGeometry);
-	void ParseJSONPolygon(Mesh& geom, const Json::Value& jsPolygon);
+	Mesh2* ParseJSONGeometry(const Json::Value& jsGeometry);
+	void ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon);
 	void SetColour(glm::vec3 new_colour);
 private:
 
