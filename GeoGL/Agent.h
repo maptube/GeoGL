@@ -1,9 +1,13 @@
 #pragma once
 
-#include "mesh.h"
+#include "mesh2.h"
 #include "LogoVariantOwns.h"
 
 #include <string>
+#include <map>
+
+//forward declarations
+class Vertex;
 
 namespace ABM {
 
@@ -18,7 +22,7 @@ namespace ABM {
 	{
 		//this needs to be private
 	public:
-		Mesh* _pAgentMesh; //pointer to the mesh representing this agent in the 3D scene graph
+		Mesh2* _pAgentMesh; //pointer to the mesh representing this agent in the 3D scene graph
 	public:
 		Agent(void);
 		~Agent(void);

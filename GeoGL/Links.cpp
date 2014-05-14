@@ -2,6 +2,7 @@
 #include "Links.h"
 #include "Link.h"
 #include "Agent.h"
+#include "graph.h"
 
 namespace ABM {
 

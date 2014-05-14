@@ -75,7 +75,7 @@ namespace ABM {
 	/// </summary>
 	void Agents::CreateShapeMesh(Agent& a)
 	{
-		Mesh* mesh;
+		Mesh2* mesh;
 		std::string ShapeName = GetDefaultShape(a._BreedName);
 		if (ShapeName=="turtle")
 			mesh = new Turtle(a.size); //HACK! need default turtle size, in fact defaults for all of these!
