@@ -21,6 +21,7 @@
 //class GLFWWindow;
 class Object3D;
 class GeoJSON;
+class OrbitController;
 
 namespace gengine {
 	class GraphicsContext;
@@ -47,6 +48,8 @@ private:
 	//OpenGLContext openglContext;
 	gengine::GraphicsContext* GC; //the context that we can render to
 	gengine::SceneDataObject* _sdo; //scene data objects i.e. camera
+
+	OrbitController* controller;
 
 	//std::vector<Object3D*> SceneGraph; //list of object to be rendered on "renderScene"
 	SceneGraphType SceneGraph;

@@ -18,12 +18,15 @@
 #include "object3d.h"
 #include "sphere.h"
 #include "gengine/events/EventManager.h"
+#include "OrbitController.h"
+#include "cuboid.h"
 
 #include "geojson.h"
 
 using namespace std;
 
 using namespace gengine;
+using namespace gengine::events;
 
 Globe::Globe(void)
 {
@@ -42,10 +45,14 @@ Globe::Globe(void)
 	Shader* shader = new Shader("shader.vert", "shader.frag");
 
 	//add sphere representing the earth
-	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),20,20);
+	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
 	sphere->AttachShader(shader);
 	//openglContext.SceneGraph.push_back(sphere);
 	SceneGraph.push_back(sphere);
+
+	Cuboid* cuboid=new Cuboid(ellipsoid.A(),ellipsoid.B(),ellipsoid.C());
+	cuboid->AttachShader(shader);
+	SceneGraph.push_back(cuboid);
 
 	//set up the camera
 	//camera.SetupPerspective(openglContext.GetWindowWidth(), openglContext.GetWindowHeight(), 0.01f, 200.0f);  // Create our perspective matrix
@@ -57,10 +64,15 @@ Globe::Globe(void)
 	_sdo = new SceneDataObject();
 	_sdo->_camera=&camera;
 
-	//set up events manager
-	//EventManager& eventmanager = EventManager::getInstance(); //singleton pattern
-	//eventmanager.SetWindow(window); //initialise event system with OpenGL window handle
+	//set up events manager - should this be in the GC code?
+	EventManager& eventmanager = EventManager::getInstance(); //singleton pattern
+	eventmanager.SetWindow(GC->window); //initialise event system with OpenGL window handle
 	//eventmanager.AddWindowSizeEventListener(this);
+
+	//set up camera controller
+	controller = new OrbitController(&camera);
+	//controller.centre=glm::vec3(-1.0f,0.0f,0.0f);
+	//controller.centre=glm::vec3(-0.11464,51.46258,0); //Brixton
 }
 
 
@@ -73,6 +85,8 @@ Globe::~Globe(void)
 
 	DestroyScene();
 	delete _sdo;
+
+	delete controller;
 
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();
@@ -111,6 +125,7 @@ GeoJSON* Globe::LoadLayerGeoJSON(std::string Filename)
 	//make it a random colour?
 	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 //	openglContext.SceneGraph.push_back(geoj);
+	SceneGraph.push_back(geoj);
 	return geoj;
 }
 

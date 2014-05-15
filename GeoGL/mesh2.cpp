@@ -303,12 +303,12 @@ void Mesh2::CreateBuffers() {
 	//TODO: the sizes are really GL sizes, but we shouldn't be using GL types directly outside gengine - how to best do this?
 	VertexBuffer* vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
 	VertexBuffer* vc = OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
-	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*3*sizeof(unsigned int));
+	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*sizeof(unsigned int)); //note that NumFaces is already *3 (see def above)
 
 	//create internal memory blocks in format suitable for copying to opengl vertex and index buffers
 	float* buf_vertices = new float[NumVertices*3]; //technically it's a GLfloat
 	float* buf_colours = new float[NumVertices*3]; //GLfloat
-	unsigned int* buf_indices = new unsigned int[NumFaces]; //GLuint
+	unsigned int* buf_indices = new unsigned int[NumFaces*3]; //GLuint
 
 	//copy data from internal mesh vectors into array buffers for the graphics card
 	//int v=0, vc=0;

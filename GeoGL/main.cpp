@@ -234,6 +234,7 @@ int main(int argc, char *argv[])
 	//std::cout<<"After geojson finaliser"<<std::endl;
 	////delete geoj;
 	//openglContext.SceneGraph.push_back(geoj);
+	//GeoJSON* geoj = globe.LoadLayerGeoJSON("..\\data\\TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
 	
 	//Thames in WGS84
 	//GeoJSON* thames = new GeoJSON();
