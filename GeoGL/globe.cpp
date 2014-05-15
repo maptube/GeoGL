@@ -50,7 +50,7 @@ Globe::Globe(void)
 	//openglContext.SceneGraph.push_back(sphere);
 	SceneGraph.push_back(sphere);
 
-	Cuboid* cuboid=new Cuboid(ellipsoid.A(),ellipsoid.B(),ellipsoid.C());
+	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
 	cuboid->AttachShader(shader);
 	SceneGraph.push_back(cuboid);
 
