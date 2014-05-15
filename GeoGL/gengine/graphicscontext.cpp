@@ -127,7 +127,9 @@ namespace gengine {
 		glMatrixMode(GL_PROJECTION);
 		glLoadMatrixf(&sceneobj._camera->projectionMatrix[0][0]);
 		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixf(&obj._ModelMatrix[0][0]);
+		//need to multiply view by model matrix like the shader does and then load that into the model view opengl state
+		glm::mat4 ModelViewMatrix = sceneobj._camera->viewMatrix * obj._ModelMatrix;
+		glLoadMatrixf(&ModelViewMatrix[0][0]);
 
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes); //DO YOU ACTUALLY NEED TO DO THIS?
 		if (obj._vertexData->_ib!=NULL)
@@ -139,11 +141,6 @@ namespace gengine {
 			//render using only a primitive type and vertex buffer e.g. tristrip or trifan
 			glDrawArrays(obj._PrimType,0,obj._vertexData->_NumElements);
 		}
-		//glBegin(GL_TRIANGLES);
-		//glVertex3f(0,0,0);
-		//glVertex3f(0,1,0);
-		//glVertex3f(1,1,0);
-		//glEnd();
 	}
 
 	/// <summary>
