@@ -46,6 +46,7 @@ namespace gengine {
 		int width, height;
 		glfwGetWindowSize(window,&width,&height);
 		glViewport(0, 0, width, height); // Set the viewport size to fill the window
+		glClearDepth(1.0); //this is really a global state
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear required buffers
 	}
 
@@ -56,6 +57,9 @@ namespace gengine {
 	/// </summary>
 	void GraphicsContext::Render(const DrawObject& obj, const SceneDataObject& sceneobj /* DrawElements? DrawObjects? */)
 	{
+		//TODO: MUST have some way of setting the initial renderstate so we know what state we are starting in
+		//also todo: shader sorting and renderstate sorting
+
 		//sync the global render state
 		//attach shaders
 		//bind uniforms
@@ -100,6 +104,8 @@ namespace gengine {
 
 		//bind vertex arrays
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes);
+		//set device render state globals
+		OGLDevice::SetRenderState(*obj._rs);
 	
 		//finally, render!!!!!!
 		if (obj._vertexData->_ib!=NULL)
@@ -132,6 +138,9 @@ namespace gengine {
 		glLoadMatrixf(&ModelViewMatrix[0][0]);
 
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes); //DO YOU ACTUALLY NEED TO DO THIS?
+		//set device render state globals
+		OGLDevice::SetRenderState(*obj._rs);
+
 		if (obj._vertexData->_ib!=NULL)
 		{
 			//render using an index buffer and vertex buffer

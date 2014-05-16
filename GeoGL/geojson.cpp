@@ -268,10 +268,9 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 			p2t::Point* v1 = (*trIT)->GetPoint(0);
 			p2t::Point* v2 = (*trIT)->GetPoint(1);
 			p2t::Point* v3 = (*trIT)->GetPoint(2);
-			//glm::vec3 P1(v1->x,v1->y,0), P2(v2->x,v2->y,0), P3(v3->x,v3->y,0);
-			glm::vec3 P1 = _pellipsoid->toVector(v1->x,v1->y);
-			glm::vec3 P2 = _pellipsoid->toVector(v2->x,v2->y);
-			glm::vec3 P3 = _pellipsoid->toVector(v3->x,v3->y);
+			glm::vec3 P1 = _pellipsoid->toVector(glm::radians(v1->x),glm::radians(v1->y)); //don't forget to convert to radians for the ellipse!
+			glm::vec3 P2 = _pellipsoid->toVector(glm::radians(v2->x),glm::radians(v2->y));
+			glm::vec3 P3 = _pellipsoid->toVector(glm::radians(v3->x),glm::radians(v3->y));
 			geom.AddFace(P1,P2,P3,Col,Col,Col); //uses x-order uniqueness of point, so not best efficiency
 		}
 	}

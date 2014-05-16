@@ -57,6 +57,7 @@ private:
 	std::vector<ABM::Model*> modelLayers;
 
 	void DestroyScene(void);
+	void RenderChildren(Object3D* Parent);
 public:
 	gengine::Camera camera;
 

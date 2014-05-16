@@ -11,6 +11,7 @@
  */
 
 #include "gengine.h"
+#include "renderstate.h"
 
 namespace gengine {
 
@@ -45,6 +46,10 @@ namespace gengine {
 		//and buffer creation
 		static VertexBuffer* CreateVertexBuffer(const std::string& AttributeName, BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
 		static IndexBuffer* CreateIndexBuffer(BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
+
+		static void SetRenderState(const RenderState& rs);
+	private:
+		static RenderState CurrentRenderState; //current state of device globals
 	};
 
 } //namespace gengine

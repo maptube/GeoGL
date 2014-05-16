@@ -364,6 +364,12 @@ void Mesh2::CreateBuffers() {
 	drawObject._PrimType=ptTriangles;
 	//shader program set via attach shader
 
+	drawObject._rs->_DepthTest._Enabled=true;
+	drawObject._rs->_DepthTest._Function=Greater; //check - is this right? Less?
+	drawObject._rs->_FaceCulling._Enabled=true;
+	drawObject._rs->_FaceCulling._FaceTest=CullBackFace;
+	drawObject._rs->_FaceCulling._WindingOrder=CCW;
+	//clear depth 1.0 ?
 
 	//TODO: render state, shaders etc here
 }
@@ -454,19 +460,19 @@ void Mesh2::AttachShader(gengine::Shader* pshader) {
 }
 
 //not strictly used as we're using the GetDrawObject method
-void Mesh2::Render(glm::mat4 ParentMat) {
-	glm::mat4 mm = ParentMat * modelMatrix; //post multiply child matrix
-
-	//set model matrix for this model draw
-	drawObject._ModelMatrix = mm;
-	//OGLContext
-	//TODO: render here!
-
-	//then go on to render all the children
-	for (vector<Object3D*>::iterator childIT=Children.begin(); childIT!=Children.end(); ++childIT) {
-		(*childIT)->Render(mm);
-	}
-}
+//void Mesh2::Render(glm::mat4 ParentMat) {
+//	glm::mat4 mm = ParentMat * modelMatrix; //post multiply child matrix
+//
+//	//set model matrix for this model draw
+//	drawObject._ModelMatrix = mm;
+//	//OGLContext
+//	//TODO: render here!
+//
+//	//then go on to render all the children
+//	for (vector<Object3D*>::iterator childIT=Children.begin(); childIT!=Children.end(); ++childIT) {
+//		(*childIT)->Render(mm);
+//	}
+//}
 
 /// <summary>
 /// Return the draw object, which is needed by the graphics context to draw this object. Contains all opengl state, buffers and matrix.

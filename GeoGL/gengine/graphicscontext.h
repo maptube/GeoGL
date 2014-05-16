@@ -10,6 +10,7 @@
  *	@licence		Free for all commercial and academic use (including teaching). Not for commercial use. All rights are held by the author.
  */
 
+#include "renderstate.h"
 #include "events/EventListener.h"
 
 //forward references
@@ -39,6 +40,8 @@ namespace gengine {
 		void SwapBuffers(void);
 
 		virtual void WindowSizeCallback(GLFWwindow* window, int w, int h);
+
+	private:
 	};
 
 } //namespace gengine

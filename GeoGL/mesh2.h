@@ -48,7 +48,7 @@ public:
 	void FreeBuffers();
 	void AttachShader(gengine::Shader* pshader);
 	virtual BBox GetGeometryBounds();
-	virtual void Render(glm::mat4 ParentMat);
+	//virtual void Render(glm::mat4 ParentMat);
 	virtual bool HasGeometry() { return true; } //yes, this object has geometry associated with it and can be rendered
 	virtual const gengine::DrawObject& GetDrawObject();
 	//TODO: SetMatrix - VERY IMPORTANT!

@@ -23,6 +23,7 @@ namespace gengine {
 	bool OGLDevice::hasProgrammableShaders=false;
 	int OGLDevice::VersionMajor=0;
 	int OGLDevice::VersionMinor=0;
+	RenderState OGLDevice::CurrentRenderState = RenderState();
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -138,6 +139,51 @@ namespace gengine {
 	IndexBuffer* OGLDevice::CreateIndexBuffer(BufferTarget Target, BufferUsage Usage, unsigned int NumBytes)
 	{
 		return new IndexBuffer(Target, Usage, NumBytes);
+	}
+
+	/// <summary>
+	/// Sets the OpenGL global rendering states.
+	/// </summary>
+	/// <param name="rs">The global state to set</param>
+	void OGLDevice::SetRenderState(const RenderState& rs) {
+		//PrimitiveRestart?
+
+		//face culling
+		if (CurrentRenderState._FaceCulling!=rs._FaceCulling) {
+			if (rs._FaceCulling._Enabled) glEnable(GL_CULL_FACE);
+			else glDisable(GL_CULL_FACE);
+			glCullFace(rs._FaceCulling._FaceTest);
+			glFrontFace(rs._FaceCulling._WindingOrder);
+		}
+
+		//RasterizationMode?
+
+		//scissor test
+		if (CurrentRenderState._ScissorTest!=rs._ScissorTest) {
+			if (rs._ScissorTest._Enabled) glEnable(GL_SCISSOR_TEST);
+			else glDisable(GL_SCISSOR_TEST);
+			glScissor(rs._ScissorTest._Left,rs._ScissorTest._Bottom,rs._ScissorTest._Width,rs._ScissorTest._Height);
+		}
+
+		//StencilTest
+		
+		//depth test
+		if (CurrentRenderState._DepthTest!=rs._DepthTest) {
+			if (rs._DepthTest._Enabled) glEnable(GL_DEPTH_TEST);
+			else glDisable(GL_DEPTH_TEST);
+			glDepthFunc(rs._DepthTest._Function);
+		}
+		
+		//DepthRange
+		//Blending
+		//ColorMask
+
+		//depth mask
+		if (CurrentRenderState._DepthMask!=rs._DepthMask)
+			glDepthMask(rs._DepthMask);
+
+		//set current state here
+		CurrentRenderState = rs;
 	}
 
 

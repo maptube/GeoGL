@@ -14,10 +14,11 @@ namespace gengine {
 //Face Culling
 
 	//void glCullFace​(GLenum mode​);
+	//GL_FRONT, GL_BACK, GL_FRONT_AND_BACK
 	enum FaceCullingTest {
-		CullFrontFace = GL_FRONT​,
-		CullBackFace = GL_BACK​,
-		CullFrontAndBackFace = GL_FRONT_AND_BACK​
+		CullFrontFace = GL_FRONT,
+		CullBackFace = GL_BACK,
+		CullFrontAndBackFace​ = GL_FRONT_AND_BACK
 	};
 
 	enum WindingOrder {
@@ -26,33 +27,36 @@ namespace gengine {
 	};
 
 	struct FaceCulling {
-		bool _Enable; //glEnable(GL_CULL_FACE);
+		bool _Enabled; //glEnable(GL_CULL_FACE);
 		FaceCullingTest _FaceTest;
 		WindingOrder _WindingOrder;
-		bool operator==(FaceCulling& test) {
-			if ((!_Enable)&&(!test._Enable)) return true; //if both disabled don't compare values
+		bool operator==(const FaceCulling& test) const {
+			if ((!_Enabled)&&(!test._Enabled)) return true; //if both disabled don't compare values
 			return (_FaceTest==test._FaceTest)
 				&& (_WindingOrder==test._WindingOrder);
+		};
+		bool operator!=(const FaceCulling& test) const {
+			return !(*this==test);
 		}
-		//bool operator!=(FaceCulling& test) {
-		//	return !(*this==test);
-		//}
 	};
 
 /////////////////////////////////	
 
 	struct ScissorTest {
-		bool _Enable;
+		bool _Enabled;
 		int _Left;
 		int _Bottom;
 		unsigned int _Width; //sizei
 		unsigned int _Height;
-		bool operator==(ScissorTest& test) {
-			if ((!_Enable)&&(!test._Enable)) return true; //if both disabled don't compare values
+		bool operator==(const ScissorTest& test) const {
+			if ((!_Enabled)&&(!test._Enabled)) return true; //if both disabled don't compare values
 			return (_Left==test._Left)
 				&& (_Bottom==test._Bottom)
 				&& (_Width==test._Width)
 				&& (_Height==test._Height);
+		}
+		bool operator!=(const ScissorTest& test) const {
+			return !(*this==test);
 		}
 	};
 
@@ -69,10 +73,13 @@ namespace gengine {
 	struct DepthTest {
 		bool _Enabled; //=true;
 		DepthTestFunction _Function; // = DepthTestFunction.Less;
-		bool operator==(DepthTest& test) {
+		bool operator==(const DepthTest& test) const {
 			if ((!_Enabled)&&(!test._Enabled)) return true;
 			return _Function==test._Function;
 		};
+		bool operator!=(const DepthTest& test) const {
+			return !(*this==test);
+		}
 	};
 
 //end of render states
@@ -97,7 +104,8 @@ namespace gengine {
 		bool _DepthMask;
 		//Fog?
 
-		void SetState(const RenderState& OldState);
+		//void SetState(const RenderState& CurrentState);
+		RenderState operator=(const RenderState& src);
 	};
 
 	//this is what I was using for render state

@@ -42,17 +42,17 @@ Globe::Globe(void)
 	//}
 	//openglContext.setupScene(); // Setup our OpenGL scene
 	
-	Shader* shader = new Shader("shader.vert", "shader.frag");
+	//Shader* shader = new Shader("shader.vert", "shader.frag"); --no! use the device
+	Shader* shader = OGLDevice::CreateShaderProgram("shader.vert", "shader.frag");
 
 	//add sphere representing the earth
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
 	sphere->AttachShader(shader);
-	//openglContext.SceneGraph.push_back(sphere);
-	SceneGraph.push_back(sphere);
+	//SceneGraph.push_back(sphere);
 
 	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
 	cuboid->AttachShader(shader);
-	SceneGraph.push_back(cuboid);
+	//SceneGraph.push_back(cuboid);
 
 	//set up the camera
 	//camera.SetupPerspective(openglContext.GetWindowWidth(), openglContext.GetWindowHeight(), 0.01f, 200.0f);  // Create our perspective matrix
@@ -124,7 +124,6 @@ GeoJSON* Globe::LoadLayerGeoJSON(std::string Filename)
 	geoj->LoadFile(Filename);
 	//make it a random colour?
 	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
-//	openglContext.SceneGraph.push_back(geoj);
 	SceneGraph.push_back(geoj);
 	return geoj;
 }
@@ -183,15 +182,32 @@ void Globe::RenderScene(void)
 
 	//go through all scene objects and render each in turn (modelMatrix should be identity really?)
 	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
-		//(*sceneIT)->Render(ShaderId,modelMatrix);
 		Object3D* o3d=(*sceneIT);
 		if (o3d->HasGeometry()) {
 			const DrawObject& dobj = o3d->GetDrawObject();
 			GC->Render(dobj,*_sdo);
 		}
+		RenderChildren(o3d);
 	}
 
 	GC->SwapBuffers();
+}
+
+/// <summary>
+/// Render the child objects of an Object3D parent recursively i.e. render everything from this object down the hierarchy.
+/// TODO: need to handle the matrix hierarchy properly - this doesn't
+/// </summary>
+/// <param name="Parent">The parent Object3D of this hierarchy</param>
+void Globe::RenderChildren(Object3D* Parent)
+{
+	for (vector<Object3D*>::const_iterator childIT=Parent->BeginChild(); childIT!=Parent->EndChild(); ++childIT) {
+		Object3D* child = *childIT;
+		if (child->HasGeometry()) {
+			const DrawObject& dobj = child->GetDrawObject();
+			GC->Render(dobj,*_sdo);
+		}
+		RenderChildren(child);
+	}
 }
 
 
