@@ -209,18 +209,18 @@ void OrbitController::ScrollCallback(GLFWwindow *window, double xoffset, double 
 	//std::cout<<"OrbitController::ScrollCallback xoffset="<<xoffset<<" yoffset="<<yoffset<<std::endl;
 	
 	//complex version where it zooms in a percentage of the distance from the eye to the centre
-	//glm::vec3 vCameraPos = con_camera->GetCameraPos();
-	//glm::mat4 mCamera = con_camera->GetCameraMatrix();
-	//float radius = glm::distance(centre,vCameraPos);
-	//float delta = -radius*yoffset/speed;
-	//glm::mat4 mNewCamera = glm::translate(mCamera,glm::vec3(0,0,delta));
-	//con_camera->SetCameraMatrix(mNewCamera);
+	glm::vec3 vCameraPos = con_camera->GetCameraPos();
+	glm::mat4 mCamera = con_camera->GetCameraMatrix();
+	float radius = glm::distance(centre,vCameraPos);
+	float delta = -radius*yoffset*speed; //where speed is the percentage i.e. 1/100=0.01
+	glm::mat4 mNewCamera = glm::translate(mCamera,glm::vec3(0,0,delta));
+	con_camera->SetCameraMatrix(mNewCamera);
 
 	//simple version where we zoom in a fixed amount - this works better
-	glm::mat4 mCamera = con_camera->GetCameraMatrix();
-	float delta = speed*yoffset;
-	mCamera = glm::translate(mCamera,glm::vec3(0,0,-delta));
-	con_camera->SetCameraMatrix(mCamera);
+	//glm::mat4 mCamera = con_camera->GetCameraMatrix();
+	//float delta = speed*yoffset;
+	//mCamera = glm::translate(mCamera,glm::vec3(0,0,-delta));
+	//con_camera->SetCameraMatrix(mCamera);
 }
 
 /**

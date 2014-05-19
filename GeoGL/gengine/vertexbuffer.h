@@ -16,7 +16,7 @@ namespace gengine {
 		~VertexBuffer(void);
 
 		void CopyFromMemory(float* mem_vertexdata);
-		//void CopyToMemory();
+		float* CopyToMemory(void);
 		std::string _AttributeName; //this is the name of the attribute that this buffer gets bound to in the shader
 		GLuint _SizeBytes;
 		GLuint _vboID; //our Vertex Buffer Object

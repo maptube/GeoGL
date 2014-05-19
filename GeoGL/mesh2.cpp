@@ -275,6 +275,19 @@ void Mesh2::SetColour(glm::vec3 new_colour)
 	}
 	FreeBuffers();
 	CreateBuffers();*/
+
+	//new code - NOTE: calling this before CreateBuffers has been called would be bad.
+	float* buf_colours = vertexData->_vb[1]->CopyToMemory(); //don't forget to delete this later
+	//OK, so basically we have a list of colours for this object - technically, I could have just set a new lot rather than getting the old ones, but might want a search and replace function later?
+	unsigned int SizeBytes = vertexData->_vb[1]->_SizeBytes;
+	unsigned int SizeFloats = SizeBytes>>2; //divide by 4
+	for (unsigned int i=0; i<SizeFloats; i+=3) {
+		buf_colours[i]=new_colour.x;
+		buf_colours[i+1]=new_colour.y;
+		buf_colours[i+2]=new_colour.z;
+	}
+	vertexData->_vb[1]->CopyFromMemory(buf_colours);
+	delete [] buf_colours;
 }
 
 
@@ -491,6 +504,9 @@ void Mesh2::AttachShader(gengine::Shader* pShader, bool Recursive) {
 /// </summary>
 /// <returns>The draw object containing everything needed to do the drawing</returns>
 const gengine::DrawObject& Mesh2::GetDrawObject() {
+	//we need to get the modelMatrix from the parent class property and put it into the draw object
+	//TODO: you could pass in a parent modelMatrix and do the pre-multiply here?
+	drawObject._ModelMatrix = this->modelMatrix;
 	return drawObject;
 }
 

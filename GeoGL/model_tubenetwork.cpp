@@ -244,7 +244,7 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 				//TubeStationWGS84 pos = {lon,lat};
 				GraphNameXYZ pos;
 				//pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0; 
-				pos.Name=code1; pos.P=_pEllipsoid->toVector(lon,lat);
+				pos.Name=code1; pos.P=_pEllipsoid->toVector(glm::radians(lon),glm::radians(lat));
 				tube_stations->insert(make_pair<string,struct GraphNameXYZ>(code1,pos));
 				
 				//and create the node agent
@@ -471,7 +471,7 @@ NetGraphGeometry* ModelTubeNetwork::GenerateLineMesh(char LineCode) {
 	//find its colour
 	glm::vec3 LineColour = LineCodeToVectorColour(LineCode);
 	//now build the geometry
-	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,200/*0.00025f*/,10,LineColour);
+	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,100/*0.00025f*/,10,LineColour);
 	geom->Name="LINE_"+LineCode; //might as well name the object in case we need to find it in the scene graph
 
 	return geom;
@@ -505,9 +505,9 @@ void ModelTubeNetwork::Setup() {
 	//AgentScript: agentBreeds "nodes" "drivers"
 	//My version, closer to NetLogo: Breed("node","nodes"); and Breed("driver","drivers");
 	SetDefaultShape("node","sphere");
-	SetDefaultSize("node",0.001f);
+	SetDefaultSize("node",300.0f/*0.001f*/);
 	SetDefaultShape("driver","turtle");
-	SetDefaultSize("driver",0.005f);
+	SetDefaultSize("driver",600.0f/*0.005f*/);
 
 	loadStations(Filename_StationCodes); //station locations
 	loadLinks(Filename_TubeODNetwork); //network from JSON origin destination file

@@ -74,7 +74,27 @@ namespace gengine {
 		}
 	}
 
-	//Am I ever going to need to do this? Get the data back from the buffer.
-	//void VertexBuffer::CopyToMemory(float* mem_vertexdata)
+	/// <summary>
+	/// Get data back from the GL buffer
+	/// </summary>
+	/// <returns>Returns a pointer to a block of memory containing the data in the buffer. The caller is responsible for freeing this.</returns>
+	float* VertexBuffer::CopyToMemory()
+	{
+		unsigned int SizeFloats = _SizeBytes>>2;
+		float* mem_buffer = new float[SizeFloats]; //it's the caller's responsibility to delete this!
+
+		if (OGLDevice::hasProgrammableShaders) {
+			glBindBuffer(_Target, _vboID);
+			glGetBufferSubData(_Target,0,_SizeBytes,mem_buffer);
+		}
+		else {
+			//fallback if no hardware buffer support
+			//again, this isn't the fastest way of doing this - use a block copy!
+			for (int i=0; i<SizeFloats; i++)
+				mem_buffer[i]=_mem_vertexbuffer[i];
+		}
+
+		return mem_buffer;
+	}
 
 } //namespace gengine

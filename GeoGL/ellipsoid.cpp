@@ -60,3 +60,20 @@ glm::vec3 Ellipsoid::toVector(double lon, double lat)
 
 	return rSurface;
 }
+
+/// <summary>
+/// Calculates the distance between 
+/// </summary>
+/// <param name="P">Point above the ellipsoid in cartesian coordinates</param>
+/// <returns>The distance between the point and the closest point on the sphere</returns>
+double Ellipsoid::heightAboveSurfaceAtPoint(glm::vec3 P)
+{
+	//If the eye vector (P) is a ray from the origin to P, then the ray is Lambda * P and we need to find Lambda by putting (L.Px, L.Py, L.Pz) into X^2/a^2+Y^2/b^2+Z^2/c^2 = 1
+	// (where Lambda is the radius of the ellipsoid at that point).
+	glm::vec3 k(P.x*P.x/a2,P.y*P.y/b2,P.z*P.z/c2);
+	double r2 = 1/(k.x+k.y+k.z);
+	double r = sqrt(r2);
+
+	//so the distance is O->P minus r, which is the radius
+	return glm::length(P)-r;
+}

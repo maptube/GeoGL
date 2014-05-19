@@ -5,6 +5,7 @@
 
 //forward declarations
 class Graph;
+class Object3D;
 
 namespace ABM {
 

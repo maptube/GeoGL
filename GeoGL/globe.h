@@ -78,9 +78,11 @@ public:
 	void AddLayerModel(ABM::Model* model);
 
 	void FitViewToLayers(void);
-	glm::mat4 FitViewMatrix();
+	glm::mat4 FitViewMatrix(void);
+	glm::mat4 FitViewMatrix2(void);
 
 	void RenderScene(void);
+	void Step(void);
 
 
 };

@@ -178,7 +178,8 @@ void Globe::AddLayerModel(ABM::Model* model)
 /// </summary>
 void Globe::FitViewToLayers(void)
 {
-	camera.viewMatrix = FitViewMatrix();
+	//camera.viewMatrix = FitViewMatrix();
+	camera.viewMatrix = FitViewMatrix2();
 }
 
 /// <summary>
@@ -186,7 +187,7 @@ void Globe::FitViewToLayers(void)
 /// Code borrowed from OpenGL4.cpp
 /// </summary>
 /// <returns>A view matrix that fits everything in the scene into the view.</returns>
-glm::mat4 Globe::FitViewMatrix()
+glm::mat4 Globe::FitViewMatrix(void)
 {
 	float my_near = 1.0f; //0.1f; //near and far are #defined somewhere
 	float my_far = 27000000.0f; //100.0f;
@@ -228,6 +229,45 @@ glm::mat4 Globe::FitViewMatrix()
 	glm::mat4 view(1);
 	view = glm::translate(view, glm::vec3(-cx,-cy,-cz-d));
 
+	return view;
+}
+
+/// <summary>
+/// Second attempt at a decent view matrix fit based on data.
+/// TODO: the field of view is hard coded - MUST get this from the projection matrix! (camera)
+/// <summary>
+glm::mat4 Globe::FitViewMatrix2(void)
+{
+	int width, height;
+	glfwGetFramebufferSize(GC->window, &width, &height);
+
+	//Step 1: 
+	//walk the scene and union all the boxes
+	BBox box;
+	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
+		Object3D* o3d = *sceneIT;
+		box.Union(o3d->GetGeometryBounds()); //this should return the bounds for the object and all its children
+	}
+	std::cout<<"View Box: "<<box.min.x<<","<<box.min.y<<"   "<<box.max.x<<","<<box.max.y<<std::endl;
+
+	//find centre of box and maximum dimension
+	float x1=box.min.x,
+		x2=box.max.x,
+		y1=box.min.y,
+		y2=box.max.y,
+		z1=box.min.z,
+		z2=box.max.z;
+	//find centre of x, y and z axes which is the centre on the earth sphere (z is height)
+	float cx=(x1+x2)/2;
+	float cy=(y1+y2)/2;
+	float cz=(z1+z2)/2;
+	glm::vec3 vc(cx,cy,cz); //vector from origin to point we want to look at (centre)
+	float size = max(max(x2-x1,y2-y1),z2-z1);
+	float fov = (float)width/2/tan(30.0*glm::pi<float>()/180.0);	//TODO: hardcoded projection matrix!
+	float d = size*fov/(float)width;
+
+	glm::vec3 vEye = vc + glm::normalize(vc)*d; //move eye to centre of object we want to look at, plus another d units along the origin to object centre vector
+	glm::mat4 view = glm::lookAt(vEye,vc,glm::vec3(0,0,1)); //and look at the object from the new eye position - NOTE (0,0,1) up vector used as the Ellipse.toVector makes +ve Z UP (i.e. 90 degree rotation)
 	return view;
 }
 
@@ -279,6 +319,17 @@ void Globe::RenderChildren(Object3D* Parent)
 			GC->Render(dobj,*_sdo);
 		}
 		RenderChildren(child);
+	}
+}
+
+/// <summary>
+/// Simulate one timestep of all the attached models
+/// </summary>
+void Globe::Step(void)
+{
+	//call step on each attached model layer in turn
+	for (vector<ABM::Model*>::iterator modelIT = modelLayers.begin(); modelIT!=modelLayers.end(); ++modelIT) {
+		(*modelIT)->Step();
 	}
 }
 
