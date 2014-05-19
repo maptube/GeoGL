@@ -16,11 +16,17 @@ using namespace std;
 #include "json/json.h"
 #include "json/reader.h"
 
+#include "ellipsoid.h"
 #include "netgraphgeometry.h"
 
 #include "Link.h"
 #include "Agent.h"
 //#include "Model.h"
+
+//define locations of configuration files
+const std::string ModelTubeNetwork::Filename_StationCodes = "..\\data\\station-codes.csv"; //station locations
+const std::string ModelTubeNetwork::Filename_TubeODNetwork = "..\\data\\tube-network.json"; //network from JSON origin destination file
+const std::string ModelTubeNetwork::Filename_TrackernetPositions = "..\\data\\trackernet_20140127_154200.csv"; //train positions
 
 /// <summary>
 /// Create a Tube Network containing a model of the tube and train agents which run around the track. You have to call load() with the relevant file names to load the
@@ -237,7 +243,8 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 				lat = std::stof(items[4]);
 				//TubeStationWGS84 pos = {lon,lat};
 				GraphNameXYZ pos;
-				pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0; 
+				//pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0; 
+				pos.Name=code1; pos.P=_pEllipsoid->toVector(lon,lat);
 				tube_stations->insert(make_pair<string,struct GraphNameXYZ>(code1,pos));
 				
 				//and create the node agent
@@ -464,7 +471,7 @@ NetGraphGeometry* ModelTubeNetwork::GenerateLineMesh(char LineCode) {
 	//find its colour
 	glm::vec3 LineColour = LineCodeToVectorColour(LineCode);
 	//now build the geometry
-	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,0.00025f,10,LineColour);
+	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,200/*0.00025f*/,10,LineColour);
 	geom->Name="LINE_"+LineCode; //might as well name the object in case we need to find it in the scene graph
 
 	return geom;
@@ -502,14 +509,14 @@ void ModelTubeNetwork::Setup() {
 	SetDefaultShape("driver","turtle");
 	SetDefaultSize("driver",0.005f);
 
-	loadStations("..\\GeoGL\\data\\station-codes.csv"); //station locations
-	loadLinks("..\\GeoGL\\data\\tube-network.json"); //network from JSON origin destination file
-	loadPositions("..\\GeoGL\\data\\trackernet_20140127_154200.csv"); //train positions
+	loadStations(Filename_StationCodes); //station locations
+	loadLinks(Filename_TubeODNetwork); //network from JSON origin destination file
+	loadPositions(Filename_TrackernetPositions); //train positions
 	Object3D* lu = GenerateMesh();
 	lu->Name="LondonUnderground";
 	//you shouldn't manipulate the scene graph directly, but instead create the equivalent of an ABM.Links object
 	_pSceneGraph->push_back(lu); //this is bad, but only until ABM can represent the network
-
+	_links._pSceneRoot = lu; //set the root scene graph object for the links to this network object
 	
 
 	//now create some tube trains (=drivers in netlogo and agentscript speak)

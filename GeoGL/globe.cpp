@@ -21,6 +21,8 @@
 #include "OrbitController.h"
 #include "cuboid.h"
 
+#include "Model.h"
+
 #include "geojson.h"
 
 using namespace std;
@@ -42,16 +44,17 @@ Globe::Globe(void)
 	//}
 	//openglContext.setupScene(); // Setup our OpenGL scene
 	
-	//Shader* shader = new Shader("shader.vert", "shader.frag"); --no! use the device
+	//Shader* shader = new Shader("shader.vert", "shader.frag"); //--no! use the device
 	Shader* shader = OGLDevice::CreateShaderProgram("shader.vert", "shader.frag");
+	_Shaders.push_back(shader);
 
 	//add sphere representing the earth
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
-	sphere->AttachShader(shader);
+	sphere->AttachShader(shader,false);
 	//SceneGraph.push_back(sphere);
 
 	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
-	cuboid->AttachShader(shader);
+	cuboid->AttachShader(shader,false);
 	//SceneGraph.push_back(cuboid);
 
 	//set up the camera
@@ -85,6 +88,11 @@ Globe::~Globe(void)
 
 	DestroyScene();
 	delete _sdo;
+
+	//free the cached shader program objects
+	for (vector<gengine::Shader*>::iterator it = _Shaders.begin(); it!=_Shaders.end(); ++it) {
+		delete (*it);
+	}
 
 	delete controller;
 
@@ -124,6 +132,11 @@ GeoJSON* Globe::LoadLayerGeoJSON(std::string Filename)
 	geoj->LoadFile(Filename);
 	//make it a random colour?
 	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	
+	//Take the first shader defined by the globe and attach to all the objects we've just created.
+	//Presumably we know that the first defined shader is suitable?
+	Shader* pShader = _Shaders[0];
+	geoj->AttachShader(pShader,true);
 	SceneGraph.push_back(geoj);
 	return geoj;
 }
@@ -149,6 +162,15 @@ void Globe::LoadLayerShapefile(std::string Filename)
 void Globe::AddLayerModel(ABM::Model* model)
 {
 	modelLayers.push_back(model);
+
+	//attach shader to the top of the agents hierarchy
+	Shader* pShader = _Shaders[0];
+	model->_agents._pSceneRoot->AttachShader(pShader,true);
+
+	//attach shader to the top of the links hierarchy
+	//TODO: need to check how the links are actually working - suspect a netgraph geom is being attached to the scene - YES
+	//TODO: check whether this is the same root as the agents? It shouldn't be really - they could have different shaders. - NO
+	model->_links._pSceneRoot->AttachShader(pShader,true);
 }
 
 /// <summary>
@@ -156,7 +178,57 @@ void Globe::AddLayerModel(ABM::Model* model)
 /// </summary>
 void Globe::FitViewToLayers(void)
 {
-	//camera.viewMatrix = openglContext.fitViewMatrix();
+	camera.viewMatrix = FitViewMatrix();
+}
+
+/// <summary>
+/// Return a view matrix which fits everything in the scene graph into the view.
+/// Code borrowed from OpenGL4.cpp
+/// </summary>
+/// <returns>A view matrix that fits everything in the scene into the view.</returns>
+glm::mat4 Globe::FitViewMatrix()
+{
+	float my_near = 1.0f; //0.1f; //near and far are #defined somewhere
+	float my_far = 27000000.0f; //100.0f;
+
+	int width, height;
+	glfwGetFramebufferSize(GC->window, &width, &height);
+
+	//walk the scene and union all the boxes
+	BBox box;
+	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
+		Object3D* o3d = *sceneIT;
+		box.Union(o3d->GetGeometryBounds()); //this should return the bounds for the object and all its children
+		//OutputDebugStringA("Node: ");
+	}
+	std::cout<<"View Box: "<<box.min.x<<","<<box.min.y<<"   "<<box.max.x<<","<<box.max.y<<std::endl;
+
+	float x1=box.min.x,
+		x2=box.max.x,
+		y1=box.min.y,
+		y2=box.max.y,
+		z1=box.min.z,
+		z2=box.max.z;
+	//find centre of x, y and z axes which is the centre on the earth sphere (z is height)
+	float cx=(x1+x2)/2;
+	float cy=(y1+y2)/2;
+	float cz=(z1+z2)/2;
+	glm::vec3 vc(cx,cy,cz); //vector from origin to point we want to look at on surface (centre)
+	//calculate d distance from object, which guarantees all the max dimension of the scene box is within the width of the viewport
+	float size = max(max(x2-x1,y2-y1),z2-z1);
+	float fov = (float)width/2/tan(30.0*glm::pi<float>()/180.0);
+	float d = size*fov/(float)width;
+	////point the viewpoint from the origin to the centre of the objects
+	//glm::mat4 eye_mat = glm::lookAt(glm::vec3(0,0,0),vc,glm::vec3(0,1,0)); //look from position 5 z back from object
+	////move the viewpoint along its eye direction so that the distance from view (origin) to vc is d
+	//glm::vec3 view_p = vc - glm::vec3(0,0,-d) * glm::mat3(eye_mat); //this is the position the viewpoint needs to be
+	//view = glm::translate(view,view_p); //translate view to its new location
+
+	//alternative, point along Z axis straight towards object, note view initialised to mat4(1) first
+	glm::mat4 view(1);
+	view = glm::translate(view, glm::vec3(-cx,-cy,-cz-d));
+
+	return view;
 }
 
 /// <summary>

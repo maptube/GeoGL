@@ -7,6 +7,7 @@
 //forward references
 namespace gengine {
 	class DrawObject;
+	class Shader;
 }
 
 //base class of all 3D objects in the world
@@ -30,6 +31,7 @@ public:
 	void AddChild(Object3D* Child);
 	std::vector<Object3D*>::const_iterator BeginChild() { return Children.begin(); } //todo: this isn't exactly elegant!
 	std::vector<Object3D*>::const_iterator EndChild() { return Children.end(); }
+	virtual void AttachShader(gengine::Shader* pShader, bool Recursive);
 	virtual BBox GetGeometryBounds();
 	virtual void ComputeBounds();
 	//TODO: SetMatrix - VERY IMPORTANT!

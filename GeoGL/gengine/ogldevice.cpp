@@ -60,6 +60,7 @@ namespace gengine {
 	/// </summary>
 	GraphicsContext* OGLDevice::XCreateWindow(int Width, int Height)
 	{
+		//GLFWOpenWindowHint
 		GLFWwindow* window = glfwCreateWindow(Width, Height, "GeoGL", NULL, NULL);
 		if (!window) {
 			glfwTerminate();
@@ -86,6 +87,11 @@ namespace gengine {
 
 		const GLubyte *glVersionString = glGetString(GL_VERSION); // Get the version of OpenGL we are using
 		std::cout<<"OpenGL version string: "<<glVersionString<<std::endl;
+
+		//OpenGL parameters
+		int DepthBits;
+		glGetIntegerv(GL_DEPTH_BITS,&DepthBits);
+		std::cout<<"Z Buffer depth bits = "<<DepthBits<<" (should be 24)"<<std::endl;
 	
 		//check for shader support - todo: make use of the version number
 		const GLubyte *glShaderVersionString = glGetString(GL_SHADING_LANGUAGE_VERSION);
@@ -105,11 +111,16 @@ namespace gengine {
 	/// <param name="FragmentFilename"></param>
 	Shader* OGLDevice::CreateShaderProgram(std::string VertexFilename, std::string FragmentFilename)
 	{
-		Shader* ShaderProgram=NULL;
-		if (hasProgrammableShaders) {
-			ShaderProgram = new Shader(VertexFilename.c_str(),FragmentFilename.c_str());
-		}
-		return ShaderProgram;
+		//old code
+		//Shader* ShaderProgram=NULL;
+		//if (hasProgrammableShaders) {
+		//	ShaderProgram = new Shader(VertexFilename.c_str(),FragmentFilename.c_str());
+		//}
+		//return ShaderProgram;
+
+		//new code - shaders can be created even if hasProgrammableShaders==false as the gengine library handles the fallback.
+		//We need the attributes and uniforms to be defined even if no shader program is used.
+		return new Shader(VertexFilename.c_str(),FragmentFilename.c_str());
 	}
 
 	/// <summary>

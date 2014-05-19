@@ -2,13 +2,19 @@
 
 //todo: allow user to pass in a list of vertex colours
 /// <summary>Create a sphere with a single radius (i.e. not a spheroid)</summary>
-Sphere::Sphere(float Radius,int WidthSegments,int HeightSegments) {
-	Sphere(Radius,Radius,Radius,WidthSegments,HeightSegments);
+Sphere::Sphere(double Radius,int WidthSegments,int HeightSegments) {
+	init(Radius,Radius,Radius,WidthSegments,HeightSegments);
 }
 
 /// <summary>Overloaded constructor which passes three radii to allow a spheroid to be created</summary>
 Sphere::Sphere(double A, double B, double C, int WidthSegments, int HeightSegments) {
+	init(A,B,C,WidthSegments,HeightSegments);
+}
 
+/// <summary>
+/// Private initialisation of the sphere as I need to call this from both constructors
+/// </summary>
+void Sphere::init(double A, double B, double C, int WidthSegments, int HeightSegments) {
 	float anglon=2*glm::pi<float>()/(float)WidthSegments; //segment angle step around lon
 	float anglat=2*glm::pi<float>()/(float)HeightSegments; //segment angle step around lat
 	for (float lat=-glm::pi<float>(); lat<glm::pi<float>(); lat+=anglat) {

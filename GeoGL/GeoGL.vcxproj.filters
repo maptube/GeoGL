@@ -294,9 +294,6 @@
     <ClCompile Include="globe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gengine\ogldevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gengine\graphicscontext.cpp">
       <Filter>Source Files\gengine</Filter>
     </ClCompile>
@@ -344,6 +341,9 @@
     </ClCompile>
     <ClCompile Include="mesh2.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\ogldevice.cpp">
+      <Filter>Source Files\gengine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

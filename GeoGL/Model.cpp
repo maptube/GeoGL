@@ -1,5 +1,6 @@
 
 #include "Model.h"
+#include "ellipsoid.h"
 
 namespace ABM {
 
@@ -8,6 +9,7 @@ namespace ABM {
 	Model::Model(SceneGraphType* pSceneGraph)
 	{
 		_pSceneGraph=pSceneGraph;
+		_pEllipsoid = new Ellipsoid(); //bit naughty, but it gets us the default WGS84 ellipsoid
 	
 		//create an object 3d in the scene as a placeholder for the agents
 		Object3D* AgentsSceneRoot = new Object3D();
@@ -22,6 +24,7 @@ namespace ABM {
 	/// <summary>Destructor</summary>
 	Model::~Model(void)
 	{
+		delete _pEllipsoid;
 	}
 
 	/// <summary>Initialisation of model - probably override this</summary>

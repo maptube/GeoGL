@@ -26,6 +26,7 @@ class OrbitController;
 namespace gengine {
 	class GraphicsContext;
 	class SceneDataObject;
+	class Shader;
 }
 
 namespace ABM {
@@ -49,6 +50,8 @@ private:
 	gengine::GraphicsContext* GC; //the context that we can render to
 	gengine::SceneDataObject* _sdo; //scene data objects i.e. camera
 
+	std::vector<gengine::Shader*> _Shaders; //Shader programs that have been complied and linked
+
 	OrbitController* controller;
 
 	//std::vector<Object3D*> SceneGraph; //list of object to be rendered on "renderScene"
@@ -66,7 +69,7 @@ public:
 
 	bool IsRunning(void);
 	//GLFWwindow* GetWindow() { return openglContext.window; }
-	//SceneGraphType* GetSceneGraph() { return &openglContext.SceneGraph; }
+	SceneGraphType* GetSceneGraph() { return &SceneGraph; }
 
 	GeoJSON* LoadLayerGeoJSON(std::string Filename);
 	void LoadLayerKML(std::string Filename);
@@ -75,6 +78,7 @@ public:
 	void AddLayerModel(ABM::Model* model);
 
 	void FitViewToLayers(void);
+	glm::mat4 FitViewMatrix();
 
 	void RenderScene(void);
 

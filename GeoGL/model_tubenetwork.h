@@ -28,6 +28,10 @@ class Graph;
 */
 class ModelTubeNetwork : public ABM::Model {
 public:
+	static const std::string Filename_StationCodes; //station locations
+	static const std::string Filename_TubeODNetwork; //network from JSON origin destination file
+	static const std::string Filename_TrackernetPositions; //train positions
+
 	//Graph* tube_graph;
 	std::unordered_map<char,Graph*> tube_graphs; //one for each line
 	std::unordered_map<std::string,struct GraphNameXYZ>* tube_stations;

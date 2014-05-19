@@ -9,7 +9,9 @@
 class Sphere : public Mesh2
 {
 public:
-	Sphere(float Radius, int WidthSegments, int HeightSegments);
+	Sphere(double Radius, int WidthSegments, int HeightSegments);
 	Sphere(double A, double B, double C, int WidthSegments, int HeightSegments);
 	~Sphere();
+private:
+	void init(double A, double B, double C, int WidthSegments, int HeightSegments);
 };

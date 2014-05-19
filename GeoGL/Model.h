@@ -3,13 +3,16 @@
 //this is good on #includes
 //http://www.cplusplus.com/forum/articles/10627/
 
-#include "opengl4.h"
+//#include "opengl4.h"
 #include "netgraphgeometry.h"
 
 #include "Agents.h"
 #include "Links.h"
 
 #include <string>
+
+//Forward declarations
+class Ellipsoid;
 
 namespace ABM {
 
@@ -83,6 +86,9 @@ namespace ABM {
 
 		//breeds
 		void Breed(std::string singular, std::string plural); //TODO: create a breed with the given singular and plural names e.g. "node", "nodes" - not really necessary
+
+	protected:
+		Ellipsoid* _pEllipsoid;
 	};
 
 }

@@ -268,12 +268,13 @@ void Mesh2::AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3, glm::vec3 Colour1,
 /// <param name="new_colour"></param>
 void Mesh2::SetColour(glm::vec3 new_colour)
 {
+//TODO: need to fix this!!!!!!!!!!!!!!!!!!!
 	//basically, what I'm going to do here is to change all the colours assigned to the faces and then re-create the buffers
-	for (vector<struct VertexColour>::iterator it = vertices.begin(); it!=vertices.end(); ++it) {
+	/*for (vector<struct VertexColour>::iterator it = vertices.begin(); it!=vertices.end(); ++it) {
 		it->RGB=new_colour;
 	}
 	FreeBuffers();
-	CreateBuffers();
+	CreateBuffers();*/
 }
 
 
@@ -453,10 +454,21 @@ void Mesh2::FreeBuffers() {
 /// Shaders are attached to each mesh as a pointer to a shader in a global collection. This way, we're not
 /// using a separate shader for each mesh in the scene which would be very bad.
 /// Also, objects are drawn so as to minimise the number of shader program switches for optimisation.
+/// If recursive is set, then this object and all its children have their shader assigned. If recursive is
+/// false, then only this object is set. Also, any object where HasGeometry==false does not have the shader
+/// set as there is no draw object to set the shader on, only a null draw object.
 /// </summary>
-/// <param name=""></param>
-void Mesh2::AttachShader(gengine::Shader* pshader) {
-	drawObject._ShaderProgram = pshader;
+/// <param name="pShader">Pointer to the shader program to attach i.e. use for drawing this object</param>
+/// <param name="Recursive">If true, set this object and all children recursively, otherwise only set this object</param>
+void Mesh2::AttachShader(gengine::Shader* pShader, bool Recursive) {
+	drawObject._ShaderProgram = pShader;
+	if (Recursive) {
+		//now set all the children - NOTE: you still need to call the attach virtual even if a child is an Object3D as
+		//it still might have children which are drawable.
+		for (vector<Object3D*>::iterator childIT=Children.begin(); childIT!=Children.end(); ++childIT) {
+			(*childIT)->AttachShader(pShader,true);
+		}
+	}
 }
 
 //not strictly used as we're using the GetDrawObject method

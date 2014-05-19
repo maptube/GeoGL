@@ -46,7 +46,7 @@ public:
 	void ScaleVertices(float Sx,float Sy,float Sz);
 	void CreateBuffers();
 	void FreeBuffers();
-	void AttachShader(gengine::Shader* pshader);
+	virtual void AttachShader(gengine::Shader* pShader, bool Recursive);
 	virtual BBox GetGeometryBounds();
 	//virtual void Render(glm::mat4 ParentMat);
 	virtual bool HasGeometry() { return true; } //yes, this object has geometry associated with it and can be rendered
