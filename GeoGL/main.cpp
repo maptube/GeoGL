@@ -30,6 +30,7 @@
 #include "gengine/shaderattributecollection.h"
 #include "gengine/primitivetypes.h"
 #include "mesh2.h"
+#include "cuboid.h"
 
 //#define PROGRAM_NAME "GeoGL"
 
@@ -210,9 +211,9 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	tn->Setup(); //who's responsible for this? globe or me?
-	globe.AddLayerModel(tn);
+	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	//tn->Setup(); //who's responsible for this? globe or me?
+	//globe.AddLayerModel(tn);
 	
 	////tn->load(
 	////	"..\\GeoGL\\data\\tube-network.json",
@@ -236,8 +237,8 @@ int main(int argc, char *argv[])
 	//GeoJSON* thames = new GeoJSON();
 	//thames->LoadFile("..\\GeoGL\\data\\TQ_TidalWater_503500_155500.geojson");
 	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
-	GeoJSON* thames = globe.LoadLayerGeoJSON("..\\data\\TQ_TidalWater_503500_155500.geojson");
-	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	//GeoJSON* thames = globe.LoadLayerGeoJSON("..\\data\\TQ_TidalWater_503500_155500.geojson");
+	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//London outline in WGS84
 	//GeoJSON* london = new GeoJSON();
@@ -245,7 +246,7 @@ int main(int argc, char *argv[])
 	//openglContext.SceneGraph.push_back(london);
 	//GeoJSON* london = globe.LoadLayerGeoJSON("..\\data\\London_dt_2001_area_WGS84.geojson");
 
-	globe.FitViewToLayers(); //now all the data has been loaded, initialise the camera to its default position and zoom
+	//globe.FitViewToLayers(); //now all the data has been loaded, initialise the camera to its default position and zoom
 
 	////////////////////////End of scene graph creation
 	

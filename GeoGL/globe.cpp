@@ -19,6 +19,7 @@
 #include "sphere.h"
 #include "gengine/events/EventManager.h"
 #include "OrbitController.h"
+#include "EllipsoidOrbitController.h"
 #include "cuboid.h"
 
 #include "Model.h"
@@ -51,11 +52,11 @@ Globe::Globe(void)
 	//add sphere representing the earth
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
 	sphere->AttachShader(shader,false);
-	//SceneGraph.push_back(sphere);
+	SceneGraph.push_back(sphere);
 
 	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
 	cuboid->AttachShader(shader,false);
-	//SceneGraph.push_back(cuboid);
+	SceneGraph.push_back(cuboid);
 
 	//set up the camera
 	//camera.SetupPerspective(openglContext.GetWindowWidth(), openglContext.GetWindowHeight(), 0.01f, 200.0f);  // Create our perspective matrix
@@ -73,9 +74,10 @@ Globe::Globe(void)
 	//eventmanager.AddWindowSizeEventListener(this);
 
 	//set up camera controller
-	controller = new OrbitController(&camera);
+	//controller = new OrbitController(&camera);
 	//controller.centre=glm::vec3(-1.0f,0.0f,0.0f);
 	//controller.centre=glm::vec3(-0.11464,51.46258,0); //Brixton
+	controller = new EllipsoidOrbitController(&camera,&ellipsoid);
 }
 
 
