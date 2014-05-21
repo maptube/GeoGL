@@ -50,19 +50,20 @@ Globe::Globe(void)
 	_Shaders.push_back(shader);
 
 	//add sphere representing the earth
-	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
+	Sphere* sphere=new Sphere(ellipsoid.A()/1000,ellipsoid.B()/1000,ellipsoid.C()/1000,40,40);
 	sphere->AttachShader(shader,false);
 	SceneGraph.push_back(sphere);
 
-	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
+	Cuboid* cuboid=new Cuboid(ellipsoid.A()/1000*1.5,ellipsoid.B()/1000*1.5,ellipsoid.C()/1000*1.5);
 	cuboid->AttachShader(shader,false);
 	SceneGraph.push_back(cuboid);
 
+//HACKED perspective and object locations and size to avoid Z fighting
 	//set up the camera
 	//camera.SetupPerspective(openglContext.GetWindowWidth(), openglContext.GetWindowHeight(), 0.01f, 200.0f);  // Create our perspective matrix
-	camera.SetupPerspective(WindowWidth, WindowHeight, 1.0f, 27000000.0f);
+	camera.SetupPerspective(WindowWidth, WindowHeight, 1.0f, 27000000.0f/1000);
 	//camera.viewMatrix = openglContext.fitViewMatrix(); //not much point in doing this as there's nothing there yet
-	camera.SetCameraPos(glm::vec3(0.0f,0.0f,18000000.0f));
+	camera.SetCameraPos(glm::vec3(0.0f,0.0f,18000000.0f/1000));
 	//glm::vec3 vCam = camera.GetCameraPos();
 	//std::cout<<"Globe Setup: camera ("<<vCam.x<<","<<vCam.y<<","<<vCam.z<<")"<<std::endl;
 	_sdo = new SceneDataObject();
