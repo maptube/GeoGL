@@ -3,6 +3,8 @@
 #include "ellipsoid.h"
 #include "gengine/Camera.h"
 
+#include <glm/gtx/intersect.hpp>
+
 //TODO: VERY IMPORTANT
 //When this is working, it might be a good idea to separate it from the orbit controller so it's not a sub class
 
@@ -66,36 +68,54 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		double radius = glm::distance(centre,vCameraPos);
 		glm::vec4 vViewport((float)viewport[0],(float)viewport[1],(float)viewport[2],(float)viewport[3]);
 		glm::vec3 P1 = glm::unProject(glm::vec3(dragPoint.x,dragPoint.y,0.5),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject click point
-		glm::vec3 P2 = glm::unProject(glm::vec3((double)mx,(double)my,(double)winZ),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
-		std::cout<<"click point="<<P1.x<<","<<P1.y<<","<<P1.z<<std::endl;
-		std::cout<<"current point="<<P2.x<<","<<P2.y<<","<<P2.z<<std::endl;
+		glm::vec3 P2 = glm::unProject(glm::vec3(winX/*(double)mx*/,winY/*(double)my*/,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
+		//std::cout<<"click point="<<P1.x<<","<<P1.y<<","<<P1.z<<std::endl;
+		//std::cout<<"current point="<<P2.x<<","<<P2.y<<","<<P2.z<<" winZ="<<winZ<<std::endl;
 		//test - project and unproject the same vector
 		//glm::vec3 test1 = glm::project(glm::vec3(100,100,300),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport);
 		//glm::vec3 test2 = glm::unProject(test1,con_camera->viewMatrix,con_camera->projectionMatrix,vViewport);
 
 
-		glm::vec3 delta=P2-P1;
+		glm::vec3 intersectionPosition, intersectionNormal;
+		bool test = glm::intersectRaySphere(
+			vCameraPos, //rayStarting,
+			glm::normalize(P2-vCameraPos), //rayNormalizedDirection,
+			glm::vec3(0,0,0), //genType const &  sphereCenter,
+			6378, //  sphereRadius,
+			intersectionPosition,
+			intersectionNormal
+		);
+		if (test) {
+			std::cout<<"Sphere intersect: "<<intersectionPosition.x<<","<<intersectionPosition.y<<","<<intersectionPosition.z<<std::endl;
+			std::cout<<"Sphere intersect N: "<<intersectionNormal.x<<","<<intersectionNormal.y<<","<<intersectionNormal.z<<std::endl;
+		}
+
+
+		//glm::vec3 delta=P2; //-P1;
 		//delta.z=-radius;
+		glm::vec3 delta = intersectionPosition;
 
 		//GLSL asin undefined for |x|>1, so use atan2 for Phi and Theta instead
 		//double hy=glm::sqrt(radius*radius-delta.y*delta.y);
-		//double hy=glm::sqrt(delta.z*delta.z-delta.y*delta.y);
-		//double Phi = glm::atan<double>(delta.y,hy);
-		//double Theta = glm::atan<double>(delta.x,delta.z);
-		double Phi=0.0; double Theta=0.0;
-		std::cout<<"Phi="<<Phi<<" Theta="<<Theta<<" delta.x="<<delta.x<<" delta.y="<<delta.y<<" delta.z="<<delta.z<<std::endl;
+/*		double hy=glm::sqrt(delta.z*delta.z-delta.y*delta.y);
+		double Phi = 0; //glm::atan<double>(delta.y,hy);
+		double Theta = 0; //glm::atan<double>(delta.x,delta.z);
+		//std::cout<<"Phi="<<Phi<<" Theta="<<Theta<<" delta.x="<<delta.x<<" delta.y="<<delta.y<<" delta.z="<<delta.z<<std::endl;
 
 		glm::mat4 m = glm::eulerAngleYX((float)Theta,(float)Phi);
 		glm::mat4 mCam = dragCameraMatrix;
 		//move camera so it's centred on the origin of rotation (this.centre)
 		//don't do this: mCam = glm::translate(mCam,-centre) as the translate code performs
 		// mCam[3]=m[0]*v[0]+m[1]*v[1]+m[2]*v[2]+m[3] i.e. translation v along main direction of martix m
+		
 		mCam[3][0]-=centre.x; mCam[3][1]-=centre.y; mCam[3][2]-=centre.z; //move mCam to (centre) in world space
+		
 		//perform rotation of camera by Euler angles. Camera is radius units from world origin to rotate about correct point
 		mCam = m * mCam;
 		//move (not translate) camera back to world space centre again (add what we took off previously)
 		mCam[3][0]+=centre.x; mCam[3][1]+=centre.y; mCam[3][2]+=centre.z;
 		con_camera->SetCameraMatrix(mCam); //sets viewMatrix=inverse(cameraMatrix)
+*/
 	}
 }
 
