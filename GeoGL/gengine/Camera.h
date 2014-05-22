@@ -19,7 +19,8 @@ namespace gengine {
 		
 			//I think this is how you do it
 			glm::mat4 mCamera = glm::inverse(viewMatrix);
-			glm::vec3 vCameraPos(-viewMatrix[3][0],-viewMatrix[3][1],-viewMatrix[3][2]);
+			//glm::vec3 vCameraPos(-viewMatrix[3][0],-viewMatrix[3][1],-viewMatrix[3][2]);
+			glm::vec3 vCameraPos(mCamera[3][0],mCamera[3][1],mCamera[3][2]);
 			return vCameraPos;
 		};
 		void SetCameraPos(glm::vec3 Pos) {

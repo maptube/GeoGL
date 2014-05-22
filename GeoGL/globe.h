@@ -22,6 +22,7 @@
 class Object3D;
 class GeoJSON;
 class OrbitController;
+class EllipsoidOrbitController;
 
 namespace gengine {
 	class GraphicsContext;
@@ -52,7 +53,8 @@ private:
 
 	std::vector<gengine::Shader*> _Shaders; //Shader programs that have been complied and linked
 
-	OrbitController* controller;
+	//OrbitController* controller;
+	EllipsoidOrbitController* controller;
 
 	//std::vector<Object3D*> SceneGraph; //list of object to be rendered on "renderScene"
 	SceneGraphType SceneGraph;
