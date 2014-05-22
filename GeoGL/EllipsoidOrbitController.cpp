@@ -99,7 +99,7 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		//HACK! fix P1 dead centre of camera on sphere surface
 		//glm::vec3 P1(0,0,18000);
 		glm::vec3 P1=dragPoint;
-//		glm::vec3 P2 = glm::unProject(glm::vec3(winX/*(double)mx*/,winY/*(double)my*/,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
+		glm::vec3 P2 = glm::unProject(glm::vec3(winX/*(double)mx*/,winY/*(double)my*/,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
 		//std::cout<<"click point="<<P1.x<<","<<P1.y<<","<<P1.z<<std::endl;
 		//std::cout<<"current point="<<P2.x<<","<<P2.y<<","<<P2.z<<" winZ="<<winZ<<std::endl;
 		//test - project and unproject the same vector
@@ -107,38 +107,38 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		//glm::vec3 test2 = glm::unProject(test1,con_camera->viewMatrix,con_camera->projectionMatrix,vViewport);
 
 
-//		glm::vec3 intersectionPosition, intersectionNormal;
-//		bool test = glm::intersectRaySphere(
-//			vCameraPos, //rayStarting,
-//			glm::normalize(P2-vCameraPos), //rayNormalizedDirection,
-//			glm::vec3(0,0,0), //genType const &  sphereCenter,
-//			6378, //  sphereRadius,
-//			intersectionPosition,
-//			intersectionNormal
-//		);
-//		if (test) {
-//			std::cout<<"Sphere intersect: "<<intersectionPosition.x<<","<<intersectionPosition.y<<","<<intersectionPosition.z<<std::endl;
+		glm::vec3 intersectionPosition, intersectionNormal;
+		bool test = glm::intersectRaySphere(
+			vCameraPos, //rayStarting,
+			glm::normalize(P2-vCameraPos), //rayNormalizedDirection,
+			glm::vec3(0,0,0), //genType const &  sphereCenter,
+			6378137.0/1000.0, //  sphereRadius,
+			intersectionPosition,
+			intersectionNormal
+		);
+		if (test) {
+			//std::cout<<"Sphere intersect: "<<intersectionPosition.x<<","<<intersectionPosition.y<<","<<intersectionPosition.z<<std::endl;
 			//std::cout<<"Sphere intersect N: "<<intersectionNormal.x<<","<<intersectionNormal.y<<","<<intersectionNormal.z<<std::endl;
 
-//			P2=intersectionPosition; //we just worked this out
+			P2=intersectionPosition; //we just worked this out
 			//take two normalised vectors from orbit centre to points P1 and P2 on sphere
-//			glm::vec3 NV1 = glm::normalize(P1-centre);
-//			glm::vec3 NV2 = glm::normalize(P2-centre);
-//			double CosTheta = glm::dot(NV1,NV2); //A.B = |A||B| Cos(Theta), but A and B are normalised. This is the rotation angle on the plane.
+			glm::vec3 NV1 = glm::normalize(P1-centre);
+			glm::vec3 NV2 = glm::normalize(P2-centre);
+			double CosTheta = glm::dot(NV1,NV2); //A.B = |A||B| Cos(Theta), but A and B are normalised. This is the rotation angle on the plane.
 			//TODO: check whether acos is defined for |x|>1 ???????
-//			double Theta = glm::acos(CosTheta);
+			double Theta = glm::acos(CosTheta);
 			//TODO: also, sign of angle is wrong - is it? normal?
-//			std::cout<<"Angle="<<Theta*180/3.1415<<std::endl;
-//			glm::vec3 PlaneNormal = glm::normalize(glm::cross(NV1,NV2)); //Cross the two vectors to get the normal to the plane of rotation.
+			//std::cout<<"Angle="<<Theta*180/3.1415<<std::endl;
+			glm::vec3 PlaneNormal = -glm::normalize(glm::cross(NV1,NV2)); //Cross the two vectors to get the normal to the plane of rotation.
 			//HACK!
-			double Theta=0.01*(mx-256);
-			glm::vec3 PlaneNormal = glm::vec3(0,1,0);
+			//double Theta=0.01*(mx-256);
+			//PlaneNormal = glm::vec3(0,1,0);
 		
 			//OK, we have a plane of rotation and an angle, so let's rotate the camera
 			glm::mat4 mCam = dragCameraMatrix;
 			//mCam[3][0]-=centre.x; mCam[3][1]-=centre.y; mCam[3][2]-=centre.z; //move mCam to (centre) in world space
 			//mCam = glm::translate(mCam,-vCameraPos);
-			glm::mat4 m = glm::rotate(mCam,(float)Theta,PlaneNormal);
+			glm::mat4 m = glm::rotate(glm::mat4(1),(float)Theta,PlaneNormal);
 			mCam = m * mCam;
 			//mCam[3][0]+=centre.x; mCam[3][1]+=centre.y; mCam[3][2]+=centre.z;
 			//mCam = glm::translate(mCam,vCameraPos);
@@ -147,7 +147,7 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 			//std::cout<<"Camera Before: "<<vCameraPos.x<<" "<<vCameraPos.y<<" "<<vCameraPos.z<<" "<<glm::length(vCameraPos)<<std::endl;
 			//vCameraPos = con_camera->GetCameraPos();
 			//std::cout<<"Camera After: "<<vCameraPos.x<<" "<<vCameraPos.y<<" "<<vCameraPos.z<<" "<<glm::length(vCameraPos)<<std::endl;
-//		}
+		}
 		
 
 		//GLSL asin undefined for |x|>1, so use atan2 for Phi and Theta instead

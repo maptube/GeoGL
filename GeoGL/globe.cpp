@@ -50,7 +50,8 @@ Globe::Globe(void)
 	_Shaders.push_back(shader);
 
 	//add sphere representing the earth
-	Sphere* sphere=new Sphere(ellipsoid.A()/1000,ellipsoid.B()/1000,ellipsoid.C()/1000,40,40);
+	//HACK! made ellipsoid a sphere!
+	Sphere* sphere=new Sphere(ellipsoid.A()/1000,ellipsoid.A()/1000/*B!!!*/,ellipsoid.A()/1000/*C!!!*/,40,40);
 	sphere->AttachShader(shader,false);
 	SceneGraph.push_back(sphere);
 
