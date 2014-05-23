@@ -9,12 +9,12 @@
 class FlyController : public gengine::events::EventListener
 {
 public:
-	static const float rateX; //rates applied to cursor position for aileron
-	static const float rateY; //rates applied to cursor position for elevator
+	static const double rateX; //rates applied to cursor position for aileron
+	static const double rateY; //rates applied to cursor position for elevator
 
 	gengine::Camera *con_camera; //the camera being controlled
-	float Aileron, Elevator; //angles of rotation in radians
-	float Speed; //distance moved forward each time Forward() is called
+	double Aileron, Elevator; //angles of rotation in radians
+	double Speed; //distance moved forward each time Forward() is called
 
 	FlyController(gengine::Camera *camera);
 	~FlyController(void);

@@ -98,8 +98,8 @@ namespace gengine {
 		//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]); // Send our model matrix to the shader
 
 		//bind automatic uniforms
-		obj._ShaderProgram->_shaderUniforms->SetMatrix4fv("projectionMatrix",sceneobj._camera->projectionMatrix);
-		obj._ShaderProgram->_shaderUniforms->SetMatrix4fv("viewMatrix",sceneobj._camera->viewMatrix);
+		obj._ShaderProgram->_shaderUniforms->SetMatrix4dv("projectionMatrix",sceneobj._camera->projectionMatrix); //was 4fv originally
+		obj._ShaderProgram->_shaderUniforms->SetMatrix4dv("viewMatrix",sceneobj._camera->viewMatrix); //was 4fv originally
 		obj._ShaderProgram->_shaderUniforms->SetMatrix4fv("modelMatrix",obj._ModelMatrix);
 
 		//bind vertex arrays
@@ -131,11 +131,16 @@ namespace gengine {
 		//fallback if no shaders supported
 		//TODO: this should check existing state and only change if needed
 		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf(&sceneobj._camera->projectionMatrix[0][0]);
+		//glLoadMatrixf(&sceneobj._camera->projectionMatrix[0][0]);
+		glLoadMatrixd(&sceneobj._camera->projectionMatrix[0][0]); //interesting to know what this actually does as GPU support for doubles is very new
 		glMatrixMode(GL_MODELVIEW);
 		//need to multiply view by model matrix like the shader does and then load that into the model view opengl state
-		glm::mat4 ModelViewMatrix = sceneobj._camera->viewMatrix * obj._ModelMatrix;
-		glLoadMatrixf(&ModelViewMatrix[0][0]);
+		//convert float ModelMatrix to a double
+		glm::dmat4 dModelMatrix = glm::dmat4(obj._ModelMatrix);
+		//glm::mat4 ModelViewMatrix = sceneobj._camera->viewMatrix * obj._ModelMatrix;
+		glm::dmat4 ModelViewMatrix = sceneobj._camera->viewMatrix * dModelMatrix;
+		//glLoadMatrixf(&ModelViewMatrix[0][0]);
+		glLoadMatrixd(&ModelViewMatrix[0][0]);
 
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes); //DO YOU ACTUALLY NEED TO DO THIS?
 		//set device render state globals

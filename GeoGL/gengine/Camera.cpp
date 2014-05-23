@@ -14,8 +14,8 @@ namespace gengine {
 	*/
 	Camera::Camera(void)
 	{
-		viewMatrix = glm::mat4(1);
-		projectionMatrix = glm::mat4(1);
+		viewMatrix = glm::dmat4(1);
+		projectionMatrix = glm::dmat4(1);
 	}
 
 	Camera::~Camera(void)

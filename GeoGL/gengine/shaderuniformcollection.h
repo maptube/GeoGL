@@ -21,6 +21,7 @@ namespace gengine {
 		//Add?
 		void BuildFromShaderProgram(int shader_id);
 		void SetMatrix4fv(const std::string& Name, const glm::mat4& m);
+		void SetMatrix4dv(const std::string& Name, const glm::dmat4& m);
 		//SetInt, SetFloat etc? we're generally going to be using mat4s though.
 
 		void Debug_Enumerate();

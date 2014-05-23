@@ -124,12 +124,12 @@ void OrbitController::CursorPosCallback(GLFWwindow *window, double mx, double my
 
 		//We know the camera's orbit sphere is being dragged at its surface and we know the radius of that sphere, so we don't actually need
 		//to back project to find the point in 3D space and subtract the origin point in 3D. The only question is what scaling to use (i.e. perspective f)?
-		glm::vec3 P2(mx,my,0);
-		glm::vec3 delta=P2-dragPoint;
+		glm::dvec3 P2(mx,my,0);
+		glm::dvec3 delta=P2-dragPoint;
 		delta.x/=(float)width;
 		delta.y/=(float)height;
 		//delta.z=1; //z determines scaling
-		delta=delta*2.0f; //-1.0f; //set range to +-1 in both axes 
+		delta=delta*2.0; //-1.0f; //set range to +-1 in both axes 
 
 		//get distance from camera to object origin, which is the radius of the rotating sphere that the camera is fixed to
 		//glm::vec3 vCameraPos = con_camera->GetCameraPos();
@@ -147,8 +147,8 @@ void OrbitController::CursorPosCallback(GLFWwindow *window, double mx, double my
 		//float Theta = glm::atan<float>(delta.x,delta.z);
 		
 		//this actually works better, rotation is a linear factor of distance from click point
-		float Phi=-delta.y;
-		float Theta=delta.x;
+		double Phi=-delta.y;
+		double Theta=delta.x;
 
 		//std::cout<<"dx="<<delta.x<<" Theta="<<Theta<<" Phi="<<Phi<<" radius="<<radius<<" origin="<<centre.x<<","<<centre.y<<","<<centre.z<<std::endl;
 		//using two angles, calculate the new direction that the camera is looking in
@@ -161,10 +161,10 @@ void OrbitController::CursorPosCallback(GLFWwindow *window, double mx, double my
 		//gtx euler angle YX (??) or yawPitchRoll
 
 		//bearing in mind that we can calculate sin Theta, cos Theta, sin Phi and cos Phi very easily, you could just copy the euler code and speed things up a bit
-		glm::mat4 m = glm::eulerAngleYX(Theta,Phi);
+		glm::dmat4 m = glm::eulerAngleYX(Theta,Phi);
 
 		//Perform calculations in world space using the camera matrix as it's easier to visualise than view space.
-		glm::mat4 mCam = dragCameraMatrix;
+		glm::dmat4 mCam = dragCameraMatrix;
 		//move camera so it's centred on the origin of rotation (this.centre)
 		//don't do this: mCam = glm::translate(mCam,-centre) as the translate code performs
 		// mCam[3]=m[0]*v[0]+m[1]*v[1]+m[2]*v[2]+m[3] i.e. translation v along main direction of martix m
@@ -179,15 +179,15 @@ void OrbitController::CursorPosCallback(GLFWwindow *window, double mx, double my
 		//right mouse being used to translate the view left/right/up/down
 		int width,height;
 		glfwGetFramebufferSize(window, &width, &height);
-		glm::vec3 P2(mx,my,0);
-		glm::vec3 delta=P2-dragPoint;
+		glm::dvec3 P2(mx,my,0);
+		glm::dvec3 delta=P2-dragPoint;
 		delta.x/=(float)width;
 		delta.y/=-(float)height;
 		delta.z=0;
-		delta=delta*2.0f; //set range to +-1 in both axes
+		delta=delta*2.0; //set range to +-1 in both axes
 
 		//do the translation in view space as it make more sense - everything is relative to the view
-		glm::mat4 mView = dragViewMatrix;
+		glm::dmat4 mView = dragViewMatrix;
 		mView = glm::translate(mView,delta);
 		con_camera->viewMatrix = mView;
 	}
@@ -209,11 +209,11 @@ void OrbitController::ScrollCallback(GLFWwindow *window, double xoffset, double 
 	//std::cout<<"OrbitController::ScrollCallback xoffset="<<xoffset<<" yoffset="<<yoffset<<std::endl;
 	
 	//complex version where it zooms in a percentage of the distance from the eye to the centre
-	glm::vec3 vCameraPos = con_camera->GetCameraPos();
-	glm::mat4 mCamera = con_camera->GetCameraMatrix();
-	float radius = glm::distance(centre,vCameraPos);
-	float delta = -radius*yoffset*speed; //where speed is the percentage i.e. 1/100=0.01
-	glm::mat4 mNewCamera = glm::translate(mCamera,glm::vec3(0,0,delta));
+	glm::dvec3 vCameraPos = con_camera->GetCameraPos();
+	glm::dmat4 mCamera = con_camera->GetCameraMatrix();
+	double radius = glm::distance(centre,vCameraPos);
+	double delta = -radius*yoffset*speed; //where speed is the percentage i.e. 1/100=0.01
+	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
 
 	//simple version where we zoom in a fixed amount - this works better
@@ -240,7 +240,7 @@ void OrbitController::MouseButtonCallback(GLFWwindow *window, int button, int ac
 			//set click point
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
-			dragPoint = glm::vec3(Px,Py,0);
+			dragPoint = glm::dvec3(Px,Py,0);
 			dragCameraMatrix = con_camera->GetCameraMatrix();
 			std::cout<<"Drag Camera: "<<dragCameraMatrix[3][0]<<" "<<dragCameraMatrix[3][1]<<" "<<dragCameraMatrix[3][2]<<std::endl;
 			std::cout<<"Centre: "<<centre.x<<" "<<centre.y<<" "<<centre.z<<std::endl;
@@ -255,7 +255,7 @@ void OrbitController::MouseButtonCallback(GLFWwindow *window, int button, int ac
 			//set click point
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
-			dragPoint = glm::vec3(Px,Py,0);
+			dragPoint = glm::dvec3(Px,Py,0);
 			dragViewMatrix = con_camera->viewMatrix;
 		}
 		else {

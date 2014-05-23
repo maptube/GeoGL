@@ -7,6 +7,8 @@
 #include <glm/gtx/intersect.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include "globe.h" //debug only
+
 using namespace gengine;
 
 using namespace events;
@@ -61,14 +63,17 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		//int width,height;
 		//glfwGetFramebufferSize(window, &width, &height);
 		//glm::vec4 vViewport(0,0,width,height);
+		//double Px,Py;
+		//glfwGetCursorPos(window,&Px,&Py);
+		//mx=Px; my=Py;
 
 		//THIS SHOULD NOT BE HERE!
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT, viewport);
-		float winX = mx;
-		float winY = viewport[3]-my;
-		float winZ;
-		glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ); //read depth buffer at required point (won't work! although it will result in dragging around what you clicked on)
+		double winX = mx;
+		double winY = ((double)viewport[3])-my;
+		//float winZ;
+		//glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ); //read depth buffer at required point (won't work! although it will result in dragging around what you clicked on)
 		
 		//glm::vec4 vViewport((float)viewport[0],(float)viewport[1],(float)viewport[2],(float)viewport[3]);
 		//glm::vec3 P1 = glm::unProject(glm::vec3(dragPoint.x,dragPoint.y,1.0),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject click point
@@ -92,14 +97,13 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		//These two pieces of information are used to rotate the camera.
 
 		//get distance from camera to object origin, which is the radius of the rotating sphere that the camera is fixed to
-		glm::vec3 vCameraPos = con_camera->GetCameraPos();
-		double radius = glm::distance(centre,vCameraPos);
-		glm::vec4 vViewport((float)viewport[0],(float)viewport[1],(float)viewport[2],(float)viewport[3]);
+		glm::dvec3 vCameraPos = con_camera->GetCameraPos();
+		glm::dvec4 vViewport((double)viewport[0],(double)viewport[1],(double)viewport[2],(double)viewport[3]);
 		//glm::vec3 P1 = glm::unProject(glm::vec3(dragPoint.x,dragPoint.y,0.5),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject click point
 		//HACK! fix P1 dead centre of camera on sphere surface
 		//glm::vec3 P1(0,0,18000);
-		glm::vec3 P1=dragPoint;
-		glm::vec3 P2 = glm::unProject(glm::vec3(winX/*(double)mx*/,winY/*(double)my*/,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
+		glm::dvec3 P1=dragPoint;
+		glm::dvec3 P2 = glm::unProject(glm::dvec3(winX,winY,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
 		//std::cout<<"click point="<<P1.x<<","<<P1.y<<","<<P1.z<<std::endl;
 		//std::cout<<"current point="<<P2.x<<","<<P2.y<<","<<P2.z<<" winZ="<<winZ<<std::endl;
 		//test - project and unproject the same vector
@@ -107,11 +111,11 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		//glm::vec3 test2 = glm::unProject(test1,con_camera->viewMatrix,con_camera->projectionMatrix,vViewport);
 
 
-		glm::vec3 intersectionPosition, intersectionNormal;
+		glm::dvec3 intersectionPosition, intersectionNormal;
 		bool test = glm::intersectRaySphere(
 			vCameraPos, //rayStarting,
 			glm::normalize(P2-vCameraPos), //rayNormalizedDirection,
-			glm::vec3(0,0,0), //genType const &  sphereCenter,
+			glm::dvec3(0,0,0), //genType const &  sphereCenter,
 			6378137.0/1000.0, //  sphereRadius,
 			intersectionPosition,
 			intersectionNormal
@@ -119,31 +123,32 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		if (test) {
 			//std::cout<<"Sphere intersect: "<<intersectionPosition.x<<","<<intersectionPosition.y<<","<<intersectionPosition.z<<std::endl;
 			//std::cout<<"Sphere intersect N: "<<intersectionNormal.x<<","<<intersectionNormal.y<<","<<intersectionNormal.z<<std::endl;
+			globe->debugPositionCube(2,intersectionPosition.x,intersectionPosition.y,intersectionPosition.z);
 
 			P2=intersectionPosition; //we just worked this out
 			//take two normalised vectors from orbit centre to points P1 and P2 on sphere
-			glm::vec3 NV1 = glm::normalize(P1-centre);
-			glm::vec3 NV2 = glm::normalize(P2-centre);
+			glm::dvec3 NV1 = glm::normalize(P1-vCameraPos/*centre*/);
+			glm::dvec3 NV2 = glm::normalize(P2-vCameraPos/*centre*/);
 			double CosTheta = glm::dot(NV1,NV2); //A.B = |A||B| Cos(Theta), but A and B are normalised. This is the rotation angle on the plane.
 			//TODO: check whether acos is defined for |x|>1 ???????
 			double Theta = glm::acos(CosTheta);
 			//TODO: also, sign of angle is wrong - is it? normal?
-			//std::cout<<"Angle="<<Theta*180/3.1415<<std::endl;
-			glm::vec3 PlaneNormal = -glm::normalize(glm::cross(NV1,NV2)); //Cross the two vectors to get the normal to the plane of rotation.
+			std::cout<<"Angle="<<Theta*180/3.1415<<std::endl;
+			glm::dvec3 PlaneNormal = glm::normalize(glm::cross(NV1,NV2)); //Cross the two vectors to get the normal to the plane of rotation. Either -(1 x 2) or (2 x 1)
 			//HACK!
 			//double Theta=0.01*(mx-256);
 			//PlaneNormal = glm::vec3(0,1,0);
 		
 			//OK, we have a plane of rotation and an angle, so let's rotate the camera
-			glm::mat4 mCam = dragCameraMatrix;
+			glm::dmat4 mCam = dragCameraMatrix;
 			//mCam[3][0]-=centre.x; mCam[3][1]-=centre.y; mCam[3][2]-=centre.z; //move mCam to (centre) in world space
 			//mCam = glm::translate(mCam,-vCameraPos);
-			glm::mat4 m = glm::rotate(glm::mat4(1),(float)Theta,PlaneNormal);
+			glm::dmat4 m = glm::rotate(glm::dmat4(1),Theta,PlaneNormal);
 			mCam = m * mCam;
 			//mCam[3][0]+=centre.x; mCam[3][1]+=centre.y; mCam[3][2]+=centre.z;
 			//mCam = glm::translate(mCam,vCameraPos);
 			con_camera->SetCameraMatrix(mCam);
-			//con_camera->LookAt(glm::vec3(0,0,0));
+			//con_camera->LookAt(glm::dvec3(0,0,0));
 			//std::cout<<"Camera Before: "<<vCameraPos.x<<" "<<vCameraPos.y<<" "<<vCameraPos.z<<" "<<glm::length(vCameraPos)<<std::endl;
 			//vCameraPos = con_camera->GetCameraPos();
 			//std::cout<<"Camera After: "<<vCameraPos.x<<" "<<vCameraPos.y<<" "<<vCameraPos.z<<" "<<glm::length(vCameraPos)<<std::endl;
@@ -189,8 +194,8 @@ void EllipsoidOrbitController::ScrollCallback(GLFWwindow *window, double xoffset
 	//std::cout<<"OrbitController::ScrollCallback xoffset="<<xoffset<<" yoffset="<<yoffset<<std::endl;
 
 	//complex version where it zooms in a percentage of the distance from the eye to the centre
-	glm::vec3 vCameraPos = con_camera->GetCameraPos();
-	glm::mat4 mCamera = con_camera->GetCameraMatrix();
+	glm::dvec3 vCameraPos = con_camera->GetCameraPos();
+	glm::dmat4 mCamera = con_camera->GetCameraMatrix();
 	//old code
 	//float radius = glm::distance(centre,vCameraPos);
 	//float delta = -radius*yoffset*speed; //where speed is the percentage i.e. 1/100=0.01
@@ -198,7 +203,7 @@ void EllipsoidOrbitController::ScrollCallback(GLFWwindow *window, double xoffset
 	double h = _pEllipsoid->heightAboveSurfaceAtPoint(vCameraPos);
 	std::cout<<"h="<<h<<std::endl;
 	float delta = -h*yoffset*speed; //where speed is the percentage i.e. 1/100=0.01
-	glm::mat4 mNewCamera = glm::translate(mCamera,glm::vec3(0,0,delta));
+	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
 
 	//simple version where we zoom in a fixed amount - this works better
@@ -217,29 +222,31 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 			//set click point
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
-			glm::vec3 vCameraPos = con_camera->GetCameraPos();
+			glm::dvec3 vCameraPos = con_camera->GetCameraPos();
 			
 			//this should not be here - make part of camera!
 			GLint viewport[4];
 			glGetIntegerv(GL_VIEWPORT, viewport);
-			float winX = Px;
-			float winY = viewport[3]-Py;
-			glm::vec4 vViewport((float)viewport[0],(float)viewport[1],(float)viewport[2],(float)viewport[3]);
-			glm::vec3 P1 = glm::unProject(glm::vec3(winX,winY,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject click point
+			double winX = Px;
+			double winY = (double)viewport[3]-Py;
+			glm::dvec4 vViewport((double)viewport[0],(double)viewport[1],(double)viewport[2],(double)viewport[3]);
+			glm::dvec3 P1 = glm::unProject(glm::dvec3(winX,winY,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject click point
 			//find intersection on sphere
-			glm::vec3 intersectionPosition, intersectionNormal;
+			glm::dvec3 intersectionPosition, intersectionNormal;
 			bool test = glm::intersectRaySphere(
 				vCameraPos, //rayStarting,
 				glm::normalize(P1-vCameraPos), //rayNormalizedDirection,
-				glm::vec3(0,0,0), //genType const &  sphereCenter,
-				6378, //  sphereRadius,
+				glm::dvec3(0,0,0), //genType const &  sphereCenter,
+				6378137.0/1000.0, //  sphereRadius,
 				intersectionPosition,
 				intersectionNormal
 			);
 			dragPoint = intersectionPosition;
+			globe->debugPositionCube(1,dragPoint.x,dragPoint.y,dragPoint.z);
 			//if test==false then dragging=false? i.e. you haven't clicked on the sphere
 
 			dragCameraMatrix = con_camera->GetCameraMatrix();
+			dragViewMatrix = con_camera->viewMatrix;
 			std::cout<<"Drag Camera: "<<dragCameraMatrix[3][0]<<" "<<dragCameraMatrix[3][1]<<" "<<dragCameraMatrix[3][2]<<std::endl;
 			std::cout<<"Centre: "<<centre.x<<" "<<centre.y<<" "<<centre.z<<std::endl;
 			std::cout<<"Drag Point: "<<dragPoint.x<<" "<<dragPoint.y<<" "<<dragPoint.z<<" "<<glm::length(dragPoint)<<std::endl;
@@ -254,7 +261,7 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 			//set click point
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
-			dragPoint = glm::vec3(Px,Py,0);
+			dragPoint = glm::dvec3(Px,Py,0);
 			dragViewMatrix = con_camera->viewMatrix;
 		}
 		else {

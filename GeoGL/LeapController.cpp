@@ -8,9 +8,9 @@ using namespace Leap;
 
 using namespace gengine;
 
-const float LeapController::rateRoll = 0.01f; //rates applied to cursor position for aileron
-const float LeapController::ratePitch = 0.01f; //rates applied to cursor position for elevator
-const float LeapController::rateYaw = 0.01f; //rates applied to cursor position for rudder
+const double LeapController::rateRoll = 0.01; //rates applied to cursor position for aileron
+const double LeapController::ratePitch = 0.01; //rates applied to cursor position for elevator
+const double LeapController::rateYaw = 0.01; //rates applied to cursor position for rudder
 
 LeapController::LeapController(Camera* camera)
 {
@@ -87,9 +87,9 @@ void LeapController::Backward()
 void LeapController::SimulateMultiRotor()
 {
 	//glm::vec3 xyz = con_camera->GetCameraPos();
-	glm::mat4 mCam = con_camera->GetCameraMatrix();
+	glm::dmat4 mCam = con_camera->GetCameraMatrix();
 	//mCam[3][0]=0; mCam[3][1]=0; mCam[3][2]=0;
-	glm::mat4 m = glm::eulerAngleYXZ(0.0f/*-Yaw*/,Pitch,Roll);
+	glm::dmat4 m = glm::eulerAngleYXZ(0.0/*-Yaw*/,Pitch,Roll);
 	//glm::mat4 m = glm::eulerAngleYXZ(0.0f,0.0f,0.0f);
 	//m = m_cam * m;
 	for (int i=0; i<3; i++)
@@ -101,7 +101,7 @@ void LeapController::SimulateMultiRotor()
 	//mCam = glm::rotate(mCam,Yaw*rateYaw,glm::vec3(0,1,0));
 
 	//now find direction vector to move along
-	glm::vec3 up(mCam[1][0],mCam[1][1],mCam[1][2]); // mCam * (0,1,0)
+	glm::dvec3 up(mCam[1][0],mCam[1][1],mCam[1][2]); // mCam * (0,1,0)
 	//mCam = glm::translate(mCam,glm::vec3(/*up.x/1000*/0,0,up.z/1000)); //no height translation
 	mCam[3][0]+=up.x/1000;
 	mCam[3][2]+=up.z/1000;

@@ -59,12 +59,23 @@ Globe::Globe(void)
 	cuboid->AttachShader(shader,false);
 	SceneGraph.push_back(cuboid);
 
+	//setup debug object - this is a cube that we can position in the scene as a marker
+	//Cube1 is Red, Cube2 is Blue
+	debugCube1 = new Cuboid(100,100,100);
+	debugCube1->SetColour(glm::vec3(1.0,0,0));
+	debugCube1->AttachShader(shader,false);
+	SceneGraph.push_back(debugCube1);
+	debugCube2 = new Cuboid(100,100,100);
+	debugCube2->SetColour(glm::vec3(0,0,1.0));
+	debugCube2->AttachShader(shader,false);
+	SceneGraph.push_back(debugCube2);
+
 //HACKED perspective and object locations and size to avoid Z fighting
 	//set up the camera
 	//camera.SetupPerspective(openglContext.GetWindowWidth(), openglContext.GetWindowHeight(), 0.01f, 200.0f);  // Create our perspective matrix
 	camera.SetupPerspective(WindowWidth, WindowHeight, 1.0f, 27000000.0f/1000);
 	//camera.viewMatrix = openglContext.fitViewMatrix(); //not much point in doing this as there's nothing there yet
-	camera.SetCameraPos(glm::vec3(0.0f,0.0f,18000000.0f/1000));
+	camera.SetCameraPos(glm::dvec3(0.0f,0.0f,16000000.0f/1000));
 	//glm::vec3 vCam = camera.GetCameraPos();
 	//std::cout<<"Globe Setup: camera ("<<vCam.x<<","<<vCam.y<<","<<vCam.z<<")"<<std::endl;
 	_sdo = new SceneDataObject();
@@ -80,6 +91,7 @@ Globe::Globe(void)
 	//controller.centre=glm::vec3(-1.0f,0.0f,0.0f);
 	//controller.centre=glm::vec3(-0.11464,51.46258,0); //Brixton
 	controller = new EllipsoidOrbitController(&camera,&ellipsoid);
+	controller->globe = this; //debug only
 }
 
 
@@ -102,6 +114,18 @@ Globe::~Globe(void)
 
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();
+}
+
+/// <summary>
+/// Move the debug cube position on the globe. It's just a marker in the scene which we can use for testing purposes.
+/// </summary>
+void Globe::debugPositionCube(int Num, float X, float Y, float Z)
+{
+	switch (Num) {
+		case 0: break; //it's only 1 or 2!!!
+		case 1: debugCube1->SetPos(X,Y,Z); break;
+		case 2: debugCube2->SetPos(X,Y,Z); break;
+	}
 }
 
 /// <summary>

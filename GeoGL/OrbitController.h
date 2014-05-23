@@ -12,13 +12,13 @@ public:
 	gengine::Camera *con_camera; //the camera being controlled
 	//speed etc?
 	//radius, it's the camera distance from origin?
-	glm::vec3 centre; //in world coordinates (camera space)
+	glm::dvec3 centre; //in world coordinates (camera space)
 
 	OrbitController(gengine::Camera *camera);
 	~OrbitController(void);
 
 	//neither of these is strictly necessary as the camera can be moved directly and the origin is public
-	void SetCameraPos(glm::vec3 pos)
+	void SetCameraPos(glm::dvec3 pos)
 	{
 		//NOTE: this is in world coordinates i.e. camera space
 		//direct manipulation of GLSL matrix, but can't see any other way of doing this in GLM
@@ -35,9 +35,9 @@ public:
 protected:
 	bool dragging; //true when left mouse is dragging camera direction around orbit
 	bool panning; //true when right mouse is panning the view left/right/up/down
-	glm::vec3 dragPoint; //point on sphere that is being dragged
-	glm::mat4 dragCameraMatrix; //camera matrix at the point when the drag began
-	glm::mat4 dragViewMatrix; //view matrix at the point when the drag began (one of these two is going to be useful)
+	glm::dvec3 dragPoint; //point on sphere that is being dragged
+	glm::dmat4 dragCameraMatrix; //camera matrix at the point when the drag began
+	glm::dmat4 dragViewMatrix; //view matrix at the point when the drag began (one of these two is going to be useful)
 
 	//event callbacks
 	virtual void CursorPosCallback(GLFWwindow *window, double mx, double my);

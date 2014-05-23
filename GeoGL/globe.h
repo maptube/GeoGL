@@ -20,6 +20,7 @@
 //forward declarations
 //class GLFWWindow;
 class Object3D;
+class Cuboid;
 class GeoJSON;
 class OrbitController;
 class EllipsoidOrbitController;
@@ -65,9 +66,13 @@ private:
 	void RenderChildren(Object3D* Parent);
 public:
 	gengine::Camera camera;
+	Cuboid* debugCube1;
+	Cuboid* debugCube2;
 
 	Globe(void);
 	~Globe(void);
+
+	void debugPositionCube(int Num, float X, float Y, float Z);
 
 	bool IsRunning(void);
 	//GLFWwindow* GetWindow() { return openglContext.window; }

@@ -81,4 +81,26 @@ namespace gengine {
 		//should I be checking for invalid names?
 	}
 
+	/// <summary>
+	/// Send a double precision matrix to the shader by name. At the moment this just casts the double values in the matrix to floats, but
+	/// a final implementation should do something clever with the shader to implement double precision calculations.
+	/// </summary>
+	void ShaderUniformCollection::SetMatrix4dv(const std::string& Name, const glm::dmat4& m)
+	{
+		//TODO: not exactly elegant, but there aren't going to be many uniforms and a hash is probably overkill?
+		bool Found=false;
+		for (vector<ShaderUniform>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
+			ShaderUniform u = *it;
+			if (u._Name==Name) {
+				Found=true;
+				float f[4][4];
+				for (int i=0; i<4; i++) for (int j=0; j<4; j++) f[i][j]=(float)m[i][j];
+				glUniformMatrix4fv(u._Location, 1, GL_FALSE, &f[0][0]); // Send our matrix to the shader
+				break;
+			}
+		}
+		if (!Found) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		//should I be checking for invalid names?
+	}
+
 } //namespace gengine

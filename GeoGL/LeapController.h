@@ -11,15 +11,15 @@
 class LeapController : public Leap::Listener
 {
 public:
-	static const float rateRoll; //rates applied to cursor position for aileron
-	static const float ratePitch; //rates applied to cursor position for elevator
-	static const float rateYaw; // rates applied to cursor position for rudder
+	static const double rateRoll; //rates applied to cursor position for aileron
+	static const double ratePitch; //rates applied to cursor position for elevator
+	static const double rateYaw; // rates applied to cursor position for rudder
 
 	Leap::Controller* controller;
 	gengine::Camera *con_camera; //the camera being controlled
 	//float Aileron, Elevator; //angles of rotation in radians
 	//float Speed; //distance moved forward each time Forward() is called
-	float Roll, Pitch, Yaw; //angles of rotation from LeapMotion device
+	double Roll, Pitch, Yaw; //angles of rotation from LeapMotion device
 
 	LeapController(gengine::Camera *camera);
 	~LeapController(void);
