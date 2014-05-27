@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 #include <unordered_map>
+#include <vector>
 
 //prototypes
 class Edge;

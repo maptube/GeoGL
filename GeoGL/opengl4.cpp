@@ -79,9 +79,9 @@ OpenGLContext::OpenGLContext(void) {
 /**
 	Constructor for the OpenGLContext class which will create a context given a windows HWND.
 */
-OpenGLContext::OpenGLContext(HWND hwnd) {
-	create30Context(hwnd); // Create a context given a HWND
-}
+//OpenGLContext::OpenGLContext(HWND hwnd) {
+//	create30Context(hwnd); // Create a context given a HWND
+//}
 
 /**
 	Destructor for our OpenGLContext class which will clean up our rendering context
@@ -107,8 +107,7 @@ void OpenGLContext::WindowSizeCallback(GLFWwindow* window, int w, int h) {
 	the HWND. This method currently creates an OpenGL 3.2 context by default, but will default
 	to an OpenGL 2.1 capable context if the OpenGL 3.2 context cannot be created.
 */
-bool OpenGLContext::create30Context(HWND hwnd) {
-/*
+/*bool OpenGLContext::create30Context(HWND hwnd) {
 	this->hwnd = hwnd; // Set the HWND for our window
 
 	hdc = GetDC(hwnd); // Get the device context for our window
@@ -208,9 +207,9 @@ bool OpenGLContext::create30Context(HWND hwnd) {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-*/
+
 	return true; // We have successfully created a context, return true
-}
+}*/
 
 /**
 * Context creation for SDL and GLEW initialisation.

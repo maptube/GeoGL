@@ -15,7 +15,7 @@
 
 #ifdef _DEBUG
 #pragma comment(lib, "Leapd.lib")
-#elif
+#else
 #pragma comment(lib, "Leap.lib")
 #endif
 

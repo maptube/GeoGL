@@ -10,6 +10,7 @@
 #include <map>
 #include "object3d.h"
 #include "gengine/Camera.h"
+#include <vector>
 
 //should we be using this?
 //#include "SDL/SDL_opengl.h"
@@ -28,14 +29,14 @@ public:
 	static int VersionMinor;
 
 	OpenGLContext(void); // Default constructor
-	OpenGLContext(HWND hwnd); // Constructor for creating our context given a hwnd
+	//OpenGLContext(HWND hwnd); // Constructor for creating our context given a hwnd
 	~OpenGLContext(void); // Destructor for cleaning up our application
 	virtual void WindowSizeCallback(GLFWwindow* window, int w, int h);
 
 	int GetWindowWidth() { return windowWidth; }
 	int GetWindowHeight() { return windowHeight; }
 
-	bool create30Context(HWND hwnd); // Creation of our OpenGL 3.x context
+	//bool create30Context(HWND hwnd); // Creation of our OpenGL 3.x context
 	bool create30ContextSDL(); //Creation of context using SDL
 	void destroyContextSDL();
 	bool create30ContextGLFW(); //Creation of context using GLFW
@@ -72,7 +73,7 @@ private:
 	GLuint iboID[1]; //Index buffer object
 
 protected:
-	HGLRC hrc; // Rendering context
-	HDC hdc; // Device context
-	HWND hwnd; // Window identifier
+	//HGLRC hrc; // Rendering context
+	//HDC hdc; // Device context
+	//HWND hwnd; // Window identifier
 };
