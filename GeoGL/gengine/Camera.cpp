@@ -22,6 +22,19 @@ namespace gengine {
 	{
 	}
 
+	/// <summary>
+	/// Returns OpenGL viewport values. Origin is bottom left, so mouse coordinates in the window need to be converted
+	/// using WinY=viewport[3]-mouseY
+	/// TODO: maybe viewport should come from the graphics context (could even be static)?
+	/// </summary>
+	/// <returns>The OpenGL viewport in the four elements of a vec4 as min x,min y,max x,max y</returns>
+	glm::vec4 Camera::GetViewport()
+	{
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		return glm::vec4((float)viewport[0],(float)viewport[1],(float)viewport[2],(float)viewport[3]);
+	}
+
 	/**
 	* Initialise perspective camera
 	*/

@@ -180,4 +180,21 @@ namespace gengine {
 		//windowHeight = h; // Set the window height
 	}
 
+	/// <summary>
+	/// Read the value of the Z buffer at window coordinates (X,Y). Z is returned as a device coordinate between 0..1
+	/// <summary>
+	/// <param name="X">X coordinate to read</param>
+	/// <param name="Y">Y coordinate to read</param>
+	/// <returns>The value of the Z buffer at (X,Y) in normalised device coordinates [0..1]</returns>
+	float GraphicsContext::ReadZBuffer(float X, float Y)
+	{
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		int winX = (int)X;
+		int winY = (float)viewport[3]-Y;
+		float winZ;
+		glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+		return winZ;
+	}
+
 } //namespace gengine

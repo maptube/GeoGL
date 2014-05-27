@@ -38,6 +38,7 @@ namespace gengine {
 		void Render(const DrawObject& obj, const SceneDataObject& sceneobj);
 		void RenderFallback(const DrawObject& obj, const SceneDataObject& sceneobj);
 		void SwapBuffers(void);
+		float ReadZBuffer(float X, float Y);
 
 		virtual void WindowSizeCallback(GLFWwindow* window, int w, int h);
 

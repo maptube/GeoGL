@@ -47,6 +47,7 @@ namespace gengine {
 			viewMatrix = glm::inverse(CameraMatrix);
 		};
 		void SetupPerspective(int windowWidth, int windowHeight, float nearClip, float farClip);
+		glm::vec4 GetViewport();
 		/**
 		* LookAt
 		* Make the camera look at a new point while staying at its current location. The up vector is forced to (0,1,0).
