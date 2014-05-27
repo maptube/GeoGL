@@ -46,6 +46,41 @@ EllipsoidOrbitController::~EllipsoidOrbitController(void)
 	em.RemoveMouseButtonEventListener(this);
 }
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+//TODO: this probably wants to be in a general library
+//It's a ray intersect with ellipsoid test similar the to the ray sphere one in glm
+bool intersectRayEllipsoid(
+	glm::dvec3 rayStarting,
+	glm::dvec3 rayNormalizedDirection,
+	glm::dvec3 ellipsoidCentre,
+	glm::dvec3 ellipsoidRadius, //vector of [a,b,c]
+	glm::dvec3& intersectionPosition)
+{
+	//see: http://www.cs.oberlin.edu/~bob/cs357.08/VectorGeometry/VectorGeometry.pdf
+	//V1=vM
+	glm::dvec3 V1=rayNormalizedDirection;
+	V1.x/=ellipsoidRadius.x; V1.y/=ellipsoidRadius.y; V1.z/=ellipsoidRadius.z;
+	//P1=P0M-CM
+	glm::dvec3 P1 = rayStarting-ellipsoidCentre;
+	P1.x/=ellipsoidRadius.x; P1.y/=ellipsoidRadius.y; P1.z/=ellipsoidRadius.z; //M scaling by axis half widths
+	//solve quadratic At^2 + Bt + C = 0
+	double A=glm::dot(V1,V1); //|V1|^2
+	double B=2.0 * glm::dot(P1,V1);
+	double C=glm::dot(P1,P1)-1.0; //|P1|^2-1
+	if ((B*B-4*A*C)<0) return false;
+	double t0=(-B+sqrt(B*B-4*A*C))/(2*A);
+	double t1=(-B-sqrt(B*B-4*A*C))/(2*A);
+	if (t0<t1) {
+		intersectionPosition = rayStarting + t0 * rayNormalizedDirection;
+	}
+	else {
+		intersectionPosition = rayStarting + t1 * rayNormalizedDirection;
+	}
+	return true;
+}
+
 /// <summary>
 /// Callback that follows the mouse position as the left mouse button is used to drag a point on the ellipsoid
 /// to a new location on the screen.
@@ -79,13 +114,20 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		glm::dvec3 P2 = glm::unProject(glm::dvec3(winX,winY,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
 
 		glm::dvec3 intersectionPosition, intersectionNormal;
-		bool test = glm::intersectRaySphere(
-			vCameraPos, //rayStarting,
-			glm::normalize(P2-vCameraPos), //rayNormalizedDirection,
-			centre, //genType const &  sphereCenter,
-			6378137.0/1000.0, //  sphereRadius,
-			intersectionPosition,
-			intersectionNormal
+		//bool test = glm::intersectRaySphere(
+		//	vCameraPos, //rayStarting,
+		//	glm::normalize(P2-vCameraPos), //rayNormalizedDirection,
+		//	centre, //genType const &  sphereCenter,
+		//	6378137.0/1000.0, //  sphereRadius,
+		//	intersectionPosition,
+		//	intersectionNormal
+		//);
+		bool test = intersectRayEllipsoid(
+			vCameraPos,
+			glm::normalize(P2-vCameraPos),
+			centre,
+			glm::dvec3(_pEllipsoid->A(),_pEllipsoid->B(),_pEllipsoid->C()),
+			intersectionPosition
 		);
 		if (test) {
 			//std::cout<<"Sphere intersect: "<<intersectionPosition.x<<","<<intersectionPosition.y<<","<<intersectionPosition.z<<std::endl;
@@ -150,36 +192,6 @@ void EllipsoidOrbitController::ScrollCallback(GLFWwindow *window, double xoffset
 	//con_camera->SetCameraMatrix(mCamera);
 }
 
-bool intersectRayEllipsoid(
-	glm::dvec3 rayStarting,
-	glm::dvec3 rayNormalizedDirection,
-	glm::dvec3 ellipsoidCentre,
-	glm::dvec3 ellipsoidRadius, //vector of [a,b,c]
-	glm::dvec3& intersectionPosition)
-{
-	//see: http://www.cs.oberlin.edu/~bob/cs357.08/VectorGeometry/VectorGeometry.pdf
-	//V1=vM
-	glm::dvec3 V1=rayNormalizedDirection;
-	V1.x/=ellipsoidRadius.x; V1.y/=ellipsoidRadius.y; V1.z/=ellipsoidRadius.z;
-	//P1=P0M-CM
-	glm::dvec3 P1 = rayStarting-ellipsoidCentre;
-	P1.x/=ellipsoidRadius.x; P1.y/=ellipsoidRadius.y; P1.z/=ellipsoidRadius.z; //M scaling by axis half widths
-	//solve quadratic At^2 + Bt + C = 0
-	double A=glm::dot(V1,V1); //|V1|^2
-	double B=2.0 * glm::dot(P1,V1);
-	double C=glm::dot(P1,P1)-1.0; //|P1|^2-1
-	if ((B*B-4*A*C)<0) return false;
-	double t0=(-B+sqrt(B*B-4*A*C))/(2*A);
-	double t1=(-B-sqrt(B*B-4*A*C))/(2*A);
-	if (t0<t1) {
-		intersectionPosition = rayStarting + t0 * rayNormalizedDirection;
-	}
-	else {
-		intersectionPosition = rayStarting + t1 * rayNormalizedDirection;
-	}
-	return true;
-}
-
 void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
 	//std::cout<<"OrbitController::MouseButtonCallback"<<std::endl;
@@ -210,9 +222,14 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 				vCameraPos,
 				glm::normalize(P1-vCameraPos),
 				centre,
-				glm::dvec3(_pEllipsoid->A()/1000,_pEllipsoid->B()/1000,_pEllipsoid->C()/1000),
+				glm::dvec3(_pEllipsoid->A(),_pEllipsoid->B(),_pEllipsoid->C()),
 				intersectionPosition
 				);
+			if (!test) {
+				//didn't click on the ellipsoid, so drop out of dragging mode
+				dragging=false;
+				return;
+			}
 			dragPoint = intersectionPosition;
 			std::cout<<"Intersect: "<<intersectionPosition.x<<" "<<intersectionPosition.y<<" "<<intersectionPosition.z<<std::endl;
 			globe->debugPositionCube(1,dragPoint.x,dragPoint.y,dragPoint.z);

@@ -51,21 +51,21 @@ Globe::Globe(void)
 
 	//add sphere representing the earth
 	//HACK! made ellipsoid a sphere!
-	Sphere* sphere=new Sphere(ellipsoid.A()/1000,ellipsoid.A()/1000/*B!!!*/,ellipsoid.A()/1000/*C!!!*/,40,40);
+	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
 	sphere->AttachShader(shader,false);
 	SceneGraph.push_back(sphere);
 
-	Cuboid* cuboid=new Cuboid(ellipsoid.A()/1000*1.5,ellipsoid.B()/1000*1.5,ellipsoid.C()/1000*1.5);
+	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
 	cuboid->AttachShader(shader,false);
 	SceneGraph.push_back(cuboid);
 
 	//setup debug object - this is a cube that we can position in the scene as a marker
 	//Cube1 is Red, Cube2 is Blue
-	debugCube1 = new Cuboid(100,100,100);
+	debugCube1 = new Cuboid(100000,100000,100000);
 	debugCube1->SetColour(glm::vec3(1.0,0,0));
 	debugCube1->AttachShader(shader,false);
 	SceneGraph.push_back(debugCube1);
-	debugCube2 = new Cuboid(100,100,100);
+	debugCube2 = new Cuboid(100000,100000,100000);
 	debugCube2->SetColour(glm::vec3(0,0,1.0));
 	debugCube2->AttachShader(shader,false);
 	SceneGraph.push_back(debugCube2);
@@ -73,9 +73,9 @@ Globe::Globe(void)
 //HACKED perspective and object locations and size to avoid Z fighting
 	//set up the camera
 	//camera.SetupPerspective(openglContext.GetWindowWidth(), openglContext.GetWindowHeight(), 0.01f, 200.0f);  // Create our perspective matrix
-	camera.SetupPerspective(WindowWidth, WindowHeight, 1.0f, 27000000.0f/1000);
+	camera.SetupPerspective(WindowWidth, WindowHeight, 1000.0f, 27000000.0f); //was 1.0f near
 	//camera.viewMatrix = openglContext.fitViewMatrix(); //not much point in doing this as there's nothing there yet
-	camera.SetCameraPos(glm::dvec3(0.0f,0.0f,16000000.0f/1000));
+	camera.SetCameraPos(glm::dvec3(0.0f,0.0f,16000000.0f));
 	//glm::vec3 vCam = camera.GetCameraPos();
 	//std::cout<<"Globe Setup: camera ("<<vCam.x<<","<<vCam.y<<","<<vCam.z<<")"<<std::endl;
 	_sdo = new SceneDataObject();
