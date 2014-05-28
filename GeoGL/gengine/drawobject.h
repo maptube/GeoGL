@@ -6,7 +6,7 @@ namespace gengine {
 	class RenderState;
 	class Shader;
 	class VertexData;
-	enum PrimitiveType;
+	enum PrimitiveType : int;
 
 	/// <summary>
 	/// We need to be able to return a null draw object for an Object3D which has no renderable geometry.

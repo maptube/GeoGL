@@ -111,7 +111,7 @@ public:
 	{
 		//if (_Vertices.ContainsKey(Id)) throw duplicate id exception
 		Vertex* V = new Vertex(Id);
-		_Vertices.insert(std::make_pair<int,Vertex*>(V->_VertexId, V));
+		_Vertices.insert(std::make_pair/*<int,Vertex*>*/(V->_VertexId, V));
 		return V;
 	}
 	

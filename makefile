@@ -10,7 +10,7 @@ CXX=g++
 #CFLAGS=-c -Wall
 #fatal errors only
 CFLAGS=-c -w
-CPPFLAGS=-g -D LINUX -std=c++11
+CPPFLAGS=-g -std=c++11 -D LINUX
 LDFLAGS=-lstdc++ -lm -lGL -lGLU -lglut -lGLEW
 LDLIBS=
 INCLUDEDIRS=-IGeoGL -Iexternals/glfw-3.0.4/include
@@ -21,9 +21,14 @@ EXECUTABLE=GeoGLProgram
 MAKE=make
 
 
-all: GeoGL
+all: gengine GeoGLProgram
 
-GeoGL: $(OBJECTS)
+gengine: Camera.cpp graphicscontext.cpp indexbuffer.cpp renderstate.cpp scenedataobject.cpp\
+shader.cpp shaderattribute.cpp shaderattributecollection.cpp vertexarrayobject.cpp vertexbuffer.cpp\
+vertexdata.cpp
+	$(CXX) $(CFLAGS) $(CPPFLAGS) $(INCLUDEDIRS) $< -o $@
+
+GeoGLProgram: $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 .cpp.o:
