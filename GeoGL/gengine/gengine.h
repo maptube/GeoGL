@@ -7,8 +7,8 @@
 //SDL_HINT_RENDER_OPENGL_SHADERS
 
 //////////////////////////////////////////////////////////////
-//Windows include block
-#ifdef WINDOWS
+//Windows include block - probably need WIN32 and WIN64!
+#ifdef WIN32
 
 // Include Windows functions
 #include <Windows.h>

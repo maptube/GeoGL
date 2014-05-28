@@ -13,21 +13,15 @@ using namespace gengine;
 
 using namespace events;
 
-//TODO: VERY IMPORTANT
-//When this is working, it might be a good idea to separate it from the orbit controller so it's not a sub class
 
-//EllipsoidOrbitController::EllipsoidOrbitController(void)
-//{
-//}
-
-//EllipsoidOrbitController::EllipsoidOrbitController(gengine::Camera* camera, Ellipsoid* pEllipsoid) : OrbitController(camera)
 EllipsoidOrbitController::EllipsoidOrbitController(gengine::Camera* camera, Ellipsoid* pEllipsoid)
 {
 	_pEllipsoid = pEllipsoid;
 	con_camera = camera;
 
+	scrollSpeed = 0.05f; //speed when zooming in and out - bigger is faster
 	dragging = false;
-	panning = false;
+	panning = false; //TODO: there is no pan mode!
 
 	//now hook up the mouse events
 	EventManager& em=EventManager::getInstance();
@@ -168,8 +162,6 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 /// <param name="yoffset">The mouse wheeel button delta to scroll up or down (or zoom in and out in orbit camera sense)</param>
 void EllipsoidOrbitController::ScrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
-	const double speed = 0.01;
-
 	//std::cout<<"OrbitController::ScrollCallback xoffset="<<xoffset<<" yoffset="<<yoffset<<std::endl;
 
 	//complex version where it zooms in a percentage of the distance from the eye to the centre
@@ -181,7 +173,7 @@ void EllipsoidOrbitController::ScrollCallback(GLFWwindow *window, double xoffset
 	//new code - diffferent radius (now height)
 	double h = _pEllipsoid->heightAboveSurfaceAtPoint(vCameraPos);
 	std::cout<<"h="<<h<<std::endl;
-	float delta = -h*yoffset*speed; //where speed is the percentage i.e. 1/100=0.01
+	float delta = -h*yoffset*scrollSpeed; //where speed is the percentage i.e. 1/100=0.01
 	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
 

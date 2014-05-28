@@ -296,9 +296,9 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 	for (int i=0; i<10; i++) {
 		Graph *G = new Graph(true);
 		std::map<std::string,int> VertexNames; //lookup between vertex names and ids in the network graph (need a new lookup each time a new graph is started)
-		const Json::Value jsLine = root[linecodes[i]];
+		const Json::Value& jsLine = root[linecodes[i]];
 		for (int dir=0; dir<=1; dir++) { //HACK for unidirectional
-			const Json::Value jsLineDir = jsLine[dirs[dir]];
+			const Json::Value& jsLineDir = jsLine[dirs[dir]];
 			std::string Label = linecodes[i]+"_"+dirs[dir]; //e.g. V_0 for Victoria Northbound or V_1 for Southbound
 			for (unsigned int v = 0; v < jsLineDir.size(); ++v ) {
 				//cout<<"data:"<<jsLineDir[v]<<endl;
@@ -307,7 +307,7 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 				//OutputDebugStringA(jsLineDir[v].asString().c_str());
 				// "o", "d", "r"
 				//velocity = dist/runlink
-				Json::Value node = jsLineDir[v];
+				const Json::Value& node = jsLineDir[v];
 				string o = node["o"].asString();
 				string d = node["d"].asString();
 				int r = node["r"].asInt();
@@ -493,19 +493,15 @@ Object3D* ModelTubeNetwork::GenerateMesh() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //ABM
 
-/// <summary>ABM initialisation. TODO: I've hard coded the file names here. REALLY BAD.</summary>
+/// <summary>ABM initialisation</summary>
 void ModelTubeNetwork::Setup() {
-	//load(
-	//	"..\\GeoGL\\data\\tube-network.json",
-	//	"..\\GeoGL\\data\\station-codes.csv");
-
 	//TODO: need to create a breed called nodes and drivers and set default shape to sphere and turtle
 	//Check how NetLogo does this
 
 	//AgentScript: agentBreeds "nodes" "drivers"
 	//My version, closer to NetLogo: Breed("node","nodes"); and Breed("driver","drivers");
 	SetDefaultShape("node","sphere");
-	SetDefaultSize("node",300.0f/*0.001f*/);
+	SetDefaultSize("node",200.0f/*0.001f*/);
 	SetDefaultShape("driver","turtle");
 	SetDefaultSize("driver",600.0f/*0.005f*/);
 
@@ -640,7 +636,7 @@ void ModelTubeNetwork::Step() {
 					//#d.die ?
 					ABM::Agent* toNode=d->Get<ABM::Agent*>("toNode");
 					int dir=d->Get<int>("direction");
-					cout<<"Agent "<<d->Name<<" no options "<<toNode->Name<<" dir="<<dir<<endl;
+					//cout<<"Agent "<<d->Name<<" no options "<<toNode->Name<<" dir="<<dir<<endl;
 					
 					//debug
 					//for (vector<ABM::Link*>::iterator it=lnks.begin(); it!=lnks.end(); ++it) {

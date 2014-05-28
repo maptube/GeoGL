@@ -211,9 +211,9 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	//tn->Setup(); //who's responsible for this? globe or me?
-	//globe.AddLayerModel(tn);
+	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	tn->Setup(); //who's responsible for this? globe or me?
+	globe.AddLayerModel(tn);
 	
 	////tn->load(
 	////	"..\\GeoGL\\data\\tube-network.json",
@@ -284,6 +284,8 @@ int main(int argc, char *argv[])
 	//glfwSetMouseButtonCallback(openglContext.window, mousebutton_callback);
 	//glfwSetScrollCallback(openglContext.window, scroll_callback);
 	//glfwSetKeyCallback(openglContext.window, key_callback);
+
+	globe.LookAt("LondonUnderground");
 	
 	//float a=0;
 	float startTicks = glfwGetTime();

@@ -52,6 +52,7 @@ Globe::Globe(void)
 	//add sphere representing the earth
 	//HACK! made ellipsoid a sphere!
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
+	sphere->SetColour(glm::vec3(0.0,0.4,0.05));
 	sphere->AttachShader(shader,false);
 	SceneGraph.push_back(sphere);
 
@@ -210,6 +211,45 @@ void Globe::FitViewToLayers(void)
 	camera.viewMatrix = FitViewMatrix2();
 }
 
+//recursive descent find object by name
+Object3D* FindByName(std::string Name, Object3D* O3D)
+{
+	if (O3D->Name==Name)
+	{
+		return O3D;
+	}
+	else
+	{
+		//look at child objects in turn and if we get a hit return it
+		for (vector<Object3D*>::const_iterator childIT=O3D->BeginChild(); childIT!=O3D->EndChild(); ++childIT)
+		{
+			Object3D* child = FindByName(Name,*childIT);
+			if (child!=NULL) return child;
+		}
+	}
+	return NULL;
+}
+
+/// <summary>
+/// Look at a named object in the scene graph.
+/// </summary>
+/// <param name="Name">The name of the object which we want to fill the window.</param>
+void Globe::LookAt(std::string Name)
+{
+	//step 1: find the object
+	Object3D* O3D=NULL;
+	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
+		O3D = FindByName(Name,*sceneIT);
+		if (O3D!=NULL) break; //found it!
+	}
+	if (O3D==NULL) return; //not found
+
+	cout<<"Zoom to "<<Name<<endl;
+	//step 2: zoom to the bounds of the object
+	BBox box = O3D->GetGeometryBounds();
+	camera.viewMatrix = FitViewMatrix2(box);
+}
+
 /// <summary>
 /// Return a view matrix which fits everything in the scene graph into the view.
 /// Code borrowed from OpenGL4.cpp
@@ -266,8 +306,8 @@ glm::mat4 Globe::FitViewMatrix(void)
 /// <summary>
 glm::mat4 Globe::FitViewMatrix2(void)
 {
-	int width, height;
-	glfwGetFramebufferSize(GC->window, &width, &height);
+	//int width, height;
+	//glfwGetFramebufferSize(GC->window, &width, &height);
 
 	//Step 1: 
 	//walk the scene and union all the boxes
@@ -277,6 +317,34 @@ glm::mat4 Globe::FitViewMatrix2(void)
 		box.Union(o3d->GetGeometryBounds()); //this should return the bounds for the object and all its children
 	}
 	std::cout<<"View Box: "<<box.min.x<<","<<box.min.y<<"   "<<box.max.x<<","<<box.max.y<<std::endl;
+
+	/*//find centre of box and maximum dimension
+	float x1=box.min.x,
+		x2=box.max.x,
+		y1=box.min.y,
+		y2=box.max.y,
+		z1=box.min.z,
+		z2=box.max.z;
+	//find centre of x, y and z axes which is the centre on the earth sphere (z is height)
+	float cx=(x1+x2)/2;
+	float cy=(y1+y2)/2;
+	float cz=(z1+z2)/2;
+	glm::vec3 vc(cx,cy,cz); //vector from origin to point we want to look at (centre)
+	float size = max(max(x2-x1,y2-y1),z2-z1);
+	float fov = (float)width/2/tan(30.0*glm::pi<float>()/180.0);	//TODO: hardcoded projection matrix!
+	float d = size*fov/(float)width;
+
+	glm::vec3 vEye = vc + glm::normalize(vc)*d; //move eye to centre of object we want to look at, plus another d units along the origin to object centre vector
+	glm::mat4 view = glm::lookAt(vEye,vc,glm::vec3(0,0,1)); //and look at the object from the new eye position - NOTE (0,0,1) up vector used as the Ellipse.toVector makes +ve Z UP (i.e. 90 degree rotation)
+	return view;*/
+
+	return FitViewMatrix2(box);
+}
+
+glm::mat4 Globe::FitViewMatrix2(BBox& box)
+{
+	int width, height;
+	glfwGetFramebufferSize(GC->window, &width, &height);
 
 	//find centre of box and maximum dimension
 	float x1=box.min.x,
@@ -301,6 +369,7 @@ glm::mat4 Globe::FitViewMatrix2(void)
 
 /// <summary>
 /// Render the scene using the open GL context and the currently selected camera
+/// Multi-frustum technique using f/n=1000 and n=[1,1000,1000000,1000000000]
 /// </summary>
 void Globe::RenderScene(void)
 {
@@ -318,16 +387,30 @@ void Globe::RenderScene(void)
 	glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
 	GC->Clear();
 
-	//this assumes all the matrices are right
+	glm::dvec3 vCam = camera.GetCameraPos();
+	for (double farClip=1e9; farClip>=1000; farClip/=1000)
+	{
+		//set up camera for this clip frustum based on f/n ratio of 1000
+		//TODO: need some overlap between camera settings?
+		double nearClip=farClip/1000;
+		GC->ClearZ(); //reset the Z buffer for this range
+		camera.SetupPerspective(camera._width,camera._height,nearClip,farClip);
+		//cout<<"Multi-frustum: near="<<farClip/1000<<" far="<<farClip<<endl;
 
-	//go through all scene objects and render each in turn (modelMatrix should be identity really?)
-	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
-		Object3D* o3d=(*sceneIT);
-		if (o3d->HasGeometry()) {
-			const DrawObject& dobj = o3d->GetDrawObject();
-			GC->Render(dobj,*_sdo);
+		//this assumes all the matrices are right
+
+		//go through all scene objects and render each in turn (modelMatrix should be identity really?)
+		for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
+			Object3D* o3d=(*sceneIT);
+			if (o3d->HasGeometry()) {
+				const DrawObject& dobj = o3d->GetDrawObject();
+				glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
+				//OK, this is a box test, which is better, this, sqrt or a d^2 comparison with VERY large numbers? AND we might draw twice.
+				if (((abs(P.x)>=nearClip)&&(abs(P.x)<=nearClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
+					GC->Render(dobj,*_sdo);
+			}
+			RenderChildren(o3d, nearClip, farClip);
 		}
-		RenderChildren(o3d);
 	}
 
 	GC->SwapBuffers();
@@ -338,15 +421,20 @@ void Globe::RenderScene(void)
 /// TODO: need to handle the matrix hierarchy properly - this doesn't
 /// </summary>
 /// <param name="Parent">The parent Object3D of this hierarchy</param>
-void Globe::RenderChildren(Object3D* Parent)
+/// <param name="nearClip">Only draw the object if its centre lies within near clip and far clip</param>
+/// <param name="farClip">Only draw the object if its centre lies within near clip and far clip</param>
+void Globe::RenderChildren(Object3D* Parent, double nearClip, double farClip)
 {
+	glm::dvec3 vCam = camera.GetCameraPos();
 	for (vector<Object3D*>::const_iterator childIT=Parent->BeginChild(); childIT!=Parent->EndChild(); ++childIT) {
 		Object3D* child = *childIT;
 		if (child->HasGeometry()) {
 			const DrawObject& dobj = child->GetDrawObject();
-			GC->Render(dobj,*_sdo);
+			glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
+			if (((abs(P.x)>=nearClip)&&(abs(P.x)<=nearClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
+				GC->Render(dobj,*_sdo);
 		}
-		RenderChildren(child);
+		RenderChildren(child,nearClip,farClip);
 	}
 }
 

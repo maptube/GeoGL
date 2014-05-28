@@ -16,6 +16,7 @@
 #include "ellipsoid.h"
 //#include "opengl4.h"
 #include "gengine/Camera.h"
+#include "BBox.h"
 
 //forward declarations
 //class GLFWWindow;
@@ -63,7 +64,7 @@ private:
 	std::vector<ABM::Model*> modelLayers;
 
 	void DestroyScene(void);
-	void RenderChildren(Object3D* Parent);
+	void RenderChildren(Object3D* Parent, double nearClip, double farClip);
 public:
 	gengine::Camera camera;
 	Cuboid* debugCube1;
@@ -87,6 +88,8 @@ public:
 	void FitViewToLayers(void);
 	glm::mat4 FitViewMatrix(void);
 	glm::mat4 FitViewMatrix2(void);
+	glm::mat4 FitViewMatrix2(BBox& bbox);
+	void LookAt(std::string Name);
 
 	void RenderScene(void);
 	void Step(void);

@@ -31,7 +31,7 @@ namespace gengine {
 		if (OGLDevice::hasProgrammableShaders) {
 			glGenBuffers(1, &_vboID); // Generate our Vertex Buffer Object
 			//glBindBuffer(_Target, _vboID); 
-			std::cout<<"Created vertex buffer with id: "<<_vboID<<std::endl;
+			//std::cout<<"Created vertex buffer with id: "<<_vboID<<std::endl;
 		}
 
 		//be careful with the sizes here, as the buffers need real memory sizes, not numbers of points or indices

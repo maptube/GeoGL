@@ -15,6 +15,7 @@ class EllipsoidOrbitController : public gengine::events::EventListener
 {
 public:
 	Ellipsoid* _pEllipsoid; //the ellipsoid that we're clicking on the surface of
+	float scrollSpeed; //scale factor for zooming in - bigger is faster
 
 	gengine::Camera *con_camera; //the camera being controlled
 	//speed etc?
@@ -22,7 +23,6 @@ public:
 	glm::dvec3 centre; //in world coordinates (camera space)
 	Globe *globe; //debug only
 
-	//EllipsoidOrbitController(void);
 	EllipsoidOrbitController(gengine::Camera *camera, Ellipsoid* pEllipsoid);
 	~EllipsoidOrbitController(void);
 

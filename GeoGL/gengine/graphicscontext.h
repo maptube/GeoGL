@@ -35,6 +35,7 @@ namespace gengine {
 		~GraphicsContext(void);
 
 		void Clear(); //clear before rendering
+		void ClearZ();
 		void Render(const DrawObject& obj, const SceneDataObject& sceneobj);
 		void RenderFallback(const DrawObject& obj, const SceneDataObject& sceneobj);
 		void SwapBuffers(void);

@@ -51,6 +51,18 @@ namespace gengine {
 	}
 
 	/// <summary>
+	/// Clear only the Z buffer. Required for multi-frustum rendering.
+	/// </summary>
+	void GraphicsContext::ClearZ(void)
+	{
+		int width, height;
+		glfwGetWindowSize(window,&width,&height);
+		glViewport(0, 0, width, height); // Set the viewport size to fill the window
+		glClearDepth(1.0); //this is really a global state
+		glClear(GL_DEPTH_BUFFER_BIT); // Clear required buffers
+	}
+
+	/// <summary>
 	/// Render (something?) to the graphics context (window)
 	/// HOW???
 	/// TODO: this is a very naive implementation without any optimisation. In other words, the shaders only need to be bound if they change and uniforms only get done once.
