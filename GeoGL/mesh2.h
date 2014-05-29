@@ -53,9 +53,10 @@ public:
 	virtual const gengine::DrawObject& GetDrawObject();
 	//TODO: SetMatrix - VERY IMPORTANT!
 protected:
-	gengine::VertexBuffer* vb; //vertex buffer
-	gengine::VertexBuffer* vc; //colour buffer
-	gengine::IndexBuffer* ib; //index buffer
+	//localised vb,vc,ib and stored in vertexData
+	//gengine::VertexBuffer* vb; //vertex buffer
+	//gengine::VertexBuffer* vc; //colour buffer
+	//gengine::IndexBuffer* ib; //index buffer
 	//gengine::Shader* shader;
 	gengine::VertexData* vertexData; //collection of vertex and index buffers
 	gengine::RenderState* renderState;

@@ -62,10 +62,8 @@ Mesh2::Mesh2(void)
 {
 	epsilon = 0.0000001f;
 
-	//initialise fallback cpu buffers to null
-	//mem_vertexbuffer = NULL;
-	//mem_colourbuffer = NULL;
-	//mem_indexbuffer = NULL;
+	//vertices.reserve(1024);
+	//faces.reserve(1024);
 
 	renderState = new RenderState();
 	drawObject._rs=renderState; //TODO: find a more elegant way of doing this
@@ -76,6 +74,7 @@ Mesh2::Mesh2(void)
 /// </summary>
 Mesh2::~Mesh2(void)
 {
+	//cout<<"Destructor Mesh2"<<endl;
 	//todo: free the non-fallback buffers as well
 	//if (mem_vertexbuffer!=NULL) delete mem_vertexbuffer;
 	//if (mem_colourbuffer!=NULL) delete mem_colourbuffer;
@@ -297,11 +296,6 @@ void Mesh2::SetColour(glm::vec3 new_colour)
 /// Assumes you have been calling AddFace() with the data first.
 /// </summary>
 void Mesh2::CreateBuffers() {
-	//fallback trap
-	//if (!OGLDevice::hasProgrammableShaders) {
-	//	CreateBuffersFallback();
-	//	return;
-	//}
 
 	//these should be constants? From the shader...
 	//string AttributeName("in_Position");
@@ -439,27 +433,17 @@ void Mesh2::CreateBuffers() {
 /// Free any GPU buffers that have been created. Should be called in the destroy code.
 /// </summary>
 void Mesh2::FreeBuffers() {
-	//fallback trap
-	//if (!OpenGLContext::hasProgrammableShaders) {
-	//	if (mem_vertexbuffer!=NULL) delete mem_vertexbuffer;
-	//	if (mem_colourbuffer!=NULL) delete mem_colourbuffer;
-	//	if (mem_indexbuffer!=NULL) delete mem_indexbuffer;
-	//}
-	//else {
-	//	glDeleteVertexArrays(1, &vaoID); // Delete our Vertex Array Object
-	//	glGenBuffers(1, &vboID); // Delete our Vertex Buffer Object
-	//	glGenBuffers(1, &iboID); //Delete index buffer object
-	//	glGenBuffers(1, &vcboID); //Delete colour buffer object
-	//}
-
+	//cout<<"Mesh2::FreeBuffers"<<endl;
 	//this is easy, everything is taken care of in gengine
-	delete vb;
-	delete vc;
-	delete ib;
+	
+	//localised these and stored in vertexData
+	//delete vb;
+	//delete vc;
+	//delete ib;
+	//vb=NULL; vc=NULL; ib=NULL;
 
 	delete vertexData; //as all the buffers are now invalid anyway
-
-	vb=NULL; vc=NULL; ib=NULL; vertexData=NULL;
+	vertexData=NULL;
 
 }
 

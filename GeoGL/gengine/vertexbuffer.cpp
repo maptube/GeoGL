@@ -43,6 +43,7 @@ namespace gengine {
 
 	VertexBuffer::~VertexBuffer(void)
 	{
+		//std::cout<<"Destructor VertexBuffer"<<std::endl;
 		//TODO: check this really works, gen buffer with an existing id
 		if (OGLDevice::hasProgrammableShaders) {
 			glGenBuffers(1, &_vboID); // Delete our Vertex Buffer Object

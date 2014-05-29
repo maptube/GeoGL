@@ -118,6 +118,14 @@ namespace ABM {
 			return it->second.as_pLink;
 		};
 
+		//HACK for performance check!!!!!!
+		//This is much faster than getting a value back and testing it
+		bool TestString(const std::string& VarName,const std::string& Test) {
+			if (VarName=="name") return Name==Test; //built-in value
+			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+			return it->second.as_string==Test;
+		}
+
 		//Get<LogoVariant> used internally
 		//template <>
 		//LogoVariant& Get<LogoVariant>(std::string Name) {

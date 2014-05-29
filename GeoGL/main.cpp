@@ -30,7 +30,9 @@
 #include "gengine/shaderattributecollection.h"
 #include "gengine/primitivetypes.h"
 #include "mesh2.h"
+#include "sphere.h"
 #include "cuboid.h"
+#include "turtle.h"
 
 //#define PROGRAM_NAME "GeoGL"
 
@@ -112,32 +114,7 @@ static void error_callback(int error, const char* description)
 	fputs(description, stderr);
 }
 
-//static void windowsize_callback(GLFWwindow *window, int w, int h)
-//{
-//	openglContext.reshapeWindow(w, h); // Send the new window size to our OpenGLContext
-//}
 
-//static void mousebutton_callback(GLFWwindow *window, int button, int action, int mods)
-//{
-//	//std::cout<<button<<" "<<action<<" "<<mods<<std::endl;
-//}
-
-//static void cursorpos_callback(GLFWwindow *window, double mx, double my)
-//{
-//	//cursor position means the mouse in GLFW
-//	//std::cout<<mx<<","<<my<<std::endl;
-//}
-
-//static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
-//{
-//	//std::cout<<"scroll "<<xoffset<<" "<<yoffset<<std::endl;
-//}
-
-//static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-//{
-//	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-//		glfwSetWindowShouldClose(window, GL_TRUE);
-//}
 
 //alternative main function for GLFW
 int main(int argc, char *argv[])
@@ -204,10 +181,30 @@ int main(int argc, char *argv[])
 	//SceneDataObject sdo;
 	//sdo._camera=&camera;
 
+	//profile code
+	//LARGE_INTEGER frequency;
+	//LARGE_INTEGER t1,t2;
+	//QueryPerformanceFrequency(&frequency);
+
+	//Mesh2* spheres[300];
+	//QueryPerformanceCounter(&t1);
+	//for (int i=0; i<300; ++i) {
+	//	Mesh2* sphere = new Sphere(1.0,10,10);
+	//	//Mesh2* sphere = new Cuboid(1,1,1);
+	//	//Mesh2* sphere = new Turtle(1);
+	//	//sphere->SetColour(glm::vec3(0,0,0));
+	//	spheres[i]=sphere;
+	//}
+	//QueryPerformanceCounter(&t2);
+	//double elapsedTime = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
+ //   std::cout << elapsedTime << " ms.\n";
+	//for (int i=0; i<300; ++i) delete spheres[i];
+	//end of profile code
+
+
 	Globe globe;
 	
 	
-	//openglContext.setupScene(); // Setup our OpenGL scene
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method

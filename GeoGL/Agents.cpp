@@ -132,19 +132,24 @@ namespace ABM {
 	/// <param Name="Value">The value to check Name for</param>
 	/// <returns>A list of agents matching the condition</returns>
 	std::vector<ABM::Agent*> Agents::With(std::string VariableName,std::string Value)
-	{
-		//LogoVariant test;
-		////this is a hack
-		//test.type_id=LogoVariant::t_string;
-		//test.as_string=Value;
-		LogoVariant test(Value);
+	{	
+		//LogoVariant test(Value);
 
 		std::vector<ABM::Agent*> Results;
 		//for all the agents?
-		for(std::vector<ABM::Agent*>::iterator it=_Agents.begin(); it!=_Agents.end(); ++it) {
+		for(std::vector<ABM::Agent*>::const_iterator it=_Agents.begin(); it!=_Agents.end(); ++it) {
 			Agent* A = (*it);
-			LogoVariant var = A->GetVar(VariableName);
-			if (test==var) Results.push_back(*it);
+			//LogoVariant var = A->GetVar(VariableName);
+			//if (test==var) Results.push_back(*it);
+			
+			//if (A->Name==Value) Results.push_back(*it); //quicker but very dirty - hardcode name
+			//if (A->GetVar(VariableName)==test) Results.push_back(*it);
+
+			//alternative method based on the fact that we're always looking for a string
+			//std::string tmp = A->Get<std::string>(VariableName);
+			//std::string tmp = A->GetString(VariableName);
+			//if (Value==tmp) Results.push_back(*it);
+			if (A->TestString(VariableName,Value)) Results.push_back(*it);
 		}
 
 		return Results;

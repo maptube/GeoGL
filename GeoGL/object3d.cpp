@@ -13,6 +13,7 @@ Object3D::Object3D() {
 
 /// <summary>Destructor</summary>
 Object3D::~Object3D() {
+	//cout<<"Destructor Object3D"<<endl;
 	//tidy up the buffers?
 	//glDeleteBuffers(1, &iboID[0]); //delete the buffer
 	//and tidy up children?

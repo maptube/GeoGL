@@ -370,6 +370,8 @@ glm::mat4 Globe::FitViewMatrix2(BBox& box)
 /// <summary>
 /// Render the scene using the open GL context and the currently selected camera
 /// Multi-frustum technique using f/n=1000 and n=[1,1000,1000000,1000000000]
+/// TODO: the way this is supposed to work is that it holds a list of objects to draw in each frustum range and anything that is completely enclosed in that range is dropped, while
+/// anything that splits two frustums is kept and checked next time around again. At this point you can also do the pyramid clip.
 /// </summary>
 void Globe::RenderScene(void)
 {

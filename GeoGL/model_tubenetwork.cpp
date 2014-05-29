@@ -273,8 +273,6 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 /// <param name="Filename">Name of the graph file</param>
 void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 	stringstream ss;
-	//ifstream in_json("C:\\richard\\projects\\VC++\\GeoGL\\GeoGL\\data\\tube-network-simple.json"); ///*"..\\GeoGL\\data\\tube-network.json"*/
-	//ifstream in_json("C:\\richard\\projects\\VC++\\GeoGL\\GeoGL\\data\\tube-network.json"); ///*"..\\GeoGL\\data\\tube-network.json"*/
 	ifstream in_json(NetworkJSONFilename.c_str());
 
 	Json::Value root;   // will contain the root value after parsing.
@@ -354,8 +352,8 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 				//now add a pre-created velocity for this link based on distance and runlink in seconds
 				float dx = L->end2->xcor()-L->end1->xcor();
 				float dy = L->end2->ycor()-L->end1->ycor();
-				//z coordinate?
-				float dist = sqrt(dx*dx+dy*dy);
+				float dz = L->end2->zcor()-L->end1->zcor();
+				float dist = sqrt(dx*dx+dy*dy+dz*dz);
 				L->Set<float>("velocity",dist/(float)r);
 			}
 		}
@@ -434,7 +432,7 @@ void ModelTubeNetwork::loadPositions(std::string Filename) {
 							a->Set<ABM::Agent*>("toNode", l->end2);
 							a->Face(*a->Get<ABM::Agent*>("toNode"));
 //TODO: the velocity isn't right due to the frame rate (also, it's speed anyway)
-							a->Set<float>("v", l->Get<float>("velocity")/10.0f); //use pre-created velocity for this link
+							a->Set<float>("v", l->Get<float>("velocity")/*/10.0f*/); //use pre-created velocity for this link
 							//dx=l.end2.x-l.end1.x
 							//dy=l.end2.y-l.end1.y
 							//dist = Math.sqrt(dx*dx+dy*dy)
@@ -500,7 +498,8 @@ void ModelTubeNetwork::Setup() {
 
 	//AgentScript: agentBreeds "nodes" "drivers"
 	//My version, closer to NetLogo: Breed("node","nodes"); and Breed("driver","drivers");
-	SetDefaultShape("node","sphere");
+	//SetDefaultShape("node","sphere"); //takes too long to create 300 of them
+	SetDefaultShape("node","cube");
 	SetDefaultSize("node",200.0f/*0.001f*/);
 	SetDefaultShape("driver","turtle");
 	SetDefaultSize("driver",600.0f/*0.005f*/);
