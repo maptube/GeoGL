@@ -32,8 +32,9 @@ namespace ABM {
 	{
 	}
 
-	/// <summary>Step the model forward one unit of time - probably override this</summary>
-	void Model::Step()
+	/// <summary>Step the model forward Ticks units of time - probably override this</summary>
+	/// <param name="Ticks">Number of time ticks to simulate for, so pass in this_time - last_time for real-time simulation</param>
+	void Model::Step(double Ticks)
 	{
 	}
 

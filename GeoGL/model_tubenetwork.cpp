@@ -562,7 +562,8 @@ struct checkLine {
 
 
 /// <summary>ABM simulation step code</summary>
-void ModelTubeNetwork::Step() {
+/// <param name="Ticks">In this instance, ticks is the time interval since the last simulation step</param>
+void ModelTubeNetwork::Step(double Ticks) {
 	std::vector<ABM::Agent*> drivers = _agents.Ask("driver"); //should be drivers really, but haven't implemented plural breeds yet
 	for (std::vector<ABM::Agent*>::iterator dIT = drivers.begin(); dIT!=drivers.end(); ++dIT)
 	{
@@ -570,7 +571,7 @@ void ModelTubeNetwork::Step() {
 
 		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
 		d->Face(*toNode); //d.face d.toNode
-		d->Forward(min(d->Get<float>("v"),d->Distance(*toNode))); //d.forward Math.min d.v, d.distance d.toNode
+		d->Forward(min(d->Get<float>("v") * (float)Ticks,d->Distance(*toNode))); //d.forward Math.min d.v, d.distance d.toNode
 		if (.00001f > d->Distance(*toNode)) //# or (d.distance d.toNode) < .01
 		{
 			ABM::Agent* pTestAgent0 = d->Get<ABM::Agent*>("toNode");

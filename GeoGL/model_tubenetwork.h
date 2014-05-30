@@ -51,5 +51,5 @@ public:
 
 	//ABM::Model virtuals
 	void Setup();
-	void Step();
+	void Step(double Ticks);
 };

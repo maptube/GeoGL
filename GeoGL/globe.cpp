@@ -49,11 +49,13 @@ Globe::Globe(void)
 	Shader* shader = OGLDevice::CreateShaderProgram("shader.vert", "shader.frag");
 	_Shaders.push_back(shader);
 
-	//add sphere representing the earth
-	//HACK! made ellipsoid a sphere!
+	Shader* diffuse = OGLDevice::CreateShaderProgram("diffuse.vert", "diffuse.frag");
+	_Shaders.push_back(diffuse);
+
+	//add sphere representing the earth and shade using diffuse shader
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
 	sphere->SetColour(glm::vec3(0.0,0.4,0.05));
-	sphere->AttachShader(shader,false);
+	sphere->AttachShader(diffuse,false);
 	SceneGraph.push_back(sphere);
 
 	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
@@ -93,6 +95,9 @@ Globe::Globe(void)
 	//controller.centre=glm::vec3(-0.11464,51.46258,0); //Brixton
 	controller = new EllipsoidOrbitController(&camera,&ellipsoid);
 	controller->globe = this; //debug only
+
+	//initialise last model run time to something
+	_lastModelRunTime = glfwGetTime();
 }
 
 
@@ -441,14 +446,18 @@ void Globe::RenderChildren(Object3D* Parent, double nearClip, double farClip)
 }
 
 /// <summary>
-/// Simulate one timestep of all the attached models
+/// Simulate one timestep of all the attached models. This works by storing the last time that the models 
 /// </summary>
 void Globe::Step(void)
 {
+	double timeNow = glfwGetTime();
+	double delta = timeNow-_lastModelRunTime;
+	if (delta<0.001) delta=0.001; //limit minimum delta time to 1ms, so you will never get any timesteps less than this e.g. on the first run
 	//call step on each attached model layer in turn
 	for (vector<ABM::Model*>::iterator modelIT = modelLayers.begin(); modelIT!=modelLayers.end(); ++modelIT) {
-		(*modelIT)->Step();
+		(*modelIT)->Step(delta*10);
 	}
+	_lastModelRunTime = timeNow;
 }
 
 

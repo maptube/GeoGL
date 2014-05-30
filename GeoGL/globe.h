@@ -61,7 +61,11 @@ private:
 	//std::vector<Object3D*> SceneGraph; //list of object to be rendered on "renderScene"
 	SceneGraphType SceneGraph;
 
+	double _lastModelRunTime; //this is the last time that the models in the modelLayers were run
 	std::vector<ABM::Model*> modelLayers;
+	//NOTE: the whole time synchronisation thing is a bit of a nightmare - do you have a separate time for each layer?
+	//How do you cope with a faster than real-time visualisation? Do you code it into each model layer, or just run the
+	//clock fast? You could pass the delta time multiplied by some factor.
 
 	void DestroyScene(void);
 	void RenderChildren(Object3D* Parent, double nearClip, double farClip);

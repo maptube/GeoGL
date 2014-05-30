@@ -74,7 +74,7 @@ namespace ABM {
 		SceneGraphType* _pSceneGraph;
 
 		virtual void Setup();
-		virtual void Step();
+		virtual void Step(double Ticks);
 		void UpdateScene();
 
 		void CreateTurtles(int Number);

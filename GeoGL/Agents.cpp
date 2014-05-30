@@ -137,7 +137,7 @@ namespace ABM {
 
 		std::vector<ABM::Agent*> Results;
 		//for all the agents?
-		for(std::vector<ABM::Agent*>::const_iterator it=_Agents.begin(); it!=_Agents.end(); ++it) {
+		for(std::vector<ABM::Agent*>::const_iterator& it=_Agents.begin(); it!=_Agents.end(); ++it) {
 			Agent* A = (*it);
 			//LogoVariant var = A->GetVar(VariableName);
 			//if (test==var) Results.push_back(*it);

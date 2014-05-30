@@ -188,6 +188,8 @@ int main(int argc, char *argv[])
 
 	//Mesh2* spheres[300];
 	//QueryPerformanceCounter(&t1);
+	//double t1,t2;
+	//t1 = glfwGetTime();
 	//for (int i=0; i<300; ++i) {
 	//	Mesh2* sphere = new Sphere(1.0,10,10);
 	//	//Mesh2* sphere = new Cuboid(1,1,1);
@@ -195,6 +197,8 @@ int main(int argc, char *argv[])
 	//	//sphere->SetColour(glm::vec3(0,0,0));
 	//	spheres[i]=sphere;
 	//}
+	//t2 = glfwGetTime();
+	//std::cout<<(t2-t1)*1000.0<<" ms."<<std::endl;
 	//QueryPerformanceCounter(&t2);
 	//double elapsedTime = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
  //   std::cout << elapsedTime << " ms.\n";
@@ -284,9 +288,9 @@ int main(int argc, char *argv[])
 
 	globe.LookAt("LondonUnderground");
 	
-	//float a=0;
-	float startTicks = glfwGetTime();
 	while (globe.IsRunning()) {
+		double startTicks = glfwGetTime();
+
 		glfwPollEvents(); //or glfwWaitEvents(); ?
 
 		//tri._ModelMatrix=glm::rotate(tri._ModelMatrix,0.001f,glm::vec3(0,1,0));
@@ -302,41 +306,12 @@ int main(int argc, char *argv[])
 		globe.Step();
 
 		//rendering
-		//camera.viewMatrix = openglContext.fitViewMatrix();
-		//controller.Forward();
-		//openglContext.SceneGraph.at(0)->Rotate(0.0001f,glm::vec3(0.0f,1.0f,0.0f)); //@50FPS, this is 0.29 degrees per second
-		
-		//openglContext.renderScene(&camera);
 		globe.RenderScene();
 
-		//camera.viewMatrix[3][0]=10*glm::sin<float>(a);
-		//camera.viewMatrix[3][1]=0;
-		//camera.viewMatrix[3][2]=10*glm::cos<float>(a);
-		//camera.LookAt(glm::vec3(-1.0f,0,0));
-		//a+=0.0003;
-		//glm::vec3 cp = camera.GetCameraPos();
-		//cp.x-=0.001;
-		//camera.SetCameraPos(cp);
-
-		//glm::vec3 centre(-1.0f,0,0);
-		//glm::mat4 mCam = camera.GetCameraMatrix();
-		////mCam = glm::translate(mCam,-centre); //translate camera so it's centred on the origin
-		//mCam[3][0]-=centre.x; mCam[3][1]-=centre.y; mCam[3][2]-=centre.z;
-		//glm::mat4 m2 = glm::eulerAngleYX(0.001f,0.0f); //Yaw rotation
-		//mCam = m2 * mCam;
-		////mCam=glm::translate(mCam,centre); //translate camera back again
-		//mCam[3][0]+=centre.x; mCam[3][1]+=centre.y; mCam[3][2]+=centre.z;
-		//camera.SetCameraMatrix(mCam);
-
-		//Cap the frame rate
-		//int ticksNow = glfwGetTime();
-		//float fps = (ticksNow-startTicks)/1000;
-        //if ((ticksNow-startTicks) < 1000 / FRAMES_PER_SECOND )
-        //{
-		//	//NO SUCH THING glfwSleep(( 1000 / FRAMES_PER_SECOND ) - (ticksNow-startTicks) );
-        //}
+		//Cap the frame rate? would need to call poll events here
+		double ticksNow = glfwGetTime();
+		double fps = 1/(ticksNow-startTicks);
 	}
-	//openglContext.destroyContextGLFW();
-	//glfwTerminate();
+
 	return 0;
 }
