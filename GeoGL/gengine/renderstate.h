@@ -13,12 +13,10 @@ namespace gengine {
 /////////////////////////////
 //Face Culling
 
-	//void glCullFace​(GLenum mode​);
+	//void glCullFace(GLenum mode);
 	//GL_FRONT, GL_BACK, GL_FRONT_AND_BACK
 	enum FaceCullingTest {
-		CullFrontFace = GL_FRONT,
-		CullBackFace = GL_BACK,
-		CullFrontAndBackFace​ = GL_FRONT_AND_BACK
+		CullFrontFace = GL_FRONT, CullBackFace = GL_BACK, CullFrontAndBackFace = GL_FRONT_AND_BACK
 	};
 
 	enum WindingOrder {

@@ -52,7 +52,7 @@ namespace ABM {
 		void Owns(void);
 
 		//defaults
-		AgentDefaults Agents::GetDefaultProperties(std::string BreedName);
+		AgentDefaults GetDefaultProperties(std::string BreedName);
 		void SetDefaultShape(std::string BreedName, std::string ShapeName);
 		std::string GetDefaultShape(std::string BreedName);
 		void SetDefaultSize(std::string BreedName, float Size);

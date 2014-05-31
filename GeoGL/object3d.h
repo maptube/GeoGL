@@ -2,6 +2,7 @@
 #include "main.h"
 #include "gengine/drawobject.h"
 #include "BBox.h"
+#include <string>
 #include <vector>
 
 //forward references

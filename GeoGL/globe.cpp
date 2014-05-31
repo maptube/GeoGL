@@ -10,6 +10,9 @@
 
 
 #include "globe.h"
+
+#include <iostream>
+
 #include "gengine/ogldevice.h"
 #include "gengine/graphicscontext.h"
 #include "gengine/scenedataobject.h"
@@ -272,7 +275,8 @@ glm::mat4 Globe::FitViewMatrix(void)
 	BBox box;
 	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
 		Object3D* o3d = *sceneIT;
-		box.Union(o3d->GetGeometryBounds()); //this should return the bounds for the object and all its children
+		BBox geom_box = o3d->GetGeometryBounds();
+		box.Union(geom_box); //this should return the bounds for the object and all its children
 		//OutputDebugStringA("Node: ");
 	}
 	std::cout<<"View Box: "<<box.min.x<<","<<box.min.y<<"   "<<box.max.x<<","<<box.max.y<<std::endl;
@@ -319,7 +323,8 @@ glm::mat4 Globe::FitViewMatrix2(void)
 	BBox box;
 	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
 		Object3D* o3d = *sceneIT;
-		box.Union(o3d->GetGeometryBounds()); //this should return the bounds for the object and all its children
+		BBox geom_box = o3d->GetGeometryBounds();
+		box.Union(geom_box); //this should return the bounds for the object and all its children
 	}
 	std::cout<<"View Box: "<<box.min.x<<","<<box.min.y<<"   "<<box.max.x<<","<<box.max.y<<std::endl;
 

@@ -5,7 +5,7 @@
 namespace gengine {
 
 	//wrapper for gl draw primitive types
-	enum PrimitiveType {
+	enum class PrimitiveType {
 		ptPoints=GL_POINTS,
 		ptLineStrip=GL_LINE_STRIP,
 		ptLineLoop=GL_LINE_LOOP,

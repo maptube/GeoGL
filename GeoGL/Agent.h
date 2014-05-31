@@ -78,45 +78,46 @@ namespace ABM {
 						return (T)(it->second.as_pLink);
 				}
 			}*/
-			return NULL;
+			//return NULL;
+			return 0;
 		};
 		//Get<int>
-		template <>
-		int Get<int>(std::string VarName) {
-			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			return it->second.as_integer;
-		};
+		//template <>
+		//int Get<int>(std::string VarName) {
+		//	std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+		//	return it->second.as_integer;
+		//};
 		//Get<float>
-		template <>
-		float Get<float>(std::string VarName) {
-			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			return it->second.as_float;
-		};
+		//template <>
+		//float Get<float>(std::string VarName) {
+		//	std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+		//	return it->second.as_float;
+		//};
 		//Get<bool>
-		template <>
-		bool Get<bool>(std::string VarName) {
-			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			return it->second.as_bool;
-		};
+		//template <>
+		//bool Get<bool>(std::string VarName) {
+		//	std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+		//	return it->second.as_bool;
+		//};
 		//Get<string>
-		template <>
-		std::string Get<std::string>(std::string VarName) {
-			if (VarName=="name") return Name; //built-in value
-			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			return it->second.as_string;
-		};
+		//template <>
+		//std::string Get<std::string>(std::string VarName) {
+		//	if (VarName=="name") return Name; //built-in value
+		//	std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+		//	return it->second.as_string;
+		//};
 		//Get<Agent*>
-		template <>
-		Agent* Get<Agent*>(std::string VarName) {
-			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			return it->second.as_pAgent;
-		};
+		//template <>
+		//Agent* Get<Agent*>(std::string VarName) {
+		//	std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+		//	return it->second.as_pAgent;
+		//};
 		//Get<Link*>
-		template <>
-		Link* Get<Link*>(std::string VarName) {
-			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			return it->second.as_pLink;
-		};
+		//template <>
+		//Link* Get<Link*>(std::string VarName) {
+		//	std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+		//	return it->second.as_pLink;
+		//};
 
 		//HACK for performance check!!!!!!
 		//This is much faster than getting a value back and testing it
@@ -169,42 +170,42 @@ namespace ABM {
 			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
 			_owns[VarName]=var;
 		};
-		template<>
-		void Set<int>(std::string VarName, int Value) {
-			LogoVariant var(Value);
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
-		template<>
-		void Set<bool>(std::string VarName, bool Value) {
-			LogoVariant var(Value);
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
-		template<>
-		void Set<float>(std::string VarName, float Value) {
-			LogoVariant var(Value);
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
-		template<>
-		void Set<std::string>(std::string VarName, std::string Value) {
-			LogoVariant var(Value);
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
-		template<>
-		void Set<Agent*>(std::string VarName, Agent* Value) {
-			LogoVariant var(Value);
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
-		template<>
-		void Set<Link*>(std::string VarName, Link* Value) {
-			LogoVariant var(Value);
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
+		//template<>
+		//void Set<int>(std::string VarName, int Value) {
+		//	LogoVariant var(Value);
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
+		//template<>
+		//void Set<bool>(std::string VarName, bool Value) {
+		//	LogoVariant var(Value);
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
+		//template<>
+		//void Set<float>(std::string VarName, float Value) {
+		//	LogoVariant var(Value);
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
+		//template<>
+		//void Set<std::string>(std::string VarName, std::string Value) {
+		//	LogoVariant var(Value);
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
+		//template<>
+		//void Set<Agent*>(std::string VarName, Agent* Value) {
+		//	LogoVariant var(Value);
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
+		//template<>
+		//void Set<Link*>(std::string VarName, Link* Value) {
+		//	LogoVariant var(Value);
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
 
 
 		//create, destroy

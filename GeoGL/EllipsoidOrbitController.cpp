@@ -1,5 +1,8 @@
 
 #include "EllipsoidOrbitController.h"
+
+#include <iostream>
+
 #include "ellipsoid.h"
 #include "gengine/Camera.h"
 #include "gengine/events/EventManager.h"

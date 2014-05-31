@@ -16,6 +16,7 @@
 //#include "netgraphgeometry.h"
 //#include "DebugUtils.h"
 
+#include <iostream>
 #include "math.h"
 
 using namespace std;
@@ -324,7 +325,7 @@ bool OpenGLContext::create30ContextGLFW() {
 	glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]); // Get back the OpenGL MAJOR version we are using
 	VersionMajor=glVersion[0];
 	VersionMinor=glVersion[1];
-	std::cout << "Using OpenGL: " << glVersion[0] << "." << glVersion[1] << std::endl; // Output which version of OpenGL we are using
+	cout << "Using OpenGL: " << glVersion[0] << "." << glVersion[1] << endl; // Output which version of OpenGL we are using
 	
 	//todo: additional version checking here using GLEW?
 
@@ -453,7 +454,8 @@ glm::mat4 OpenGLContext::fitViewMatrix() {
 	BBox box;
 	for (vector<Object3D*>::iterator sceneIT=SceneGraph.begin(); sceneIT!=SceneGraph.end(); ++sceneIT) {
 		Object3D* o3d = *sceneIT;
-		box.Union(o3d->GetGeometryBounds()); //this should return the bounds for the object and all its children
+		BBox bbox = o3d->GetGeometryBounds();
+		box.Union(bbox); //this should return the bounds for the object and all its children
 		//OutputDebugStringA("Node: ");
 	}
 	std::cout<<"View Box: "<<box.min.x<<","<<box.min.y<<"   "<<box.max.x<<","<<box.max.y<<std::endl;

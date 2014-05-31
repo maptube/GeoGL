@@ -21,8 +21,8 @@ namespace gengine {
 	class VertexArrayObject;
 	class VertexBuffer;
 	class IndexBuffer;
-	enum BufferTarget;
-	enum BufferUsage;
+	enum class BufferTarget;
+	enum class BufferUsage;
 
 	/// <summary>
 	/// All functions which are part of the GPU Hardware

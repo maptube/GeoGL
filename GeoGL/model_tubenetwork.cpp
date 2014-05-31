@@ -8,7 +8,7 @@
 #include <sstream>
 #include <regex>
 #include <iterator>
-#include <Windows.h>
+//#include <Windows.h> //why on earth is this here?
 #include <math.h>
 
 using namespace std;
@@ -245,7 +245,7 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 				GraphNameXYZ pos;
 				//pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0; 
 				pos.Name=code1; pos.P=_pEllipsoid->toVector(glm::radians(lon),glm::radians(lat));
-				tube_stations->insert(make_pair<string,struct GraphNameXYZ>(code1,pos));
+				tube_stations->insert(make_pair/*<string,struct GraphNameXYZ>*/(code1,pos));
 				
 				//and create the node agent
 				vector<ABM::Agent*> AList = PatchesPatchXYSprout((int)pos.P.x,(int)pos.P.y,1,"node");
