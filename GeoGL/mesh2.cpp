@@ -309,9 +309,9 @@ void Mesh2::CreateBuffers() {
 	//GLfloat* buf_colours = new GLfloat[NumVertices*3];
 	//GLuint* buf_indices = new GLuint[NumFaces];
 	//TODO: the sizes are really GL sizes, but we shouldn't be using GL types directly outside gengine - how to best do this?
-	VertexBuffer* vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
-	VertexBuffer* vc = OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
-	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*sizeof(unsigned int)); //note that NumFaces is already *3 (see def above)
+	VertexBuffer* vb = OGLDevice::CreateVertexBuffer("in_Position",BufferTarget::ArrayBuffer,BufferUsage::StaticDraw,NumVertices*3*sizeof(float));
+	VertexBuffer* vc = OGLDevice::CreateVertexBuffer("in_Color",BufferTarget::ArrayBuffer,BufferUsage::StaticDraw,NumVertices*3*sizeof(float));
+	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(BufferTarget::ElementArrayBuffer,BufferUsage::StaticDraw,NumFaces*sizeof(unsigned int)); //note that NumFaces is already *3 (see def above)
 
 	//create internal memory blocks in format suitable for copying to opengl vertex and index buffers
 	float* buf_vertices = new float[NumVertices*3]; //technically it's a GLfloat
@@ -369,7 +369,7 @@ void Mesh2::CreateBuffers() {
 	//do nothing for now, just use default
 
 	//OK, that's the buffers and render state done, now set up the draw object needed to do the drawing
-	drawObject._PrimType=ptTriangles;
+	drawObject._PrimType=PrimitiveType::ptTriangles;
 	//shader program set via attach shader
 
 	drawObject._rs->_DepthTest._Enabled=true;

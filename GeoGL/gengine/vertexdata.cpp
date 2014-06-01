@@ -8,6 +8,7 @@
 #include "vertexbuffer.h"
 #include "indexbuffer.h"
 #include "ogldevice.h"
+#include "glbuffertypes.h"
 
 using namespace std;
 

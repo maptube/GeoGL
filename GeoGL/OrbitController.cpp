@@ -2,6 +2,8 @@
 #include "OrbitController.h"
 #include "gengine/events/EventManager.h"
 
+#include <iostream>
+
 using namespace gengine;
 
 using namespace events;

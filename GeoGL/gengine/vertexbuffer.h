@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 //#include "main.h"
 #include "glbuffertypes.h"
 

@@ -6,7 +6,9 @@
 
 #Required Library Directories
 JSONCPP_HOME=/home/richard/projects/jsoncpp-src-0.5.0
-GLFW_HOME=externals/glfw-3.0.4
+#installed glfw in /usr/local/lib, so don't need this anymore
+#GLFW_HOME=externals/glfw-3.0.4
+#GLFW_HOME=/home/richard/projects/glfw-3.0.4
 LEAPSDK_HOME=/home/richard/projects/LeapDeveloperKit/LeapSDK
 POLY2TRI_HOME=poly2tri
 
@@ -16,11 +18,12 @@ CXX=g++
 #CFLAGS=-c -Wall
 #fatal errors only
 CFLAGS=-c -w
-CPPFLAGS=-g -std=c++11 -D LINUX
-LDFLAGS=-lstdc++ -lm -lGL -lGLU -lglut -lGLEW
-LDLIBS=
-INCLUDEDIRS=-IGeoGL -I$(GLFW_HOME)/include -I$(JSONCPP_HOME)/include -I$(LEAPSDK_HOME)/include -I$(POLY2TRI_HOME)
-SOURCES=$(wildcard GeoGL/*.cpp)
+CPPFLAGS=-g -std=c++11 -DLINUX
+#note json cpp coming from projects folder i.e. not installed
+LDFLAGS=-lstdc++ -lm -lGL -lGLU -lglut -lGLEW -lglfw -ljson_linux-gcc-4.8.2_libmt -lLeap -lpoly2tri
+LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY2TRI_HOME)
+INCLUDEDIRS=-IGeoGL -I$(JSONCPP_HOME)/include -I$(LEAPSDK_HOME)/include -I$(POLY2TRI_HOME)
+SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/clipper/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=GeoGLProgram
 
@@ -30,7 +33,7 @@ MAKE=make
 all: GeoGLProgram
 
 GeoGLProgram: $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(LDLIBS) $(LDFLAGS) $(OBJECTS) -o $@
 
 .cpp.o:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) $(INCLUDEDIRS) $< -o $@

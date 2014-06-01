@@ -1,5 +1,7 @@
 #pragma once
 
+#include "primitivetypes.h"
+
 namespace gengine {
 
 	//forward declarations
@@ -7,7 +9,7 @@ namespace gengine {
 	class Shader;
 	class VertexData;
 	//enum PrimitiveType : int;
-	enum class PrimitiveType;
+	//enum class PrimitiveType;
 
 	/// <summary>
 	/// We need to be able to return a null draw object for an Object3D which has no renderable geometry.

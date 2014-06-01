@@ -13,7 +13,7 @@
 #include "ellipsoid.h"
 
 #include "poly2tri.h"
-#include "clipper\clipper.hpp"
+#include "clipper/clipper.hpp"
 
 using namespace std;
 

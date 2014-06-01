@@ -2,6 +2,7 @@
 
 #include "gengine.h"
 
+#include <string>
 #include <vector>
 
 namespace gengine {

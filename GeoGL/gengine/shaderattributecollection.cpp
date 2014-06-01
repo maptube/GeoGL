@@ -1,8 +1,9 @@
 
-#include "shaderattributeCollection.h"
+#include "shaderattributecollection.h"
 #include "shaderattribute.h"
 #include "gengine.h"
 
+#include <iostream>
 #include <string>
 
 using namespace std;

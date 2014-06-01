@@ -3,6 +3,7 @@
 #include "shaderuniform.h"
 //#include "gengine.h"
 
+#include <iostream>
 #include <string>
 
 using namespace std;

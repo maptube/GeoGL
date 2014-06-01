@@ -15,6 +15,9 @@
 #include "indexbuffer.h"
 #include "vertexarrayobject.h"
 
+#include <iostream>
+#include <string>
+
 namespace gengine {
 
 ////////////////////////////////////////////////////////////////////////////////////////////

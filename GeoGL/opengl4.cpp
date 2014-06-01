@@ -22,6 +22,7 @@
 using namespace std;
 
 using namespace gengine;
+using namespace events;
 
 //http://www.openglbook.com/the-book
 //http://www.swiftless.com/tutorials/opengl4/5-opengl-4-vao-color.html

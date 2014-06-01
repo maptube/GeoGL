@@ -1,6 +1,8 @@
 #include "shader.h"
-#include <string>
+#include <iostream>
 #include <fstream>
+#include <string>
+
 
 //#include "vertexarrayobject.h"
 #include "shaderuniform.h"
@@ -45,7 +47,7 @@ namespace gengine {
 	static void validateShader(GLuint shader, const char* file = 0) {
 		const unsigned int BUFFER_SIZE = 512;
 		char buffer[BUFFER_SIZE];
-		memset(buffer, 0, BUFFER_SIZE);
+//		memset(buffer, 0, BUFFER_SIZE);
 		GLsizei length = 0;
 
 		glGetShaderInfoLog(shader, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the shader
@@ -61,7 +63,7 @@ namespace gengine {
 	static void validateProgram(GLuint program) {
 		const unsigned int BUFFER_SIZE = 512;
 		char buffer[BUFFER_SIZE];
-		memset(buffer, 0, BUFFER_SIZE);
+//		memset(buffer, 0, BUFFER_SIZE);
 		GLsizei length = 0;
 
 		glGetProgramInfoLog(program, BUFFER_SIZE, &length, buffer); // Ask OpenGL to give us the log associated with the program

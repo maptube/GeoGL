@@ -16,7 +16,7 @@ LDLIBS=
 INCLUDEDIRS=-I common -I sweep
 SOURCES=common/shapes.cc sweep/advancing_front.cc sweep/cdt.cc sweep/sweep_context.cc sweep/sweep.cc
 OBJECTS=$(SOURCES:.cc=.o)
-TARGET=poly2tri.so
+TARGET=libpoly2tri.so
 
 MAKE=make
 

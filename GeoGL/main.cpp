@@ -34,6 +34,12 @@
 #include "cuboid.h"
 #include "turtle.h"
 
+//extern "C" {
+//#include "GLFW/glfw3.h"
+//GLFWAPI void glfwTerminate(void);
+//GLFWAPI double glfwGetTime(void);
+//}
+
 //#define PROGRAM_NAME "GeoGL"
 
 using namespace gengine;

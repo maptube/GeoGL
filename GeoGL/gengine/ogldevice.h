@@ -11,7 +11,12 @@
  */
 
 #include "gengine.h"
+
+#include <string>
+
 #include "renderstate.h"
+
+#include "glbuffertypes.h"
 
 namespace gengine {
 
@@ -21,8 +26,8 @@ namespace gengine {
 	class VertexArrayObject;
 	class VertexBuffer;
 	class IndexBuffer;
-	enum class BufferTarget;
-	enum class BufferUsage;
+	//enum BufferTarget;
+	//enum BufferUsage;
 
 	/// <summary>
 	/// All functions which are part of the GPU Hardware
@@ -37,13 +42,12 @@ namespace gengine {
 		static int VersionMajor; //OpenGL version numbers
 		static int VersionMinor;
 
-		static void Initialise(); //initialises glfw
-		static void Destroy();
+		static void Initialise(void); //initialises glfw
+		static void Destroy(void);
 
 		static GraphicsContext* XCreateWindow(int Width,int Height);
-		static void CreateStereoWindow();
+		static void CreateStereoWindow(void);
 		static Shader* CreateShaderProgram(std::string VertexFilename, std::string FragmentFilename);
-		//and buffer creation
 		static VertexBuffer* CreateVertexBuffer(const std::string& AttributeName, BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
 		static IndexBuffer* CreateIndexBuffer(BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
 
