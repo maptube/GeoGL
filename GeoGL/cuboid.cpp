@@ -135,8 +135,8 @@
 /// <param name="SX">Size of cuboid in X direction</param>
 /// <param name="SY">Size of cuboid in Y direction</param>
 /// <param name="SZ">Size of cuboid in Z direction</param>
-Cuboid::Cuboid(float SX, float SY, float SZ) {
-	float hSX=SX/2, hSY=SY/2, hSZ=SZ/2; //half sizes
+Cuboid::Cuboid(double SX, double SY, double SZ) {
+	float hSX=(float)SX/2, hSY=(float)SY/2, hSZ=(float)SZ/2; //half sizes
 
 	//create a unit cube using the mesh helpers
 	glm::vec3 p[] = {

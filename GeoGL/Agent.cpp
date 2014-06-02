@@ -48,19 +48,19 @@ namespace ABM {
 	/// <summary>
 	/// Return the agent's xyz position vector
 	/// </summary>
-	glm::vec3 Agent::GetXYZ()
+	glm::dvec3 Agent::GetXYZ()
 	{
-		float X,Y,Z;
+		double X,Y,Z;
 		_pAgentMesh->GetPos(X,Y,Z);
-		return glm::vec3(X,Y,Z);
+		return glm::dvec3(X,Y,Z);
 	}
 
 	/// <summary>
 	/// Return the agent's x coordinate
 	/// </summary>
-	float Agent::xcor()
+	double Agent::xcor()
 	{
-		float X,Y,Z;
+		double X,Y,Z;
 		_pAgentMesh->GetPos(X,Y,Z);
 		return X;
 	}
@@ -68,9 +68,9 @@ namespace ABM {
 	/// <summary>
 	/// Return the agent's y coordinate
 	/// </summary>
-	float Agent::ycor()
+	double Agent::ycor()
 	{
-		float X,Y,Z;
+		double X,Y,Z;
 		_pAgentMesh->GetPos(X,Y,Z);
 		return Y;
 	}
@@ -78,9 +78,9 @@ namespace ABM {
 	/// <summary>
 	/// Return the agent's z coordinate. This has been added as NetLogo doesn't have 3D coordinates
 	/// </summary>
-	float Agent::zcor()
+	double Agent::zcor()
 	{
-		float X,Y,Z;
+		double X,Y,Z;
 		_pAgentMesh->GetPos(X,Y,Z);
 		return Z;
 	}
@@ -91,7 +91,7 @@ namespace ABM {
 	/// <param name="X"></param>
 	/// <param name="Y"></param>
 	/// <param name="Z"></param>
-	void Agent::SetXYZ(const float X, const float Y, const float Z)
+	void Agent::SetXYZ(const double X, const double Y, const double Z)
 	{
 		//Do we need to hold XYZ locally as well?
 		_pAgentMesh->SetPos(X,Y,Z);
@@ -181,9 +181,9 @@ namespace ABM {
 	/// <param name="A">The agent that this one is to move to</param>
 	void Agent::MoveTo(Agent& A)
 	{
-		float x=A.xcor();
-		float y=A.ycor();
-		float z=A.zcor();
+		double x=A.xcor();
+		double y=A.ycor();
+		double z=A.zcor();
 		SetXYZ(x,y,z);
 	}
 
@@ -194,11 +194,11 @@ namespace ABM {
 	/// <param name="A">The agent that this one is going to look at</param>
 	void Agent::Face(Agent& A)
 	{
-		glm::vec3 P1 = GetXYZ(); //this is me
-		glm::vec3 P2 = A.GetXYZ(); //this is who I want to look at
+		glm::dvec3 P1 = GetXYZ(); //this is me
+		glm::dvec3 P2 = A.GetXYZ(); //this is who I want to look at
 
 		//HACK!
-		if (glm::distance(P1,P2)<0.000000001f) return; //error, asked to face an agent than I'm virtually on top of
+		if (glm::distance(P1,P2)<0.000000001f) return; //error, asked to face an agent that I'm virtually on top of
 
 		//_pAgentMesh->modelMatrix = glm::lookAt(P1,P2,glm::vec3(0,0,1)); //assumes agents exist on xy plane with up in +ve z direction
 		glm::vec3 f(glm::normalize(P2-P1)); //center - eye
@@ -219,9 +219,9 @@ namespace ABM {
 		//Result[3][0] =-dot(s, eye);
 		//Result[3][1] =-dot(u, eye);
 		//Result[3][2] = dot(f, eye);
-		Result[3][0]=P1.x;
-		Result[3][1]=P1.y;
-		Result[3][2]=P1.z;
+		Result[3][0]=(float)P1.x;
+		Result[3][1]=(float)P1.y;
+		Result[3][2]=(float)P1.z;
 		_pAgentMesh->modelMatrix = Result;
 	}
 
@@ -234,7 +234,7 @@ namespace ABM {
 	/// <returns>A vector of new agents</returns>
 	std::vector<Agent*> Agent::Hatch(int N, std::string BreedName)
 	{
-		glm::vec3 P = GetXYZ(); //from the 3D mesh
+		glm::dvec3 P = GetXYZ(); //from the 3D mesh
 		std::vector<Agent*> NewAgents;
 		for (int i=0; i<N; i++) {
 			Agent* a = _pParentAgents->Hatch(BreedName);
@@ -299,11 +299,11 @@ namespace ABM {
 	/// Calculate the distance between this agent and the other one.
 	/// TODO: this is simple Euclidean - need to include CRS in a proper calculation?
 	/// <summary>
-	float Agent::Distance(Agent& A)
+	double Agent::Distance(Agent& A)
 	{
-		glm::vec3 P1 = GetXYZ();
-		glm::vec3 P2 = A.GetXYZ();
-		return glm::distance<float>(P1,P2);
+		glm::dvec3 P1 = GetXYZ();
+		glm::dvec3 P2 = A.GetXYZ();
+		return glm::distance<double>(P1,P2);
 	}
 
 }

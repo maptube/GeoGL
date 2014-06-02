@@ -22,8 +22,8 @@ public:
 
 	Object3D();
 	~Object3D();
-	void GetPos(float& X, float& Y, float& Z);
-	void SetPos(float X, float Y, float Z);
+	void GetPos(double& X, double& Y, double& Z);
+	void SetPos(double X, double Y, double Z);
 	void Rotate(float Angle,glm::vec3 V);
 	//void Render(unsigned int ShaderId, glm::mat4 ParentMat);
 	//virtual void Render(glm::mat4 ParentMat);

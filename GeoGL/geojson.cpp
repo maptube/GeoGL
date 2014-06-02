@@ -212,7 +212,7 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 	//add outer ring
 	clipper.AddPath(linearrings[0],ClipperLib::ptSubject,true);
 	//add inner holes
-	for (int i=1; i<linearrings.size(); i++) {
+	for (unsigned int i=1; i<linearrings.size(); i++) {
 		clipper.AddPath(linearrings[i],ClipperLib::ptClip,true);
 	}
 	ClipperLib::Paths solution;
@@ -240,7 +240,7 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 	//hack, passed clipper sanitised first outer ring instead
 	p2t::CDT* cdt = new p2t::CDT(p2t_linearrings[0]); //start off with the outer boundary
 	//add holes, which get added on to the points array used to create the SweepContext
-	for (int i=1; i<p2t_linearrings.size(); i++) {
+	for (unsigned int i=1; i<p2t_linearrings.size(); i++) {
 		cdt->AddHole(p2t_linearrings[i]);
 	}
 	

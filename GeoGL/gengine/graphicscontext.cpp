@@ -203,7 +203,7 @@ namespace gengine {
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		int winX = (int)X;
-		int winY = (float)viewport[3]-Y;
+		int winY = (int)((float)viewport[3]-Y);
 		float winZ;
 		glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 		return winZ;

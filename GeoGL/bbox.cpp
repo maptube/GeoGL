@@ -11,20 +11,20 @@ BBox::~BBox(void)
 {
 }
 
-/**
-* Return the centre of the bounding box
-*/
-glm::vec3 BBox::Centre()
+/// <summary>
+/// Return the centre of the bounding box
+/// </summary>
+glm::dvec3 BBox::Centre()
 {
-	glm::vec3 C = min+max;
+	glm::dvec3 C = min+max;
 	C.x/=2; C.y/=2; C.z/=2;
 	return C;
 }
 
-/**
-* Add a new point and expand the BBox if necessary
-*/
-void BBox::ExpandToIncludePoint(float x,float y,float z)
+/// <summary>
+/// Add a new point and expand the BBox if necessary
+/// </summary>
+void BBox::ExpandToIncludePoint(double x,double y,double z)
 {
 	if (!IsValid) {
 		IsValid=true;
@@ -41,17 +41,25 @@ void BBox::ExpandToIncludePoint(float x,float y,float z)
 	}
 }
 
-/**
-* Overload of other ExpandToIncludePoint function
-*/
+/// <summary>
+/// Overload of other ExpandToIncludePoint function
+/// </summary>
 void BBox::ExpandToIncludePoint(glm::vec3 P)
+{
+	ExpandToIncludePoint((float)P.x,(float)P.y,(float)P.z);
+}
+
+/// <summary>
+/// Overload of other ExpandToIncludePoint function
+/// </summary>
+void BBox::ExpandToIncludePoint(glm::dvec3 P)
 {
 	ExpandToIncludePoint(P.x,P.y,P.z);
 }
 
-/**
-* Union operation, expands this bbox to include the parameter bbox
-*/
+/// <summary>
+/// Union operation, expands this bbox to include the parameter bbox
+/// </summary>
 void BBox::Union(BBox& box)
 {
 	ExpandToIncludePoint(box.min);

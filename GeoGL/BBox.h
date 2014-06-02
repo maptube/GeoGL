@@ -1,20 +1,21 @@
 #pragma once
 #include "main.h"
 
-/**
-* Bounding box class used by 3D objects
-*/
+/// <summary>
+/// Bounding box class used by 3D objects
+/// </summary>
 class BBox
 {
 public:
 	bool IsValid;
-	glm::vec3 min;
-	glm::vec3 max;
+	glm::dvec3 min;
+	glm::dvec3 max;
 
 	BBox(void);
 	~BBox(void);
-	glm::vec3 Centre();
-	void ExpandToIncludePoint(float x,float y,float z);
+	glm::dvec3 Centre();
+	void ExpandToIncludePoint(double x,double y,double z);
+	void ExpandToIncludePoint(glm::dvec3 P);
 	void ExpandToIncludePoint(glm::vec3 P);
 	void Union(BBox& box);
 };

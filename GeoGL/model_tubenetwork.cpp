@@ -350,11 +350,11 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 				L->Set<float>("runlink",(float)r);
 				L->colour=LineCodeToVectorColour(linecodes[i][0]);
 				//now add a pre-created velocity for this link based on distance and runlink in seconds
-				float dx = L->end2->xcor()-L->end1->xcor();
-				float dy = L->end2->ycor()-L->end1->ycor();
-				float dz = L->end2->zcor()-L->end1->zcor();
-				float dist = sqrt(dx*dx+dy*dy+dz*dz);
-				L->Set<float>("velocity",dist/(float)r);
+				double dx = L->end2->xcor()-L->end1->xcor();
+				double dy = L->end2->ycor()-L->end1->ycor();
+				double dz = L->end2->zcor()-L->end1->zcor();
+				double dist = sqrt(dx*dx+dy*dy+dz*dz);
+				L->Set<float>("velocity",(float)(dist/(float)r));
 			}
 		}
 		tube_graphs.insert(pair<char,Graph*>(linecodes[i].c_str()[0],G));
@@ -571,7 +571,7 @@ void ModelTubeNetwork::Step(double Ticks) {
 
 		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
 		d->Face(*toNode); //d.face d.toNode
-		d->Forward(min(d->Get<float>("v") * (float)Ticks,d->Distance(*toNode))); //d.forward Math.min d.v, d.distance d.toNode
+		d->Forward(min(d->Get<float>("v") * (float)Ticks,(float)d->Distance(*toNode))); //d.forward Math.min d.v, d.distance d.toNode
 		if (.00001f > d->Distance(*toNode)) //# or (d.distance d.toNode) < .01
 		{
 			ABM::Agent* pTestAgent0 = d->Get<ABM::Agent*>("toNode");

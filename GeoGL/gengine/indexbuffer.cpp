@@ -69,7 +69,7 @@ namespace gengine {
 			unsigned int SizeInts = _SizeBytes>>2; //_SizeBytes/sizeof(int) ???
 			_mem_indexbuffer = new GLuint[SizeInts];
 			//TODO: this isn't the fastest way of doing this - use a block copy!
-			for (int i=0; i<SizeInts; i++)
+			for (unsigned int i=0; i<SizeInts; i++)
 				_mem_indexbuffer[i]=mem_indexdata[i];
 		}
 	}

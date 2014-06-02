@@ -128,7 +128,7 @@ Globe::~Globe(void)
 /// <summary>
 /// Move the debug cube position on the globe. It's just a marker in the scene which we can use for testing purposes.
 /// </summary>
-void Globe::debugPositionCube(int Num, float X, float Y, float Z)
+void Globe::debugPositionCube(int Num, double X, double Y, double Z)
 {
 	switch (Num) {
 		case 0: break; //it's only 1 or 2!!!
@@ -281,21 +281,21 @@ glm::mat4 Globe::FitViewMatrix(void)
 	}
 	std::cout<<"View Box: "<<box.min.x<<","<<box.min.y<<"   "<<box.max.x<<","<<box.max.y<<std::endl;
 
-	float x1=box.min.x,
+	double x1=box.min.x,
 		x2=box.max.x,
 		y1=box.min.y,
 		y2=box.max.y,
 		z1=box.min.z,
 		z2=box.max.z;
 	//find centre of x, y and z axes which is the centre on the earth sphere (z is height)
-	float cx=(x1+x2)/2;
-	float cy=(y1+y2)/2;
-	float cz=(z1+z2)/2;
-	glm::vec3 vc(cx,cy,cz); //vector from origin to point we want to look at on surface (centre)
+	double cx=(x1+x2)/2;
+	double cy=(y1+y2)/2;
+	double cz=(z1+z2)/2;
+	glm::dvec3 vc(cx,cy,cz); //vector from origin to point we want to look at on surface (centre)
 	//calculate d distance from object, which guarantees all the max dimension of the scene box is within the width of the viewport
-	float size = max(max(x2-x1,y2-y1),z2-z1);
-	float fov = (float)width/2/tan(30.0*glm::pi<float>()/180.0);
-	float d = size*fov/(float)width;
+	double size = max(max(x2-x1,y2-y1),z2-z1);
+	double fov = (double)width/2/tan(30.0*glm::pi<double>()/180.0);
+	double d = size*fov/(double)width;
 	////point the viewpoint from the origin to the centre of the objects
 	//glm::mat4 eye_mat = glm::lookAt(glm::vec3(0,0,0),vc,glm::vec3(0,1,0)); //look from position 5 z back from object
 	////move the viewpoint along its eye direction so that the distance from view (origin) to vc is d
@@ -304,7 +304,7 @@ glm::mat4 Globe::FitViewMatrix(void)
 
 	//alternative, point along Z axis straight towards object, note view initialised to mat4(1) first
 	glm::mat4 view(1);
-	view = glm::translate(view, glm::vec3(-cx,-cy,-cz-d));
+	view = glm::translate(view, glm::vec3((float)-cx,(float)-cy,(float)(-cz-d)));
 
 	return view;
 }
@@ -357,24 +357,24 @@ glm::mat4 Globe::FitViewMatrix2(BBox& box)
 	glfwGetFramebufferSize(GC->window, &width, &height);
 
 	//find centre of box and maximum dimension
-	float x1=box.min.x,
+	double x1=box.min.x,
 		x2=box.max.x,
 		y1=box.min.y,
 		y2=box.max.y,
 		z1=box.min.z,
 		z2=box.max.z;
 	//find centre of x, y and z axes which is the centre on the earth sphere (z is height)
-	float cx=(x1+x2)/2;
-	float cy=(y1+y2)/2;
-	float cz=(z1+z2)/2;
-	glm::vec3 vc(cx,cy,cz); //vector from origin to point we want to look at (centre)
-	float size = max(max(x2-x1,y2-y1),z2-z1);
-	float fov = (float)width/2/tan(30.0*glm::pi<float>()/180.0);	//TODO: hardcoded projection matrix!
-	float d = size*fov/(float)width;
+	double cx=(x1+x2)/2;
+	double cy=(y1+y2)/2;
+	double cz=(z1+z2)/2;
+	glm::dvec3 vc(cx,cy,cz); //vector from origin to point we want to look at (centre)
+	double size = max(max(x2-x1,y2-y1),z2-z1);
+	double fov = (double)width/2/tan(30.0*glm::pi<double>()/180.0);	//TODO: hardcoded projection matrix!
+	double d = size*fov/(double)width;
 
-	glm::vec3 vEye = vc + glm::normalize(vc)*d; //move eye to centre of object we want to look at, plus another d units along the origin to object centre vector
-	glm::mat4 view = glm::lookAt(vEye,vc,glm::vec3(0,0,1)); //and look at the object from the new eye position - NOTE (0,0,1) up vector used as the Ellipse.toVector makes +ve Z UP (i.e. 90 degree rotation)
-	return view;
+	glm::dvec3 vEye = vc + glm::normalize(vc)*d; //move eye to centre of object we want to look at, plus another d units along the origin to object centre vector
+	glm::dmat4 view = glm::lookAt(vEye,vc,glm::dvec3(0,0,1)); //and look at the object from the new eye position - NOTE (0,0,1) up vector used as the Ellipse.toVector makes +ve Z UP (i.e. 90 degree rotation)
+	return glm::mat4(view); //conversion down from dmat4 to mat4 - loss of precision
 }
 
 /// <summary>
@@ -406,7 +406,7 @@ void Globe::RenderScene(void)
 		//TODO: need some overlap between camera settings?
 		double nearClip=farClip/1000;
 		GC->ClearZ(); //reset the Z buffer for this range
-		camera.SetupPerspective(camera._width,camera._height,nearClip,farClip);
+		camera.SetupPerspective((int)camera._width,(int)camera._height,nearClip,farClip);
 		//cout<<"Multi-frustum: near="<<farClip/1000<<" far="<<farClip<<endl;
 
 		//this assumes all the matrices are right

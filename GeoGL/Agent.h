@@ -221,10 +221,10 @@ namespace ABM {
 		std::vector<Link*> OutLinks();
 
 		//movement and orientation
-		glm::vec3 GetXYZ();
-		float xcor(void);
-		float ycor(void);
-		float zcor(void); //added this
+		glm::dvec3 GetXYZ();
+		double xcor(void);
+		double ycor(void);
+		double zcor(void); //added this
 		//random-x-cor
 		//random-y-cor
 		//random-z-cor
@@ -237,12 +237,12 @@ namespace ABM {
 		void Right(float d);
 		void Up(float d); //added this
 		void Down(float d); //added this
-		void SetXYZ(const float X, const float Y, const float Z); //should be setxy
+		void SetXYZ(const double X, const double Y, const double Z); //should be setxy
 		void MoveTo(Agent& A);
 		
 
 		//measurement, calculation
-		float Distance(Agent& A);
+		double Distance(Agent& A);
 
 		//drawing, style
 		void PenUp(void);

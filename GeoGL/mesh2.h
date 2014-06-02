@@ -43,7 +43,7 @@ public:
 	int AddVertex(glm::vec3 P, glm::vec3 Colour);
 	void AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3, glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3);
 	void SetColour(glm::vec3 new_colour);
-	void ScaleVertices(float Sx,float Sy,float Sz);
+	void ScaleVertices(double Sx,double Sy,double Sz);
 	void CreateBuffers();
 	void FreeBuffers();
 	virtual void AttachShader(gengine::Shader* pShader, bool Recursive);

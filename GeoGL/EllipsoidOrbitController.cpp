@@ -176,7 +176,7 @@ void EllipsoidOrbitController::ScrollCallback(GLFWwindow *window, double xoffset
 	//new code - diffferent radius (now height)
 	double h = _pEllipsoid->heightAboveSurfaceAtPoint(vCameraPos);
 	std::cout<<"h="<<h<<std::endl;
-	float delta = -h*yoffset*scrollSpeed; //where speed is the percentage i.e. 1/100=0.01
+	double delta = -h*yoffset*scrollSpeed; //where speed is the percentage i.e. 1/100=0.01
 	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
 

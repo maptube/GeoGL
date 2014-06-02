@@ -70,7 +70,7 @@ namespace gengine {
 			unsigned int SizeFloats = _SizeBytes>>2; //_SizeBytes/sizeof(float) ???
 			_mem_vertexbuffer = new float[SizeFloats];
 			//TODO: this isn't the fastest way of doing this - use a block copy!
-			for (int i=0; i<SizeFloats; i++)
+			for (unsigned int i=0; i<SizeFloats; i++)
 				_mem_vertexbuffer[i]=mem_vertexdata[i];
 		}
 	}
@@ -91,7 +91,7 @@ namespace gengine {
 		else {
 			//fallback if no hardware buffer support
 			//again, this isn't the fastest way of doing this - use a block copy!
-			for (int i=0; i<SizeFloats; i++)
+			for (unsigned int i=0; i<SizeFloats; i++)
 				mem_buffer[i]=_mem_vertexbuffer[i];
 		}
 

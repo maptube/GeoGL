@@ -39,12 +39,12 @@ namespace gengine {
 	/**
 	* Initialise perspective camera
 	*/
-	void Camera::SetupPerspective(int windowWidth, int windowHeight, float nearClip, float farClip)
+	void Camera::SetupPerspective(int windowWidth, int windowHeight, double nearClip, double farClip)
 	{
 		_near=nearClip; _far=farClip;
-		_width=(float)windowWidth; _height=(float)windowHeight;
+		_width=(double)windowWidth; _height=(double)windowHeight;
 		//near=0.1f, far=100.0f, also need to pass in field of view angle which is fixed to 60 degrees
-		projectionMatrix = glm::perspective(_fov, (float)windowWidth / (float)windowHeight, nearClip, farClip);  // Create our perspective matrix
+		projectionMatrix = glm::perspective(_fov, _width / _height, nearClip, farClip);  // Create our perspective matrix
 	}
 
 } //namespace gengine

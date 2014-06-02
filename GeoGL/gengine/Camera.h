@@ -8,7 +8,7 @@ namespace gengine {
 	public:
 		glm::dmat4 projectionMatrix;
 		glm::dmat4 viewMatrix; //view matrix is used to transform scene into view space, camera matrix is camera position+rotation in scene
-		float _fov;
+		double _fov;
 		double _near,_far,_width,_height;
 
 		Camera(void);
@@ -48,7 +48,7 @@ namespace gengine {
 		void SetCameraMatrix(glm::dmat4 CameraMatrix) {
 			viewMatrix = glm::inverse(CameraMatrix);
 		};
-		void SetupPerspective(int windowWidth, int windowHeight, float nearClip, float farClip);
+		void SetupPerspective(int windowWidth, int windowHeight, double nearClip, double farClip);
 		glm::vec4 GetViewport();
 		/**
 		* LookAt

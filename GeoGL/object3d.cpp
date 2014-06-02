@@ -1,6 +1,6 @@
 //Object3D.cpp
 #include "object3d.h"
-#include "opengl4.h"
+//#include "opengl4.h"
 
 using namespace std;
 
@@ -25,11 +25,11 @@ Object3D::~Object3D() {
 /// <param name="X"></param>
 /// <param name="Y"></param>
 /// <param name="Z"></param>
-void Object3D::GetPos(float& X, float& Y, float& Z)
+void Object3D::GetPos(double& X, double& Y, double& Z)
 {
-	X = modelMatrix[3][0];
-	Y = modelMatrix[3][1];
-	Z = modelMatrix[3][2];
+	X = (double)modelMatrix[3][0];
+	Y = (double)modelMatrix[3][1];
+	Z = (double)modelMatrix[3][2];
 }
 
 /// <summary>
@@ -38,15 +38,15 @@ void Object3D::GetPos(float& X, float& Y, float& Z)
 /// <param name="X"></param>
 /// <param name="Y"></param>
 /// <param name="Z"></param>
-void Object3D::SetPos(float X, float Y, float Z) {
+void Object3D::SetPos(double X, double Y, double Z) {
 	//TODO:
 	//Also, you need to translate the bounding box as well
-	glm::vec3 Txyz(X, Y, Z);
+	glm::dvec3 Txyz(X, Y, Z);
 	//modelMatrix = glm::translate(modelMatrix,Txyz); //TODO: check what this does!!!! it's a relative translation not absolute
 	//direct manipulation of position
-	modelMatrix[3][0]=X;
-	modelMatrix[3][1]=Y;
-	modelMatrix[3][2]=Z;
+	modelMatrix[3][0]=(float)X;
+	modelMatrix[3][1]=(float)Y;
+	modelMatrix[3][2]=(float)Z;
 	//need to recompute bounding box, so just need to translate it
 	bounds.max = bounds.max + Txyz;
 	bounds.min = bounds.min + Txyz;

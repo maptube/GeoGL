@@ -8,6 +8,6 @@
 /// </summary>
 class Cuboid : public Mesh2 {
 public:
-	Cuboid(float SX,float SY,float SZ);
+	Cuboid(double SX,double SY,double SZ);
 	~Cuboid();
 };

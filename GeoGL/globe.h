@@ -77,7 +77,7 @@ public:
 	Globe(void);
 	~Globe(void);
 
-	void debugPositionCube(int Num, float X, float Y, float Z);
+	void debugPositionCube(int Num, double X, double Y, double Z);
 
 	bool IsRunning(void);
 	//GLFWwindow* GetWindow() { return openglContext.window; }
