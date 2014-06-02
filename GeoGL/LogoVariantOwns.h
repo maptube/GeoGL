@@ -1,5 +1,6 @@
 #pragma once
 
+#include <typeinfo>
 //#include <unordered_map>
 #include <string>
 
@@ -56,7 +57,7 @@ namespace ABM {
 		//};
 
 		//assignment operator (needed when it's added to a map)
-		LogoVariant& LogoVariant::operator=(const LogoVariant& other)
+		LogoVariant& operator=(const LogoVariant& other)
 		{
 			type_id=other.type_id;
 			value=other.value;
