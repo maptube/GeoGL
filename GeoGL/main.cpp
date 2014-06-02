@@ -33,6 +33,8 @@
 #include "sphere.h"
 #include "cuboid.h"
 #include "turtle.h"
+#include "Agent.h"
+#include "LogoVariantOwns.h"
 
 //extern "C" {
 //#include "GLFW/glfw3.h"
@@ -211,6 +213,32 @@ int main(int argc, char *argv[])
 	//for (int i=0; i<300; ++i) delete spheres[i];
 	//end of profile code
 
+	//agent variant testing
+	//ABM::Agent* A = new ABM::Agent();
+	//A->Set<int>("Test1",4);
+	//int Test1 = A->Get<int>("Test1");
+	//std::cout<<"Test1="<<Test1<<std::endl;
+
+	//std::cout<<(typeid(std::string).hash_code())<<" "<<(typeid(std::string*).hash_code())<<std::endl;
+
+	//A->Set<bool>("Test2",false);
+	//bool Test2 = A->Get<bool>("Test2");
+	//std::cout<<"Test2="<<Test2<<std::endl;
+
+	//A->Set<float>("Test3",0.123f);
+	//float Test3 = A->Get<float>("Test3");
+	//std::cout<<"Test3="<<Test3<<std::endl;
+
+	//std::string str = "test 4 lvar test";
+	//ABM::LogoVariant LVar("const string test");
+	//std::string Test41 = LVar.Get<std::string>();
+	//std::cout<<"Lvar="<<Test41<<std::endl;
+
+	//std::string str2 = "test 4 string test";
+	//A->Set<std::string>("Test4","test 4 string test");
+	//std::string Test4 = A->Get<std::string>("Test4");
+	//std::cout<<"Test4="<<Test4<<std::endl;
+	//delete A;
 
 	Globe globe;
 	

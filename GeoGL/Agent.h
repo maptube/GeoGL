@@ -49,38 +49,54 @@ namespace ABM {
 		//ownership - need to create wrapper for ownership functions as Agent can't inherit from LogoVariantOwns as a base class
 		//ownership interface
 		std::map<std::string,LogoVariant> _owns; //key value pairs
+		//template <typename T>
+		//T Get(std::string Name) {
+		//	std::unordered_map<std::string,LogoVariant>::iterator it = _owns.find(Name);
+		//	if (it!=_owns.end()) {
+		//		if (typeid(T).hash_code()==typeid(int).hash_code()) {
+		//			if (it->second.type_id==LogoVariant::t_int)
+		//				return (T)(it->second.as_integer);
+		//		}
+		//		else if (typeid(T).hash_code()==typeid(bool).hash_code()) {
+		//			if (it->second.type_id==LogoVariant::t_bool)
+		//				return (T)(it->second.as_bool);
+		//		}
+		//		else if (typeid(T).hash_code()==typeid(float).hash_code()) {
+		//			if (it->second.type_id==LogoVariant::t_float)
+		//				return (T)(it->second.as_float);
+		//		}
+		//		//else if (typeid(T).hash_code()==typeid(std::string).hash_code()) {
+		//		//	if (it->second.type_id==LogoVariant::t_string)
+		//		//		return (T)(it->second.as_string);
+		//		//}
+		//		else if (typeid(T).hash_code()==typeid(Agent*).hash_code()) {
+		//			if (it->second.type_id==LogoVariant::t_pAgent)
+		//				return (T)(it->second.as_pAgent);
+		//		}
+		//		else if (typeid(T).hash_code()==typeid(Link*).hash_code()) {
+		//			if (it->second.type_id==LogoVariant::t_pLink)
+		//				return (T)(it->second.as_pLink);
+		//		}
+		//	}
+		//	//return NULL;
+		//	return 0;
+		//};
+
 		template <typename T>
 		T Get(std::string Name) {
-			/*std::unordered_map<std::string,LogoVariant>::iterator it = _owns.find(Name);
+			std::map<std::string,LogoVariant>::iterator it = _owns.find(Name);
 			if (it!=_owns.end()) {
-				if (typeid(T).hash_code()==typeid(int).hash_code()) {
-					if (it->second.type_id==LogoVariant::t_int)
-						return (T)(it->second.as_integer);
-				}
-				else if (typeid(T).hash_code()==typeid(bool).hash_code()) {
-					if (it->second.type_id==LogoVariant::t_bool)
-						return (T)(it->second.as_bool);
-				}
-				else if (typeid(T).hash_code()==typeid(float).hash_code()) {
-					if (it->second.type_id==LogoVariant::t_float)
-						return (T)(it->second.as_float);
-				}
-				//else if (typeid(T).hash_code()==typeid(std::string).hash_code()) {
-				//	if (it->second.type_id==LogoVariant::t_string)
-				//		return (T)(it->second.as_string);
-				//}
-				else if (typeid(T).hash_code()==typeid(Agent*).hash_code()) {
-					if (it->second.type_id==LogoVariant::t_pAgent)
-						return (T)(it->second.as_pAgent);
-				}
-				else if (typeid(T).hash_code()==typeid(Link*).hash_code()) {
-					if (it->second.type_id==LogoVariant::t_pLink)
-						return (T)(it->second.as_pLink);
-				}
-			}*/
-			//return NULL;
+				return it->second.Get<T>();
+			}
 			return 0;
-		};
+		}
+
+		template <typename T>
+		void Set(std::string Name, T Value) {
+			LogoVariant LVar(Value);
+			_owns[Name]=LVar;
+		}
+
 		//Get<int>
 		//template <>
 		//int Get<int>(std::string VarName) {
@@ -123,8 +139,9 @@ namespace ABM {
 		//This is much faster than getting a value back and testing it
 		bool TestString(const std::string& VarName,const std::string& Test) {
 			if (VarName=="name") return Name==Test; //built-in value
-			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			return it->second.as_string==Test;
+			//std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+			//return it->second.as_string==Test;
+			return false;
 		}
 
 		//Get<LogoVariant> used internally
@@ -139,37 +156,37 @@ namespace ABM {
 			return it->second;
 		};
 		//Set
-		template <typename T>
-		void Set(std::string VarName, T Value) {
-			//TODO: should also keep a global map of what this agent "owns"
-			LogoVariant var(T);
-			//if (typeid(T).hash_code()==typeid(int).hash_code()) {
-			//	var.type_id=LogoVariant::t_int;
-			//	var.as_integer=(int)Value;
-			//}
-			//else if (typeid(T).hash_code()==typeid(bool).hash_code()) {
-			//	var.type_id=LogoVariant::t_bool;
-			//	var.as_bool=(bool)Value;
-			//}
-			//else if (typeid(T).hash_code()==typeid(float).hash_code()) {
-			//	var.type_id=LogoVariant::t_float;
-			//	var.as_float=(float)Value;
-			//}
-			//else if (typeid(T).hash_code()==typeid(std::string).hash_code()) {
-			//	var.type_id=LogoVariant::t_string;
-			//	var.as_string=Value;
-			//}
-			//else if (typeid(T).hash_code()==typeid(Agent*).hash_code()) {
-			//	var.type_id=LogoVariant::t_pAgent;
-			//	var.as_pAgent=(Agent*)Value;
-			//}
-			//else if (typeid(T).hash_code()==typeid(Link*).hash_code()) {
-			//	var.type_id=LogoVariant::t_pLink;
-			//	var.as_pLink=(Link*)Value;
-			//}
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
+		//template <typename T>
+		//void Set(std::string VarName, T Value) {
+		//	//TODO: should also keep a global map of what this agent "owns"
+		//	LogoVariant var(T);
+		//	//if (typeid(T).hash_code()==typeid(int).hash_code()) {
+		//	//	var.type_id=LogoVariant::t_int;
+		//	//	var.as_integer=(int)Value;
+		//	//}
+		//	//else if (typeid(T).hash_code()==typeid(bool).hash_code()) {
+		//	//	var.type_id=LogoVariant::t_bool;
+		//	//	var.as_bool=(bool)Value;
+		//	//}
+		//	//else if (typeid(T).hash_code()==typeid(float).hash_code()) {
+		//	//	var.type_id=LogoVariant::t_float;
+		//	//	var.as_float=(float)Value;
+		//	//}
+		//	//else if (typeid(T).hash_code()==typeid(std::string).hash_code()) {
+		//	//	var.type_id=LogoVariant::t_string;
+		//	//	var.as_string=Value;
+		//	//}
+		//	//else if (typeid(T).hash_code()==typeid(Agent*).hash_code()) {
+		//	//	var.type_id=LogoVariant::t_pAgent;
+		//	//	var.as_pAgent=(Agent*)Value;
+		//	//}
+		//	//else if (typeid(T).hash_code()==typeid(Link*).hash_code()) {
+		//	//	var.type_id=LogoVariant::t_pLink;
+		//	//	var.as_pLink=(Link*)Value;
+		//	//}
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
 		//template<>
 		//void Set<int>(std::string VarName, int Value) {
 		//	LogoVariant var(Value);

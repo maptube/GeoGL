@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 #include "main.h"
 
@@ -35,12 +36,27 @@ namespace ABM {
 		//ownership - need to create wrapper for ownership functions as Link can't inherit from LogoVariantOwns as a base class
 		//ownership interface
 		//this is a copy of the Agent.h version, so ideally, I need to merge into one copy of code - how?
-		std::unordered_map<std::string,LogoVariant> _owns; //key value pairs
+		std::map<std::string,LogoVariant> _owns; //key value pairs
 		template <typename T>
-		T Get(std::string VarName) {
-			//return NULL;
+		T Get(std::string Name) {
+			std::map<std::string,LogoVariant>::iterator it = _owns.find(Name);
+			if (it!=_owns.end()) {
+				return it->second.Get<T>();
+			}
 			return 0;
-		};
+		}
+
+		template <typename T>
+		void Set(std::string Name, T Value) {
+			LogoVariant LVar(Value);
+			_owns[Name]=LVar;
+		}
+		
+		//template <typename T>
+		//T Get(std::string VarName) {
+		//	//return NULL;
+		//	return 0;
+		//};
 		//Get<int>
 		//template <>
 		//int Get<int>(std::string VarName) {
@@ -85,17 +101,17 @@ namespace ABM {
 		//	return &(*it->second);
 		//}
 		LogoVariant GetVar(std::string VarName) {
-			std::unordered_map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
 			return it->second;
 		};
 		//Set
-		template <typename T>
-		void Set(std::string VarName, T Value) {
-			//TODO: should also keep a global map of what this agent "owns"
-			LogoVariant var(T);
-			//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
-			_owns[VarName]=var;
-		};
+		//template <typename T>
+		//void Set(std::string VarName, T Value) {
+		//	//TODO: should also keep a global map of what this agent "owns"
+		//	LogoVariant var(T);
+		//	//_owns.insert(std::pair<std::string,LogoVariant>(VarName,var));
+		//	_owns[VarName]=var;
+		//};
 		//template<>
 		//void Set<int>(std::string VarName, int Value) {
 		//	LogoVariant var(Value);
