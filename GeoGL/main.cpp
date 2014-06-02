@@ -272,8 +272,8 @@ int main(int argc, char *argv[])
 	//GeoJSON* thames = new GeoJSON();
 	//thames->LoadFile("..\\GeoGL\\data\\TQ_TidalWater_503500_155500.geojson");
 	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
-	//GeoJSON* thames = globe.LoadLayerGeoJSON("..\\data\\TQ_TidalWater_503500_155500.geojson");
-	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	GeoJSON* thames = globe.LoadLayerGeoJSON("..\\data\\TQ_TidalWater_503500_155500.geojson");
+	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//London outline in WGS84
 	//GeoJSON* london = new GeoJSON();

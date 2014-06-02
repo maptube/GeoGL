@@ -27,6 +27,10 @@ using namespace std;
 const std::string ModelTubeNetwork::Filename_StationCodes = "..\\data\\station-codes.csv"; //station locations
 const std::string ModelTubeNetwork::Filename_TubeODNetwork = "..\\data\\tube-network.json"; //network from JSON origin destination file
 const std::string ModelTubeNetwork::Filename_TrackernetPositions = "..\\data\\trackernet_20140127_154200.csv"; //train positions
+const float ModelTubeNetwork::LineSize = 50; //size of track
+const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
+const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
+const float ModelTubeNetwork::TrainSize = 300.0f; //size of train geometry object
 
 /// <summary>
 /// Create a Tube Network containing a model of the tube and train agents which run around the track. You have to call load() with the relevant file names to load the
@@ -469,7 +473,7 @@ NetGraphGeometry* ModelTubeNetwork::GenerateLineMesh(char LineCode) {
 	//find its colour
 	glm::vec3 LineColour = LineCodeToVectorColour(LineCode);
 	//now build the geometry
-	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,100/*0.00025f*/,10,LineColour);
+	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,LineSize/*0.00025f*/,LineTubeSegments,LineColour);
 	geom->Name="LINE_"+LineCode; //might as well name the object in case we need to find it in the scene graph
 
 	return geom;
@@ -500,9 +504,9 @@ void ModelTubeNetwork::Setup() {
 	//My version, closer to NetLogo: Breed("node","nodes"); and Breed("driver","drivers");
 	//SetDefaultShape("node","sphere"); //takes too long to create 300 of them
 	SetDefaultShape("node","cube");
-	SetDefaultSize("node",200.0f/*0.001f*/);
+	SetDefaultSize("node",StationSize/*0.001f*/);
 	SetDefaultShape("driver","turtle");
-	SetDefaultSize("driver",600.0f/*0.005f*/);
+	SetDefaultSize("driver",TrainSize/*0.005f*/);
 
 	loadStations(Filename_StationCodes); //station locations
 	loadLinks(Filename_TubeODNetwork); //network from JSON origin destination file

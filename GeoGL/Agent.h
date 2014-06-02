@@ -139,8 +139,8 @@ namespace ABM {
 		//This is much faster than getting a value back and testing it
 		bool TestString(const std::string& VarName,const std::string& Test) {
 			if (VarName=="name") return Name==Test; //built-in value
-			//std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
-			//return it->second.as_string==Test;
+			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+			return (*it->second.value.as_pString)==Test;
 			return false;
 		}
 

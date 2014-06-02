@@ -10,8 +10,10 @@ namespace ABM {
 	class Agent;
 	class Link;
 
-	//TODO: need a variant that I can create with a specific type e.g.
-	//LogoVariant<string>("mystring");
+	//need a variant that I can create with a specific type e.g.
+	//LogoVariant.Set<string>("mystring"); //and Get<>
+	//LogoVariant.Set<int>(2);
+	//OK, it's not a variant, it's strongly typed but can be created as any type
 
 //http://www.ojdip.net/2013/10/implementing-a-variant-type-in-cpp/
 	//simple method, just union it
@@ -25,7 +27,6 @@ namespace ABM {
 			Agent* as_pAgent;
 			Link* as_pLink;
 			std::string* as_pString;
-			//void* as_pString;
 		} value;
 		//std::string as_string; //this is really nasty!
 
@@ -34,7 +35,7 @@ namespace ABM {
 		//default constructor
 		LogoVariant() {};
 
-		//copy constructor
+		//copy constructor (needed when it's added to a map)
 		LogoVariant(const LogoVariant& other) :
 		type_id( other.type_id ), value( other.value )
 		{
@@ -54,7 +55,7 @@ namespace ABM {
 		//	}
 		//};
 
-		//assignment operator
+		//assignment operator (needed when it's added to a map)
 		LogoVariant& LogoVariant::operator=(const LogoVariant& other)
 		{
 			type_id=other.type_id;
@@ -84,7 +85,7 @@ namespace ABM {
 			type_id=typeid(float).hash_code();
 			value.as_float=f;
 		};
-		//char * constructor - change into a string
+		//char * constructor - change into a string. For some reason, if you don't include this it tries to use the bool constructor.
 		LogoVariant(const char* chars) {
 			type_id=typeid(std::string).hash_code();
 			value.as_pString=new std::string(chars);
