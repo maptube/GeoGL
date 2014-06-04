@@ -22,6 +22,9 @@ namespace gengine {
 	//class RenderState;
 	class DrawObject;
 	class SceneDataObject;
+	//class VertexBuffer;
+	class VertexData;
+	class Shader;
 
 	/// <summary>
 	/// A graphics context is something we can render to and includes a window
@@ -30,6 +33,10 @@ namespace gengine {
 	{
 	public:
 		GLFWwindow *window;
+		FT_Library ft; //freetype text library
+		//buffer for texture
+		Shader* _FontShader;
+		VertexData* _FontVertexData;
 
 		GraphicsContext(GLFWwindow* pWindow);
 		~GraphicsContext(void);
@@ -40,6 +47,10 @@ namespace gengine {
 		void RenderFallback(const DrawObject& obj, const SceneDataObject& sceneobj);
 		void SwapBuffers(void);
 		float ReadZBuffer(float X, float Y);
+
+		//font handling
+		FT_Face LoadFont(const std::string& FontName, const unsigned int FontSize);
+		void RenderText(const FT_Face FontFace, const char *text, float x, float y, float sx, float sy);
 
 		virtual void WindowSizeCallback(GLFWwindow* window, int w, int h);
 

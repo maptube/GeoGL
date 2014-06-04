@@ -22,6 +22,7 @@ namespace gengine {
 		std::vector<VertexBuffer*> _vb; //1 or more vertex buffers
 		IndexBuffer* _ib; //optional index buffer if used
 		unsigned int _NumElements; //number of elements passed to OGL drawelements function i.e. number of index elements
+		unsigned int _ComponentsPerVertex; //number of values per vertex e.g. X,Y,Z=3, X,Y,S,T=4 (used in glVertexAttribPointer)
 
 		void bind(ShaderAttributeCollection& attributes);
 		void unbind(ShaderAttributeCollection& attributes);

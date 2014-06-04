@@ -52,6 +52,7 @@ namespace gengine {
 		static IndexBuffer* CreateIndexBuffer(BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
 
 		static void SetRenderState(const RenderState& rs);
+		static void QueryRenderState(void);
 	private:
 		static RenderState CurrentRenderState; //current state of device globals
 	};

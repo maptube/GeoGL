@@ -39,8 +39,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\richard\projects\VC++\GeoGL\poly2tri;C:\richard\projects\VC++\GeoGL\externals\LeapDeveloperKit\LeapSDK\include;C:\richard\projects\VC++\GeoGL\externals\glfw-3.0.4\include;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\include;C:\richard\projects\VC++\GeoGL\externals;C:\richard\projects\VC++\GeoGL\externals\jsoncpp-src-0.5.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\richard\projects\VC++\GeoGL\poly2tri\Debug;C:\richard\projects\VC++\GeoGL\externals\LeapDeveloperKit\LeapSDK\lib\x86;C:\richard\projects\VC++\GeoGL\externals\glfw-3.0.4\src\Debug;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\lib\x86;C:\richard\projects\VC++\GeoGL\externals\jsoncpp-src-0.5.0\build\vs71\debug\lib_json;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\richard\GitHub\GeoGL\externals\freetype-2.5.3\include;C:\richard\projects\VC++\GeoGL\poly2tri;C:\richard\projects\VC++\GeoGL\externals\LeapDeveloperKit\LeapSDK\include;C:\richard\projects\VC++\GeoGL\externals\glfw-3.0.4\include;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\include;C:\richard\projects\VC++\GeoGL\externals;C:\richard\projects\VC++\GeoGL\externals\jsoncpp-src-0.5.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\richard\GitHub\GeoGL\externals\freetype-2.5.3\objs\win32\vc2010;C:\richard\GitHub\GeoGL\poly2tri\Debug;C:\richard\projects\VC++\GeoGL\externals\LeapDeveloperKit\LeapSDK\lib\x86;C:\richard\GitHub\GeoGL\externals\glfw-3.0.4\src\Debug;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\lib\x86;C:\richard\projects\VC++\GeoGL\externals\jsoncpp-src-0.5.0\build\vs71\debug\lib_json;$(LibraryPath)</LibraryPath>
     <SourcePath>C:\richard\projects\VC++\GeoGL\GeoGL\clipper;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,6 +83,8 @@
   <ItemGroup>
     <None Include="diffuse.frag" />
     <None Include="diffuse.vert" />
+    <None Include="fontshader.frag" />
+    <None Include="fontshader.vert" />
     <None Include="ReadMe.txt" />
     <None Include="shader.frag" />
     <None Include="shader.vert" />

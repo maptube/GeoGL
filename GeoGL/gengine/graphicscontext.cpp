@@ -16,11 +16,14 @@
 #include "scenedataobject.h"
 #include "shader.h"
 #include "vertexdata.h"
+#include "vertexbuffer.h"
 #include "indexbuffer.h"
 #include "ogldevice.h"
 #include "shaderuniformcollection.h"
 #include "shaderuniform.h"
 #include "Camera.h"
+#include "shader.h"
+#include "glbuffertypes.h"
 
 namespace gengine {
 
@@ -29,11 +32,28 @@ namespace gengine {
 	GraphicsContext::GraphicsContext(GLFWwindow *pWindow)
 	{
 		window=pWindow;
+
+		//initialise FreeType text rendering library
+		if(FT_Init_FreeType(&ft)) {
+			std::cerr<<"Could not initialise freetype library"<<std::endl;
+		}
+		
+		//shader for the font rendering
+		_FontShader = OGLDevice::CreateShaderProgram("fontshader.vert","fontshader.frag");
+		//vertex data and buffer for box required to put the texture for font rendering in
+		//should I really be creating a full draw object?
+		_FontVertexData = new VertexData();
+		VertexBuffer* vbo = new VertexBuffer("coord",ArrayBuffer,DynamicDraw,16*sizeof(GLfloat));
+		_FontVertexData->_vb.push_back(vbo);
+		_FontVertexData->_NumElements=4; //does this even do anything?
+		_FontVertexData->_ComponentsPerVertex=4; //This is needed - set to X,Y,S,T per vertex for 2D with texture coords
 	}
 
 
 	GraphicsContext::~GraphicsContext(void)
 	{
+		delete _FontShader;
+		delete _FontVertexData;
 		glfwDestroyWindow(window);
 	}
 
@@ -208,5 +228,119 @@ namespace gengine {
 		glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 		return winZ;
 	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Font Handling
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/// <summary>
+	///Load a font which we can render to the OpenGL context.
+	/// </summary>
+	/// <param name="FontName">The name of the font file e.g. FreeSans.ttf (needs to be either relative to program or fully qualified)</param>
+	/// <param name="FontSize">The font size in points e.g. 48</param>
+	/// <returns></returns>
+	FT_Face GraphicsContext::LoadFont(const std::string& FontName, const unsigned int FontSize)
+	{
+		FT_Face face;
+		if(FT_New_Face(ft, FontName.c_str(), 0, &face)) {
+			std::cerr<<"Could not open font "<<FontName<<std::endl;
+		}
+		else {
+			FT_Set_Pixel_Sizes(face, 0, FontSize);
+		}
+		return face;
+	}
+	
+	/// <summary>
+	/// Render text to window using freetype, see:
+	/// http://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Text_Rendering_01
+	/// </summary>
+	/// <param name="FontFace"></param>
+	/// <param name="text"></param>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <param name="sx"></param>
+	/// <param name="sy"></param>
+	void GraphicsContext::RenderText(const FT_Face FontFace, const char *text, float x, float y, float sx, float sy)
+	{
+		//TODO: we need a vbo for the coords, a uniform_tex ("tex" in glsl), attribute_coord ("coord" in glsl)
+		const char *p;
+		FT_GlyphSlot g = FontFace->glyph;
+
+		RenderState rs; //set up a render state that has _FaceCulling._Enabled=false
+		rs._DepthTest._Enabled=false;
+		rs._FaceCulling._Enabled=false;
+		OGLDevice::SetRenderState(rs);
+
+		//TODO: this needs to be a colour passed in the function
+		_FontShader->_shaderUniforms->SetUniform4fv("color",glm::vec4(1,0,0,1));
+
+		/* Create a texture that will be used to hold one "glyph" */
+		GLuint tex;
+		
+		glActiveTexture(GL_TEXTURE0);
+		glGenTextures(1, &tex);
+		glBindTexture(GL_TEXTURE_2D, tex);
+		_FontShader->_shaderUniforms->SetUniform1i("tex",0);
+		
+		/* We require 1 byte alignment when uploading texture data */
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		
+		/* Clamping to edges is important to prevent artifacts when scaling */
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		/* Linear filtering usually looks best for text */
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		
+		for(p = text; *p; p++) {
+			if(FT_Load_Char(FontFace, *p, FT_LOAD_RENDER))
+				continue;
+			
+			glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_ALPHA,
+				g->bitmap.width,
+				g->bitmap.rows,
+				0,
+				GL_ALPHA,
+				GL_UNSIGNED_BYTE,
+				g->bitmap.buffer
+			);
+			
+			float x2 = x + g->bitmap_left * sx;
+			float y2 = -y - g->bitmap_top * sy;
+			float w = g->bitmap.width * sx;
+			float h = g->bitmap.rows * sy;
+			
+			GLfloat box[4][4] = {
+				{x2,   -y2,   0, 0},
+				{x2+w, -y2,   1, 0},
+				{x2,   -y2-h, 0, 1},
+				{x2+w, -y2-h, 1, 1},
+			};
+			
+			_FontVertexData->_vb[0]->CopyFromMemory(&box[0][0]);
+			_FontVertexData->bind(*_FontShader->_shaderAttributes); //todo: can you move the bind outside the loop - it's all the same buffer?
+			//finally, we actually get to do some drawing...
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			_FontVertexData->unbind(*_FontShader->_shaderAttributes);
+			
+			x += (g->advance.x >> 6) * sx;
+			y += (g->advance.y >> 6) * sy;
+		}
+
+		glDeleteTextures(1, &tex);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//End of Font Handling
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 } //namespace gengine

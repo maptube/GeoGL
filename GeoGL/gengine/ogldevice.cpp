@@ -49,6 +49,9 @@ namespace gengine {
 	{
 		if (!glfwInit())
 			exit(EXIT_FAILURE);
+
+		//need to query the device state so we know what's set initially
+		QueryRenderState();
 	}
 
 	void OGLDevice::Destroy()
@@ -198,6 +201,43 @@ namespace gengine {
 
 		//set current state here
 		CurrentRenderState = rs;
+	}
+
+	/// <summary>
+	/// Get the current render state directly from the device - this is going to be a slow operation
+	/// TODO: check that these are complete and correct! It's not immediately obvious how you get some of these values back.
+	/// </summary>
+	void OGLDevice::QueryRenderState(void) {
+		RenderState rs;
+		//GLboolean b; //it's an unsigned char, so incompatible with bool type
+		//GLenum e;
+		GLint i;
+		GLint iv4[4];
+		
+		//Face Culling
+		rs._FaceCulling._Enabled = (glIsEnabled(GL_CULL_FACE)!=0);
+		glGetIntegerv(GL_CULL_FACE_MODE,&i);
+		rs._FaceCulling._FaceTest=(FaceCullingTest)i;
+		glGetIntegerv(GL_FRONT_FACE,&i);
+		rs._FaceCulling._WindingOrder=(WindingOrder)i;
+
+		//scissor test
+		rs._ScissorTest._Enabled = (glIsEnabled(GL_SCISSOR_TEST)!=0);
+		glGetIntegerv(GL_SCISSOR_BOX,&iv4[0]);
+		rs._ScissorTest._Left=iv4[0];
+		rs._ScissorTest._Bottom=iv4[1];
+		rs._ScissorTest._Width=iv4[2];
+		rs._ScissorTest._Height=iv4[3];
+
+		//depth test
+		rs._DepthTest._Enabled=(glIsEnabled(GL_DEPTH_TEST)!=0);
+		glGetIntegerv(GL_DEPTH_FUNC,&i);
+		rs._DepthTest._Function=(DepthTestFunction)i;
+
+		//depth mask
+		rs._DepthMask = (glIsEnabled(GL_DEPTH_WRITEMASK)!=0);
+
+		CurrentRenderState = rs; //update internal copy with the current state of the hardware
 	}
 
 

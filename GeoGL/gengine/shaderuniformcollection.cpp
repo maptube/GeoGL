@@ -64,22 +64,29 @@ namespace gengine {
 	}
 
 	/// <summary>
+	/// Find the index of a named uniform. Returns -1 for not found or the index.
+	/// </summary>
+	int ShaderUniformCollection::FindLocationIndex(const std::string& Name)
+	{
+		// TODO: not exactly elegant, but there aren't going to be many uniforms and a hash is probably overkill?
+		for (vector<ShaderUniform>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
+			ShaderUniform u = *it;
+			if (u._Name==Name)
+				return u._Location;
+		}
+		return -1; //not found
+	}
+
+	/// <summary>
 	/// Send a matrix to the shader using its name
 	/// </summary>
 	void ShaderUniformCollection::SetMatrix4fv(const std::string& Name, const glm::mat4& m)
 	{
-		//TODO: not exactly elegant, but there aren't going to be many uniforms and a hash is probably overkill?
-		bool Found=false;
-		for (vector<ShaderUniform>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
-			ShaderUniform u = *it;
-			if (u._Name==Name) {
-				Found=true;
-				glUniformMatrix4fv(u._Location, 1, GL_FALSE, &m[0][0]); // Send our matrix to the shader
-				break;
-			}
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glUniformMatrix4fv(Location, 1, GL_FALSE, &m[0][0]); // Send our matrix to the shader
 		}
-		if (!Found) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
-		//should I be checking for invalid names?
 	}
 
 	/// <summary>
@@ -88,20 +95,31 @@ namespace gengine {
 	/// </summary>
 	void ShaderUniformCollection::SetMatrix4dv(const std::string& Name, const glm::dmat4& m)
 	{
-		//TODO: not exactly elegant, but there aren't going to be many uniforms and a hash is probably overkill?
-		bool Found=false;
-		for (vector<ShaderUniform>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
-			ShaderUniform u = *it;
-			if (u._Name==Name) {
-				Found=true;
-				float f[4][4];
-				for (int i=0; i<4; i++) for (int j=0; j<4; j++) f[i][j]=(float)m[i][j];
-				glUniformMatrix4fv(u._Location, 1, GL_FALSE, &f[0][0]); // Send our matrix to the shader
-				break;
-			}
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			float f[4][4];
+			for (int i=0; i<4; i++) for (int j=0; j<4; j++) f[i][j]=(float)m[i][j];
+			glUniformMatrix4fv(Location, 1, GL_FALSE, &f[0][0]); // Send our matrix to the shader
 		}
-		if (!Found) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
-		//should I be checking for invalid names?
+	}
+
+	void ShaderUniformCollection::SetUniform1i(const std::string& Name, const int i)
+	{
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glUniform1i(Location, i);
+		}
+	}
+
+	void ShaderUniformCollection::SetUniform4fv(const std::string& Name, const glm::vec4& v)
+	{
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glUniform4fv(Location, 1, &v[0]);
+		}
 	}
 
 } //namespace gengine

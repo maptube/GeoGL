@@ -90,6 +90,8 @@ namespace gengine {
 		RenderState(void);
 		~RenderState(void);
 
+		RenderState(const RenderState& rs);
+
 		//PrimitiveRestart
 		FaceCulling _FaceCulling;
 		//RasterizationMode
@@ -103,7 +105,7 @@ namespace gengine {
 		//Fog?
 
 		//void SetState(const RenderState& CurrentState);
-		RenderState operator=(const RenderState& src);
+		RenderState& operator=(const RenderState& rs);
 	};
 
 	//this is what I was using for render state

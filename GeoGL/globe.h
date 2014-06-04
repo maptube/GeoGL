@@ -55,6 +55,8 @@ private:
 
 	std::vector<gengine::Shader*> _Shaders; //Shader programs that have been complied and linked
 
+	FT_Face _FontFace; //Font used for rendering text
+
 	//OrbitController* controller;
 	EllipsoidOrbitController* controller;
 

@@ -17,6 +17,7 @@ namespace gengine {
 	VertexData::VertexData(void)
 	{
 		_ib=NULL; //set index buffer to null in case we don't need to use it
+		_ComponentsPerVertex=3; //most vertex data is X,Y,Z, so set it to 3
 	}
 
 
@@ -65,7 +66,7 @@ namespace gengine {
 				glBindBuffer((*vbIT)->_Target/*GL_ARRAY_BUFFER*/,(*vbIT)->_vboID); //this is the vertex buffer id, NOT the location in the shader
 				const std::string name = (*vbIT)->_AttributeName; //lookup shader attribute data from the name stored in the vertex buffer object
 				const ShaderAttribute& a = attributes.Find(name);
-				glVertexAttribPointer(a._Location,3,GL_FLOAT,GL_FALSE,0,0); //now, first attrib IS the location in the shader
+				glVertexAttribPointer(a._Location,_ComponentsPerVertex,GL_FLOAT,GL_FALSE,0,0); //now, first attrib IS the location in the shader
 				glEnableVertexAttribArray(a._Location);
 			}
 			//bind the zero or one index buffer (you don't need glBindAttribLocation for the index buffer)

@@ -18,6 +18,14 @@ namespace gengine {
 		//Fog?
 	}
 
+	//copy constructor
+	RenderState::RenderState(const RenderState& rs)
+	{
+		_FaceCulling=rs._FaceCulling;
+		_ScissorTest=rs._ScissorTest;
+		_DepthTest=rs._DepthTest;
+		_DepthMask=rs._DepthMask;
+	}
 
 	RenderState::~RenderState(void)
 	{
@@ -26,14 +34,13 @@ namespace gengine {
 	/// <summary>
 	/// Assignment operator
 	/// </summary>
-	RenderState RenderState::operator=(const RenderState& src)
+	RenderState& RenderState::operator=(const RenderState& rs)
 	{
-		RenderState rs;
-		rs._FaceCulling=src._FaceCulling;
-		rs._ScissorTest=src._ScissorTest;
-		rs._DepthTest=src._DepthTest;
-		rs._DepthMask=src._DepthMask;
-		return rs;
+		_FaceCulling=rs._FaceCulling;
+		_ScissorTest=rs._ScissorTest;
+		_DepthTest=rs._DepthTest;
+		_DepthMask=rs._DepthMask;
+		return *this;
 	}
 
 	/// <summary>
