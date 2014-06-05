@@ -50,7 +50,7 @@ namespace gengine {
 
 		//font handling
 		FT_Face LoadFont(const std::string& FontName, const unsigned int FontSize);
-		void RenderText(const FT_Face FontFace, const char *text, float x, float y, float sx, float sy);
+		void RenderText(const FT_Face FontFace, const glm::vec3 vColour, const char *text, float x, float y, float sx, float sy);
 
 		virtual void WindowSizeCallback(GLFWwindow* window, int w, int h);
 

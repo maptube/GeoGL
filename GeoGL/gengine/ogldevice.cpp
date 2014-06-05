@@ -202,7 +202,14 @@ namespace gengine {
 		}
 		
 		//DepthRange
+		
 		//Blending
+		if (CurrentRenderState._BlendingMode!=rs._BlendingMode) {
+			if (rs._BlendingMode._Enabled) glEnable(GL_BLEND);
+			else glDisable(GL_BLEND);
+			glBlendFunc(rs._BlendingMode._SFactor,rs._BlendingMode._DFactor);
+		}
+
 		//ColorMask
 
 		//depth mask
@@ -247,6 +254,13 @@ namespace gengine {
 		rs._DepthTest._Enabled=(glIsEnabled(GL_DEPTH_TEST)!=0);
 		glGetIntegerv(GL_DEPTH_FUNC,&i);
 		rs._DepthTest._Function=(DepthTestFunction)i;
+
+		//blending mode
+		rs._BlendingMode._Enabled=(glIsEnabled(GL_BLEND)!=0);
+		glGetIntegerv(GL_BLEND_SRC,&i);
+		rs._BlendingMode._SFactor=(BlendFunction)i;
+		glGetIntegerv(GL_BLEND_DST,&i);
+		rs._BlendingMode._DFactor=(BlendFunction)i;
 
 		//depth mask
 		rs._DepthMask = (glIsEnabled(GL_DEPTH_WRITEMASK)!=0);

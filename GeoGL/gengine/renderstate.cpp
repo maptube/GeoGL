@@ -7,12 +7,12 @@ namespace gengine {
 	{
 		//PrimitiveRestart
 		_FaceCulling._Enabled=false;
-		//RasterizationMode
+		_RasterisationMode._UnpackAlignment=4;
 		_ScissorTest._Enabled=false;
 		//StencilTest
 		_DepthTest._Enabled=false;
 		//DepthRange
-		//Blending
+		_BlendingMode._Enabled=false;
 		//ColorMask
 		_DepthMask=false;
 		//Fog?
@@ -22,8 +22,10 @@ namespace gengine {
 	RenderState::RenderState(const RenderState& rs)
 	{
 		_FaceCulling=rs._FaceCulling;
+		_RasterisationMode=rs._RasterisationMode;
 		_ScissorTest=rs._ScissorTest;
 		_DepthTest=rs._DepthTest;
+		_BlendingMode=rs._BlendingMode;
 		_DepthMask=rs._DepthMask;
 	}
 
@@ -37,6 +39,7 @@ namespace gengine {
 	RenderState& RenderState::operator=(const RenderState& rs)
 	{
 		_FaceCulling=rs._FaceCulling;
+		_RasterisationMode=rs._RasterisationMode;
 		_ScissorTest=rs._ScissorTest;
 		_DepthTest=rs._DepthTest;
 		_DepthMask=rs._DepthMask;

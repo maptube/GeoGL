@@ -114,6 +114,39 @@ namespace gengine {
 		}
 	};
 
+/////////////////////////////////
+
+	enum BlendFunction {
+		BlendFuncZero = GL_ZERO,
+		BlendFuncOne = GL_ONE,
+		BlendFuncSrcColour = GL_SRC_COLOR,
+		BlendFuncOneMinusSrcColour = GL_ONE_MINUS_SRC_COLOR,
+		BlendFuncDstColour = GL_DST_COLOR,
+		BlendFuncOneMinusDstColour = GL_ONE_MINUS_DST_COLOR,
+		BlendFuncSrcAlpha = GL_SRC_ALPHA,
+		BlendFuncOneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA,
+		BlendFuncDstAlpha = GL_DST_ALPHA,
+		BlendFuncOneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA,
+		BlendFuncConstantColour = GL_CONSTANT_COLOR,
+		BlendFuncOneMinusConstantColour = GL_ONE_MINUS_CONSTANT_COLOR,
+		BlendFuncConstantAlpha = GL_CONSTANT_ALPHA,
+		BlendFuncOneMinusConstantAlpha = GL_ONE_MINUS_CONSTANT_ALPHA,
+		BlendFuncSrcAlphaSaturate = GL_SRC_ALPHA_SATURATE
+	};
+
+	struct BlendingMode {
+		bool _Enabled; //you can enable on individual buffers, but this is all of them
+		BlendFunction _SFactor;
+		BlendFunction _DFactor;
+		bool operator==(const BlendingMode& test) const {
+			if ((!_Enabled)&&(!test._Enabled)) return true;
+			return (_SFactor==test._SFactor)&&(_DFactor==test._DFactor);
+		};
+		bool operator!=(const BlendingMode& test) const {
+			return !(*this==test);
+		}
+	};
+
 //end of render states
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +166,7 @@ namespace gengine {
 		//StencilTest
 		DepthTest _DepthTest;
 		//DepthRange
-		//Blending
+		BlendingMode _BlendingMode;
 		//ColorMask
 		bool _DepthMask;
 		//Fog?

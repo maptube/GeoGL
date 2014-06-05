@@ -429,36 +429,11 @@ void Globe::RenderScene(void)
 		}
 	}
 
-	////GC->ClearZ();
-
-	//glClearColor(1, 1, 1, 1);
-	//glClearDepth(0.0);
-	//glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT|GL_ACCUM_BUFFER_BIT);
-
-	/* Enable blending, necessary for our alpha texture */
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	GC->_FontShader->bind();
 	
-	//ShaderUniformCollection suc;
-	//suc.BuildFromShaderProgram(_Shaders[2]->id());
-	//glUniform1i(uniform_tex, 0);
-	//suc.SetUniform1i("tex",0);
-	
-	//GLuint uniform_color = 0;
-	//GLfloat red[4] = { 1, 0, 0, 1 };
-	//glUniform4fv(uniform_color, 1, red);
-
-	//GLuint vbo;
-	//glGenBuffers(1, &vbo);
-	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	
 	float sx=2.0/512.0; float sy=2.0/512.0;
-	GC->RenderText(_FontFace,"text text text text",-1.0+8.0*sx,1.0-50.0*sy,sx,sy);
-	GC->RenderText(_FontFace,"text text text text",0,0,sx,sy);
-
-	//glDeleteBuffers(1,&vbo);
+	GC->RenderText(_FontFace,glm::vec3(1.0,0,0),"text text text text",-1.0+8.0*sx,1.0-50.0*sy,sx,sy);
+	GC->RenderText(_FontFace,glm::vec3(0,1.0,0),"text text text text",0,0,sx,sy);
 
 	GC->_FontShader->unbind();
 

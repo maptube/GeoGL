@@ -263,7 +263,7 @@ namespace gengine {
 	/// <param name="y"></param>
 	/// <param name="sx"></param>
 	/// <param name="sy"></param>
-	void GraphicsContext::RenderText(const FT_Face FontFace, const char *text, float x, float y, float sx, float sy)
+	void GraphicsContext::RenderText(const FT_Face FontFace, const glm::vec3 vColour, const char *text, float x, float y, float sx, float sy)
 	{
 		//TODO: we need a vbo for the coords, a uniform_tex ("tex" in glsl), attribute_coord ("coord" in glsl)
 		const char *p;
@@ -272,11 +272,16 @@ namespace gengine {
 		RenderState rs; //set up a render state that has _FaceCulling._Enabled=false
 		rs._DepthTest._Enabled=false;
 		rs._FaceCulling._Enabled=false;
+		/* Enable blending, necessary for our alpha texture */
+		rs._BlendingMode._Enabled=true; //glEnable(GL_BLEND);
+		rs._BlendingMode._SFactor=BlendFuncSrcAlpha; //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		rs._BlendingMode._DFactor=BlendFuncOneMinusSrcAlpha;
+		/* We require 1 byte alignment when uploading texture data */
 		rs._RasterisationMode._UnpackAlignment=1; //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		OGLDevice::SetRenderState(rs);
 
-		//TODO: this needs to be a colour passed in the function
-		_FontShader->_shaderUniforms->SetUniform4fv("color",glm::vec4(1,0,0,1));
+		//set passed in colour on shader uniform
+		_FontShader->_shaderUniforms->SetUniform4fv("color",glm::vec4(vColour,1));
 
 		/* Create a texture that will be used to hold one "glyph" */
 		//GLuint tex;
