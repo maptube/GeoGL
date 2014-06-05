@@ -38,8 +38,40 @@ namespace gengine {
 		}
 	};
 
-/////////////////////////////////	
+/////////////////////////////////
 
+	struct RasterisationMode {
+		//There are lots of these and I've only implemented UnpackAlignment which is used for the font rendering
+		//PixelStorei or f
+		//GL_PACK_SWAP_BYTES,
+		//GL_PACK_LSB_FIRST,
+		//GL_PACK_ROW_LENGTH,
+		//GL_PACK_IMAGE_HEIGHT,
+		//GL_PACK_SKIP_PIXELS,
+		//GL_PACK_SKIP_ROWS,
+		//GL_PACK_SKIP_IMAGES,
+		//GL_PACK_ALIGNMENT,
+		//GL_UNPACK_SWAP_BYTES,
+		//GL_UNPACK_LSB_FIRST,
+		//GL_UNPACK_ROW_LENGTH,
+		//GL_UNPACK_IMAGE_HEIGHT,
+		//GL_UNPACK_SKIP_PIXELS,
+		//GL_UNPACK_SKIP_ROWS,
+		//GL_UNPACK_SKIP_IMAGES,
+		//GL_UNPACK_ALIGNMENT
+
+		unsigned int _UnpackAlignment; //1,2,4,8 allowable
+
+		bool operator==(const RasterisationMode& test) const {
+			return (_UnpackAlignment==test._UnpackAlignment);
+		};
+		bool operator!=(const RasterisationMode& test) const {
+			return !(*this==test);
+		};
+	};
+
+
+/////////////////////////////////
 	struct ScissorTest {
 		bool _Enabled;
 		int _Left;
@@ -57,6 +89,8 @@ namespace gengine {
 			return !(*this==test);
 		}
 	};
+
+/////////////////////////////////
 
 	enum DepthTestFunction {
 		Never,
@@ -94,7 +128,7 @@ namespace gengine {
 
 		//PrimitiveRestart
 		FaceCulling _FaceCulling;
-		//RasterizationMode
+		RasterisationMode _RasterisationMode;
 		ScissorTest _ScissorTest;
 		//StencilTest
 		DepthTest _DepthTest;

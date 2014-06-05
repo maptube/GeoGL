@@ -13,6 +13,8 @@
 #include "graphicscontext.h"
 #include "vertexbuffer.h"
 #include "indexbuffer.h"
+#include "texture2d.h"
+#include "gltexturetypes.h"
 #include "vertexarrayobject.h"
 
 #include <iostream>
@@ -158,6 +160,11 @@ namespace gengine {
 		return new IndexBuffer(Target, Usage, NumBytes);
 	}
 
+	Texture2D* OGLDevice::CreateTexture2D(const int Width, const int Height, const TexturePixelFormat PixelFormat)
+	{
+		return new Texture2D(Width,Height,TexTarget2D,PixelFormat);
+	}
+
 	/// <summary>
 	/// Sets the OpenGL global rendering states.
 	/// </summary>
@@ -173,7 +180,10 @@ namespace gengine {
 			glFrontFace(rs._FaceCulling._WindingOrder);
 		}
 
-		//RasterizationMode?
+		//RasterisationMode
+		if (CurrentRenderState._RasterisationMode!=rs._RasterisationMode) {
+			glPixelStorei(GL_UNPACK_ALIGNMENT, rs._RasterisationMode._UnpackAlignment);
+		}
 
 		//scissor test
 		if (CurrentRenderState._ScissorTest!=rs._ScissorTest) {
@@ -220,6 +230,10 @@ namespace gengine {
 		rs._FaceCulling._FaceTest=(FaceCullingTest)i;
 		glGetIntegerv(GL_FRONT_FACE,&i);
 		rs._FaceCulling._WindingOrder=(WindingOrder)i;
+
+		//Rasterisation Mode
+		glGetIntegerv(GL_UNPACK_ALIGNMENT,&i); //why does this return massively high values when it should only return 1,2,4,8?
+		rs._RasterisationMode._UnpackAlignment = (unsigned int)i;
 
 		//scissor test
 		rs._ScissorTest._Enabled = (glIsEnabled(GL_SCISSOR_TEST)!=0);

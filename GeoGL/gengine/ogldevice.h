@@ -17,6 +17,7 @@
 #include "renderstate.h"
 
 #include "glbuffertypes.h"
+#include "gltexturetypes.h"
 
 namespace gengine {
 
@@ -26,6 +27,7 @@ namespace gengine {
 	class VertexArrayObject;
 	class VertexBuffer;
 	class IndexBuffer;
+	class Texture2D;
 	//enum BufferTarget;
 	//enum BufferUsage;
 
@@ -50,6 +52,7 @@ namespace gengine {
 		static Shader* CreateShaderProgram(std::string VertexFilename, std::string FragmentFilename);
 		static VertexBuffer* CreateVertexBuffer(const std::string& AttributeName, BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
 		static IndexBuffer* CreateIndexBuffer(BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
+		static Texture2D* CreateTexture2D(const int Width, const int Height, const TexturePixelFormat PixelFormat);
 
 		static void SetRenderState(const RenderState& rs);
 		static void QueryRenderState(void);

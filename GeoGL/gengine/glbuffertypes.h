@@ -13,7 +13,7 @@ namespace gengine {
 		ElementArrayBuffer = GL_ELEMENT_ARRAY_BUFFER,
 		PixelPackBuffer = GL_PIXEL_PACK_BUFFER,
 		PixelUnpackBuffer = GL_PIXEL_UNPACK_BUFFER,
-		TextureBuffer = GL_TEXTURE_BUFFER,
+		//TextureBuffer = GL_TEXTURE_BUFFER, //also defined in gltexturetypes.h
 		TransformFeedbackBuffer = GL_TRANSFORM_FEEDBACK_BUFFER,
 		UniformBuffer = GL_UNIFORM_BUFFER
 	};

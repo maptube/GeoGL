@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="diffuse.frag" />
     <None Include="diffuse.vert" />
     <None Include="fontshader.frag" />
@@ -107,6 +108,7 @@
     <ClInclude Include="geojson.h" />
     <ClInclude Include="gengine\glbuffertypes.h" />
     <ClInclude Include="globe.h" />
+    <ClInclude Include="gengine\gltexturetypes.h" />
     <ClInclude Include="graph.h" />
     <ClInclude Include="gengine\graphicscontext.h" />
     <ClInclude Include="gengine\indexbuffer.h" />
@@ -137,6 +139,7 @@
     <ClInclude Include="sphere.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="gengine\texture2d.h" />
     <ClInclude Include="trefoilknot.h" />
     <ClInclude Include="tubegeometry.h" />
     <ClInclude Include="model_tubenetwork.h" />
@@ -190,6 +193,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="gengine\texture2d.cpp" />
     <ClCompile Include="trefoilknot.cpp" />
     <ClCompile Include="tubegeometry.cpp" />
     <ClCompile Include="model_tubenetwork.cpp" />

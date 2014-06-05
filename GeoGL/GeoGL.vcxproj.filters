@@ -53,6 +53,7 @@
     <None Include="fontshader.frag">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -217,6 +218,12 @@
     <ClInclude Include="EllipsoidOrbitController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gengine\texture2d.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\gltexturetypes.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -362,6 +369,9 @@
     </ClCompile>
     <ClCompile Include="EllipsoidOrbitController.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\texture2d.cpp">
+      <Filter>Source Files\gengine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -18,6 +18,7 @@
 #include "vertexdata.h"
 #include "vertexbuffer.h"
 #include "indexbuffer.h"
+#include "texture2d.h"
 #include "ogldevice.h"
 #include "shaderuniformcollection.h"
 #include "shaderuniform.h"
@@ -271,35 +272,42 @@ namespace gengine {
 		RenderState rs; //set up a render state that has _FaceCulling._Enabled=false
 		rs._DepthTest._Enabled=false;
 		rs._FaceCulling._Enabled=false;
+		rs._RasterisationMode._UnpackAlignment=1; //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		OGLDevice::SetRenderState(rs);
 
 		//TODO: this needs to be a colour passed in the function
 		_FontShader->_shaderUniforms->SetUniform4fv("color",glm::vec4(1,0,0,1));
 
 		/* Create a texture that will be used to hold one "glyph" */
-		GLuint tex;
+		//GLuint tex;
 		
-		glActiveTexture(GL_TEXTURE0);
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
+		//glActiveTexture(GL_TEXTURE0);
+		//glGenTextures(1, &tex);
+		//glBindTexture(GL_TEXTURE_2D, tex);
+		Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
 		_FontShader->_shaderUniforms->SetUniform1i("tex",0);
 		
 		/* We require 1 byte alignment when uploading texture data */
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+//TODO: here vvvvvvvvvvvvvvvvvvvv
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		
 		/* Clamping to edges is important to prevent artifacts when scaling */
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		texture->SetWrapS(TexClampToEdge);
+		texture->SetWrapT(TexClampToEdge);
 		
 		/* Linear filtering usually looks best for text */
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		texture->SetMinFilter(TexMinFilterLinear);
+		texture->SetMagFilter(TexMagFilterLinear);
 		
 		for(p = text; *p; p++) {
 			if(FT_Load_Char(FontFace, *p, FT_LOAD_RENDER))
 				continue;
 			
-			glTexImage2D(
+			/*glTexImage2D(
 				GL_TEXTURE_2D,
 				0,
 				GL_ALPHA,
@@ -309,7 +317,11 @@ namespace gengine {
 				GL_ALPHA,
 				GL_UNSIGNED_BYTE,
 				g->bitmap.buffer
-			);
+			);*/
+			//bitmap size changes as different characters are copied in, so we need to change texture width and height (this is unusual for textures)
+			texture->_width=g->bitmap.width;
+			texture->_height=g->bitmap.rows;
+			texture->CopyFromMemory(g->bitmap.buffer);
 			
 			float x2 = x + g->bitmap_left * sx;
 			float y2 = -y - g->bitmap_top * sy;
@@ -333,7 +345,8 @@ namespace gengine {
 			y += (g->advance.y >> 6) * sy;
 		}
 
-		glDeleteTextures(1, &tex);
+		//glDeleteTextures(1, &tex);
+		delete texture;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
