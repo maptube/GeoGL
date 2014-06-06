@@ -1,3 +1,5 @@
+#version 150 core
+
 //4.8 diffuse lighting fragment shader
 in vec3 worldPosition;
 in vec3 positionToLight;

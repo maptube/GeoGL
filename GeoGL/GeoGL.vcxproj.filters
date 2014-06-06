@@ -224,6 +224,9 @@
     <ClInclude Include="gengine\gltexturetypes.h">
       <Filter>Header Files\gengine</Filter>
     </ClInclude>
+    <ClInclude Include="extrudegeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -372,6 +375,9 @@
     </ClCompile>
     <ClCompile Include="gengine\texture2d.cpp">
       <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="extrudegeometry.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -99,6 +99,7 @@
     <ClInclude Include="cylinder.h" />
     <ClInclude Include="DebugUtils.h" />
     <ClInclude Include="EllipsoidOrbitController.h" />
+    <ClInclude Include="extrudegeometry.h" />
     <ClInclude Include="gengine\gengine.h" />
     <ClInclude Include="gengine\drawobject.h" />
     <ClInclude Include="ellipsoid.h" />
@@ -158,6 +159,7 @@
     <ClCompile Include="DebugUtils.cpp" />
     <ClCompile Include="ellipsoid.cpp" />
     <ClCompile Include="EllipsoidOrbitController.cpp" />
+    <ClCompile Include="extrudegeometry.cpp" />
     <ClCompile Include="gengine\events\EventListener.cpp" />
     <ClCompile Include="gengine\events\EventManager.cpp" />
     <ClCompile Include="FlyController.cpp" />

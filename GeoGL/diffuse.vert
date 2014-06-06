@@ -1,3 +1,5 @@
+#version 150 core
+
 //4.7 diffuse lighting vertex shader
 
 uniform mat4 projectionMatrix;

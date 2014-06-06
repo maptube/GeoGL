@@ -133,7 +133,7 @@ void GeoJSON::LoadFile(std::string Filename)
 Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 	Mesh2* geom = new Mesh2();
 
-	Json::Value jsType = jsGeometry["type"];
+	const Json::Value& jsType = jsGeometry["type"];
 	std::string strType = jsType.asString();
 	if (strType=="GeometryCollection") {
 		//cout<<"GeometryCollection"<<endl;
@@ -226,7 +226,7 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 	for (ClipperLib::Paths::iterator solIT=solution.begin(); solIT!=solution.end(); ++solIT) {
 		vector<p2t::Point*> p2t_linearring;
 		ClipperLib::Path solPath = *solIT;
-		cout<<"Solutions: size="<<solPath.size()<<endl;
+		//cout<<"Solutions: size="<<solPath.size()<<endl;
 		for (vector<ClipperLib::IntPoint>::iterator solIT=solPath.begin(); solIT!=solPath.end(); ++solIT) { 
 			double x = ((double)solIT->X)/10000000;
 			double y = ((double)solIT->Y)/10000000;
