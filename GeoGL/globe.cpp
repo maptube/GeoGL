@@ -12,6 +12,8 @@
 #include "globe.h"
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "gengine/ogldevice.h"
 #include "gengine/graphicscontext.h"
@@ -37,13 +39,15 @@ using namespace gengine::events;
 
 Globe::Globe(void)
 {
+	_debugFPS=0;
+
 	ellipsoid = Ellipsoid(); //bit naughty, but the default is the WGS 84 definition
 
 	int WindowWidth=512,WindowHeight=512;
 	GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight); //create graphics context that we can render to
 
 	//initialise font rendering
-	_FontFace = GC->LoadFont("C:\\richard\\GitHub\\GeoGL\\externals\\fonts\\FreeSans.ttf",48);
+	_FontFace = GC->LoadFont("fonts/FreeSans.ttf"/*"C:\\richard\\GitHub\\GeoGL\\externals\\fonts\\FreeSans.ttf"*/,48);
 
 	//start graphics context
 	//if (!openglContext.create30ContextGLFW()) { // Create a window and an OpenGL context to run in it
@@ -53,15 +57,16 @@ Globe::Globe(void)
 	//openglContext.setupScene(); // Setup our OpenGL scene
 	
 	//Shader* shader = new Shader("shader.vert", "shader.frag"); //--no! use the device
-	Shader* shader = OGLDevice::CreateShaderProgram("shader.vert", "shader.frag");
+	Shader* shader = OGLDevice::CreateShaderProgram("shaders/shader.vert", "shaders/shader.frag");
 	_Shaders.push_back(shader);
 
-	Shader* diffuse = OGLDevice::CreateShaderProgram("diffuse.vert", "diffuse.frag");
+	Shader* diffuse = OGLDevice::CreateShaderProgram("shaders/diffuse.vert", "shaders/diffuse.frag");
 	_Shaders.push_back(diffuse);
 
 	//add sphere representing the earth and shade using diffuse shader
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
-	sphere->SetColour(glm::vec3(0.0,0.4,0.05));
+	//sphere->SetColour(glm::vec3(0.0,0.4,0.05));
+	sphere->SetColour(glm::vec3(1.0,1.0,1.0));
 	sphere->AttachShader(diffuse,false);
 	SceneGraph.push_back(sphere);
 

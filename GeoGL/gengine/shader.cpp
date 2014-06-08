@@ -126,15 +126,17 @@ namespace gengine {
 		const char *vertexText = vsText.c_str();
 		const char *fragmentText = fsText.c_str();
 
-		if (vertexText == NULL || fragmentText == NULL) { // If either the vertex or fragment shader wouldn't load
-			cout << "Either vertex shader or fragment shader file not found." << endl; // Output the error
+		if (strlen(vertexText)==0 || strlen(fragmentText)==0) { // If either the vertex or fragment shader wouldn't load
+			cout << "Either vertex shader or fragment shader file not found: " <<vsFile<<" "<<fsFile<< endl; // Output the error
 			return;
 		}
 
+		std::cout<<"Compiling "<<vsFile<<std::endl;
 		glShaderSource(shader_vp, 1, &vertexText, 0); // Set the source for the vertex shader to the loaded text
 		glCompileShader(shader_vp); // Compile the vertex shader
 		validateShader(shader_vp, vsFile); // Validate the vertex shader
 
+		std::cout<<"Compiling "<<fsFile<<std::endl;
 		glShaderSource(shader_fp, 1, &fragmentText, 0); // Set the source for the fragment shader to the loaded text
 		glCompileShader(shader_fp); // Compile the fragment shader
 		validateShader(shader_fp, fsFile); // Validate the fragment shader

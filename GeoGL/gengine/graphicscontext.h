@@ -13,6 +13,9 @@
 #include "renderstate.h"
 #include "events/EventListener.h"
 
+#include <iostream>
+#include <string>
+
 //forward references
 struct GLFWwindow;
 

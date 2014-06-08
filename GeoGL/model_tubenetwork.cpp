@@ -24,9 +24,9 @@ using namespace std;
 //#include "Model.h"
 
 //define locations of configuration files
-const std::string ModelTubeNetwork::Filename_StationCodes = "..\\data\\station-codes.csv"; //station locations
-const std::string ModelTubeNetwork::Filename_TubeODNetwork = "..\\data\\tube-network.json"; //network from JSON origin destination file
-const std::string ModelTubeNetwork::Filename_TrackernetPositions = "..\\data\\trackernet_20140127_154200.csv"; //train positions
+const std::string ModelTubeNetwork::Filename_StationCodes = "data/station-codes.csv"; // "..\\data\\station-codes.csv"; //station locations
+const std::string ModelTubeNetwork::Filename_TubeODNetwork = "data/tube-network.json"; //"..\\data\\tube-network.json"; //network from JSON origin destination file
+const std::string ModelTubeNetwork::Filename_TrackernetPositions = "data/trackernet_20140127_154200.csv"; // "..\\data\\trackernet_20140127_154200.csv"; //train positions
 const float ModelTubeNetwork::LineSize = 50; //size of track
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object

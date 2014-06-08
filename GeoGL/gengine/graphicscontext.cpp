@@ -40,7 +40,7 @@ namespace gengine {
 		}
 		
 		//shader for the font rendering
-		_FontShader = OGLDevice::CreateShaderProgram("fontshader.vert","fontshader.frag");
+		_FontShader = OGLDevice::CreateShaderProgram("shaders/fontshader.vert","shaders/fontshader.frag");
 		//vertex data and buffer for box required to put the texture for font rendering in
 		//should I really be creating a full draw object?
 		_FontVertexData = new VertexData();
