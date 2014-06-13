@@ -169,6 +169,7 @@ Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 	return geom;
 }
 
+
 /// <summary>
 /// A jsPolygon is an array of linear rings where the first ring is the exterior ring and all following
 /// rings are interior rings (holes). A linear ring is an array of points, where a point is an array as follows:

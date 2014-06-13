@@ -27,6 +27,7 @@ namespace ABM {
 	/// </summary>
 	Agent::~Agent(void)
 	{
+		_pParentAgents->Die(this);
 	}
 
 
@@ -246,6 +247,14 @@ namespace ABM {
 	}
 
 	/// <summary>
+	/// Remove the agent - don't forget to remove it from the global agent list and force the destructor
+	/// <summary>
+	void Agent::Die()
+	{
+		delete this;
+	}
+
+	/// <summary>
 	/// Get all agents who are linked to this one
 	/// </summary>
 	/// <returns>A vector of all links coming into this agent</returns>
@@ -303,6 +312,11 @@ namespace ABM {
 	{
 		glm::dvec3 P1 = GetXYZ();
 		glm::dvec3 P2 = A.GetXYZ();
+		//if ((P1.x!=P1.x)||(P2.x!=P2.x)) {
+		//	std::cout<<"NaN Trap"<<std::endl;
+		//	return 0;
+		//}
+		//if ((P1.x-P2.x+P1.y-P2.y+P1.z-P2.z)<glm::epsilon<double>()) return 0;
 		return glm::distance<double>(P1,P2);
 	}
 

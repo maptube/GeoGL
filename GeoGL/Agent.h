@@ -84,15 +84,18 @@ namespace ABM {
 
 		template <typename T>
 		T Get(std::string Name) {
+			if (Name=="Name") return LogoVariant(this->Name).Get<T>(); //internal property Name which maps to the real object property (need to cast to LogoV due to <T>)
 			std::map<std::string,LogoVariant>::iterator it = _owns.find(Name);
 			if (it!=_owns.end()) {
 				return it->second.Get<T>();
 			}
-			return 0;
+			cerr<<"Agent property "<<Name<<" not found"<<endl;
+			return 0; //what type are we supposed to return?
 		}
 
 		template <typename T>
 		void Set(std::string Name, T Value) {
+			//TODO: allow set on property Name?
 			LogoVariant LVar(Value);
 			_owns[Name]=LVar;
 		}
@@ -227,7 +230,7 @@ namespace ABM {
 
 		//create, destroy
 		std::vector<Agent*> Hatch(int N, std::string BreedName);
-		void Die(void); //this is going to be a problem
+		void Die(void);
 
 		//Links
 		//these need to be functions that get the data from the graph

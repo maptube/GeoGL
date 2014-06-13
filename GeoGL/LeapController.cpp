@@ -288,3 +288,4 @@ void LeapController::onFocusGained(const Controller& controller) {
 void LeapController::onFocusLost(const Controller& controller) {
 	std::cout << "Focus Lost" << std::endl;
 }
+

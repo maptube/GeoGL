@@ -20,7 +20,7 @@
 #endif
 
 // Parser for JSON data, JSONcpp
-//NOTE: although this is labelled mtd, then VS project sln has been modified to MDd to match this project
+//NOTE: although this is labelled mtd, the VS project sln has been modified to MDd to match this project
 //Although it builds with errors, the lib file is still generated.
 //TODO: find a better solution for this?
 #pragma comment(lib, "json_vc71_libmtd.lib")

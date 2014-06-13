@@ -9,6 +9,7 @@
 #include "cylinder.h"
 
 #include <sstream>
+#include <algorithm>
 
 namespace ABM {
 
@@ -121,6 +122,18 @@ namespace ABM {
 		_pSceneRoot->AddChild(a->_pAgentMesh); //add mesh to scene
 
 		return a;
+	}
+
+	/// <summary>
+	/// Kill the specified agent
+	/// </summary>
+	void Agents::Die(Agent* A)
+	{
+		std::vector<Agent*>::iterator it = std::find(_Agents.begin(),_Agents.end(),A);
+		_Agents.erase(it);
+		--NumAgents; //do you need to do this, as it's a sequence number of created agents?
+		//TODO: need to remove from scene graph as well!
+
 	}
 
 	/// <summary>

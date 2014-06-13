@@ -46,6 +46,7 @@ namespace ABM {
 		//Agent methods
 		//Agent* SproutAgent(std::string Breed);
 		Agent* Hatch(std::string Breed);
+		void Die(Agent* A);
 		std::vector<ABM::Agent*> With(std::string VariableName,std::string Value); //quick version for just one variable name
 		//TODO: you could pass a function to WITH as the selector (visitor pattern)
 		std::vector<ABM::Agent*> Ask(std::string BreedName); //For(breedname) ? i.e. for d in drivers

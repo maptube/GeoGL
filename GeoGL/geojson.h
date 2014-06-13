@@ -3,10 +3,9 @@
 //#include "mesh.h"
 #include "object3d.h"
 
-//#include "json/json.h"
+#include "json/json.h"
 
-//forward references - how do you forward declare a class in another namespace?
-//class Json::Value;
+//forward references
 namespace Json {
 class Value;
 }
