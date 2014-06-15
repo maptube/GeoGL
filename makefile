@@ -27,14 +27,14 @@ LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY
 INCLUDEDIRS=-IGeoGL -I$(JSONCPP_HOME)/include -I$(LEAPSDK_HOME)/include -I$(POLY2TRI_HOME) -I$(FREETYPE_INCLUDE)
 SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/clipper/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=GeoGLProgram
+EXECUTABLE=bin/GeoGLProgram
 
 MAKE=make
 
 
-all: GeoGLProgram
+all: $(EXECUTABLE)
 
-GeoGLProgram: $(OBJECTS)
+$(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDLIBS) $(LDFLAGS) $(OBJECTS) -o $@
 
 .cpp.o:

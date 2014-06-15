@@ -3,6 +3,7 @@
 #include "mesh2.h"
 #include "LogoVariantOwns.h"
 
+#include <iostream>
 #include <string>
 #include <map>
 
@@ -89,7 +90,7 @@ namespace ABM {
 			if (it!=_owns.end()) {
 				return it->second.Get<T>();
 			}
-			cerr<<"Agent property "<<Name<<" not found"<<endl;
+			std::cerr<<"Agent property "<<Name<<" not found"<<std::endl;
 			return 0; //what type are we supposed to return?
 		}
 

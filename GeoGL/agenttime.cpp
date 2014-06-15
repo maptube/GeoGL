@@ -3,6 +3,8 @@
 #include <ctime>
 #include <sstream>
 
+#include <math.h>
+
 using namespace std;
 
 /// class to provide continuous time functions on top of the time_t structure which is only accurate to the nearest second
@@ -51,7 +53,7 @@ std::string AgentTime::ToString(const AgentTime& ATime)
 
 	std::stringstream Result("");
 	int Year = t->tm_year+1900;
-	Result<<(t->tm_year+1900)<<(t->tm_mon)<<(t->tm_mday)<<" "<<(t->tm_hour)<<":"<<(t->tm_min)<<":"<<(t->tm_sec);
+	Result<<(t->tm_year+1900)<<(t->tm_mon+1)<<(t->tm_mday)<<" "<<(t->tm_hour)<<":"<<(t->tm_min)<<":"<<(t->tm_sec);
 
 	return Result.str();
 }

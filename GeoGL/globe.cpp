@@ -47,7 +47,11 @@ Globe::Globe(void)
 	GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight); //create graphics context that we can render to
 
 	//initialise font rendering
-	_FontFace = GC->LoadFont(/*"fonts/FreeSans.ttf"*/"C:\\richard\\GitHub\\GeoGL\\externals\\fonts\\FreeSans.ttf",48);
+	_FontFace = GC->LoadFont(
+			/*"fonts/FreeSans.ttf"*/
+			/*"C:\\richard\\GitHub\\GeoGL\\externals\\fonts\\FreeSans.ttf"*/
+			"../fonts/FreeSans.ttf",
+			48);
 
 	//start graphics context
 	//if (!openglContext.create30ContextGLFW()) { // Create a window and an OpenGL context to run in it
@@ -57,10 +61,18 @@ Globe::Globe(void)
 	//openglContext.setupScene(); // Setup our OpenGL scene
 	
 	//Shader* shader = new Shader("shader.vert", "shader.frag"); //--no! use the device
-	Shader* shader = OGLDevice::CreateShaderProgram(/*"shaders/shader.vert"*/"..\\shaders\\shader.vert", /*"shaders/shader.frag"*/"..\\shaders\\shader.frag");
+	Shader* shader = OGLDevice::CreateShaderProgram(
+			/*"shaders/shader.vert", "shaders/shader.frag"*/
+			/*"..\\shaders\\shader.vert", "..\\shaders\\shader.frag"*/
+			"../shaders/shader.vert","../shaders/shader.frag"
+	);
 	_Shaders.push_back(shader);
 
-	Shader* diffuse = OGLDevice::CreateShaderProgram(/*"shaders/diffuse.vert"*/"..\\shaders\\diffuse.vert", /*"shaders/diffuse.frag"*/"..\\shaders\\diffuse.frag");
+	Shader* diffuse = OGLDevice::CreateShaderProgram(
+			/*"shaders/diffuse.vert", "shaders/diffuse.frag"*/
+			/*"..\\shaders\\diffuse.vert", "..\\shaders\\diffuse.frag"*/
+			"../shaders/diffuse.vert", "../shaders/diffuse.frag"
+	);
 	_Shaders.push_back(diffuse);
 
 	//add sphere representing the earth and shade using diffuse shader

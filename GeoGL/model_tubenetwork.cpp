@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <unordered_map>
 
 #include <dirent.h>
 //#include <unistd.h>
@@ -36,9 +37,15 @@ using namespace std;
 //#include "Model.h"
 
 //define locations of configuration files
-const std::string ModelTubeNetwork::Filename_StationCodes = /*"data/station-codes.csv";*/ "..\\data\\station-codes.csv"; //station locations
-const std::string ModelTubeNetwork::Filename_TubeODNetwork = /*"data/tube-network.json";*/ "..\\data\\tube-network.json"; //network from JSON origin destination file
-const std::string ModelTubeNetwork::Filename_TrackernetPositions = /*"data/trackernet_20140127_154200.csv";*/ "..\\data\\trackernet_20140127_154200.csv"; //train positions
+const std::string ModelTubeNetwork::Filename_StationCodes =
+		/*"data/station-codes.csv";*/
+		"../data/station-codes.csv"; //station locations
+const std::string ModelTubeNetwork::Filename_TubeODNetwork =
+		/*"data/tube-network.json";*/
+		"../data/tube-network.json"; //network from JSON origin destination file
+const std::string ModelTubeNetwork::Filename_TrackernetPositions =
+		/*"data/trackernet_20140127_154200.csv";*/
+		"../data/trackernet_20140127_154200.csv"; //train positions
 const float ModelTubeNetwork::LineSize = 50; //size of track
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
@@ -455,10 +462,12 @@ void ModelTubeNetwork::LoadAnimation(const std::string& DirectoryName) {
 		return; // errno;
 	}
 	
-	int count=0;
+	//int count=0;
 	while ((dirp = readdir(dp)))
 	{
-		if (++count>10) break;
+		//if (++count>10) break;
+		//string fname = dirp->d_name;
+		//if (fname>"20140119_003000") continue; //DEBUGGING!!!!
 		filepath = DirectoryName + "/" + dirp->d_name;
 		
 		// If the file is a directory (or is in some way invalid) we'll skip it 
@@ -466,7 +475,7 @@ void ModelTubeNetwork::LoadAnimation(const std::string& DirectoryName) {
 		if (S_ISDIR( filestat.st_mode ))         continue;
 
 		//load data in csv file and store it as a hash of YYYYMMDD_HHMMSS and Unique name
-		//cout<<"Processing: "<<filepath<<endl;
+		cout<<"Processing: "<<filepath<<endl;
 		fin.open(filepath.c_str());
 
 		string line;
@@ -590,7 +599,7 @@ void ModelTubeNetwork::Setup() {
 	
 	/////this needs to depend on the animate settings
 	//loadPositions(Filename_TrackernetPositions); //train positions
-	LoadAnimation("..\\data\\tube-anim");
+	LoadAnimation("../data/tube-anim");
 	LoadAnimatePositions();
 	//set current animation time to the first time in the data sample
 	AnimationDT._DT=GetFirstAnimationTime();
@@ -834,19 +843,32 @@ bool ModelTubeNetwork::PositionAgent(ABM::Agent* agent,char LineCode, float Time
 }
 
 //internal function used by NextNodeOnPath
-void Traverse(const std::string& LineCode, ABM::Agent* Begin, ABM::Agent* End, vector<ABM::Agent*> list)
+void Traverse(const std::string& LineCode, ABM::Agent* Begin, ABM::Agent* End, vector<ABM::Agent*>& list)
 {
-	//TODO: not checking for cycles!!!!
-	list.push_back(Begin);
-	if (Begin==End) return; //guard case
-	if (list.size()>5) return; //other guard case - any more than five stations depth and this is going to take a lot of time
+	const int MaxDepth = 5; //any more than five stations depth and this is going to take a lot of time
 
+	//TODO: not checking for cycles!!!!
+	if ((list.size()>0)&&(list.back()==End)) return; //we've found the end node, so return
+	if (list.size()>MaxDepth) return; //other guard case on recursion depth
+	list.push_back(Begin); //otherwise, push this node
+
+	//debugging code
+	cout<<"Traverse: ";
+	for (vector<ABM::Agent*>::iterator it=list.begin(); it!=list.end(); ++it)
+		cout<<(*it)->Name<<" ";
+	cout<<endl;
+
+	if (Begin==End) return; //guard case, this node is the end, so exit early
+
+	//recursive traversal of links
 	std::vector<ABM::Link*> lnks = Begin->OutLinks();
 	std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLine(LineCode)); //note end iterator
 	for (std::vector<ABM::Link*>::iterator itLnks = lnks.begin(); itLnks!=end; ++itLnks) {
 		ABM::Link* lnk = *itLnks;
-		Traverse(LineCode,lnk->end2,End,list);
+		if (lnk->end2!=list.back()) //don't go back down the path you just came along
+			Traverse(LineCode,lnk->end2,End,list);
 	}
+	if (list.back()!=End) list.pop_back(); //not found on this branch, so work way back up tree
 }
 
 /// <summary>
@@ -861,6 +883,10 @@ ABM::Agent* ModelTubeNetwork::NextNodeOnPath(const std::string& LineCode, ABM::A
 	
 	vector<ABM::Agent*> list;
 	Traverse(LineCode,Begin,End,list);
+	for (vector<ABM::Agent*>::iterator it = list.begin(); it!=list.end(); ++it) {
+		cout<<(*it)->Name<<" ";
+	}
+	cout<<endl;
 	if (list.back()==End) return list.at(1); //not the first, as that's where we are, but the second
 	return nullptr;
 }
@@ -946,13 +972,29 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 					//We need a route from the current node to the next toNode on the frame data.
 					//It's obviously skipped at least one station, so we need to find a route ourselves.
 					//A dirty hack would be to check if there's only one route and take it, or skip if there are choice.
-
-					//next station from FrameN not found on current next station's out links,so going to need to "jump" the tube's position
-					//cout<<"Jump tube: "<<AName<<" station code "<<anim_rec.StationCode<<endl;
-					//interpolate the position between the new next station and the last one
-					if (!PositionAgent(d,anim_rec.LineCode,anim_rec.TimeToStation,anim_rec.StationCode,(int)anim_rec.Direction))
-						if (!PositionAgent(d,anim_rec.LineCode,anim_rec.TimeToStation,anim_rec.StationCode,1-(int)anim_rec.Direction)) //try alternate direction (feed errors? agent dir != frame dir?)
-							cerr<<"Error: station "<<FrameNextStation<<" not found for agent "<<AName<<endl;
+					//OK, so get the animation frame's destination station node and get the path from the current node
+					//to the frame's next station
+					std::vector<ABM::Agent*> agent_d = _agents.With("name",FrameNextStation); //destination node station
+					if (agent_d.size()!=1) {
+						cerr<<"Error: FrameNextStation not found for: "<<FrameNextStation<<endl;
+						continue;
+					}
+					ABM::Agent* frameNode = agent_d.front();
+					ABM::Agent* nextNode = NextNodeOnPath(ALineCode,toNode,frameNode);
+					if (nextNode!=nullptr)
+					{
+						//TODO: set here
+						cout<<"Path: found next node is "<<nextNode->Name<<endl;
+					}
+					else {
+						//next station from FrameN not found on current next station's out links, or by traversing the path,
+						//so going to need to "jump" the tube's position
+						//cout<<"Jump tube: "<<AName<<" station code "<<anim_rec.StationCode<<endl;
+						//interpolate the position between the new next station and the last one
+						if (!PositionAgent(d,anim_rec.LineCode,anim_rec.TimeToStation,anim_rec.StationCode,(int)anim_rec.Direction))
+							if (!PositionAgent(d,anim_rec.LineCode,anim_rec.TimeToStation,anim_rec.StationCode,1-(int)anim_rec.Direction)) //try alternate direction (feed errors? agent dir != frame dir?)
+								cerr<<"Error: station "<<FrameNextStation<<" not found for agent "<<AName<<endl;
+					}
 				}
 			}
 		}
