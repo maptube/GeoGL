@@ -915,6 +915,104 @@ ABM::Agent* ModelTubeNetwork::NextNodeOnPath(const std::string& LineCode, ABM::A
 }
 
 /// <summary>
+/// return distance along path from (x1,y1,z1) to (x2,y2,z2)
+/// i.e. we have a point along the first section and the end section and we want to know the distance
+/// between them along the path
+/// </summary>
+double ModelTubeNetwork::GetPathDistance(const glm::dvec3& Begin,const glm::dvec3& End,const std::vector<ABM::Agent*>& Path)
+{
+	double dist=0;
+	int Size=Path.size()+1;
+	int Pos=0;
+	glm::dvec3 P1;
+	for (vector<ABM::Agent*>::const_iterator it = Path.begin(); it!=Path.end(); ++it) {
+		glm::dvec3 P2=(*it)->GetXYZ();
+		if (Pos==0) {}
+		else if (Pos==1) {
+			dist+=glm::distance(Begin,P2);
+		}
+		else if (Pos==Size-1) {
+			dist+=glm::distance(P1,End);
+		}
+		else {
+			dist+=glm::distance(P1,P2);
+		}
+		P1=P2;
+		++Pos;
+	}
+	return dist;
+}
+
+//find any direction link between A1 and A2
+ABM::Link* GetRunlink(const std::string& LineCode, ABM::Agent* A1, ABM::Agent* A2)
+{
+	std::vector<ABM::Link*> lnks = A1->OutLinks();
+	std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLine(LineCode)); //note end iterator
+	for (std::vector<ABM::Link*>::iterator itLnks = lnks.begin(); itLnks!=end; ++itLnks) {
+		ABM::Link* lnk = *itLnks;
+		if (lnk->end2==A2)
+			return lnk; //EXIT CONDITION
+	}
+	return nullptr;
+}
+
+/// <summary>
+/// Recalculate velocity, fromNode and toNode based on current data. Called when an agent gets to a station or when
+/// new animation frame data is available.
+/// TODO: you could rewrite the traverse bit using the node name instead of the agent pointer
+/// </summary>
+void ModelTubeNetwork::RecalculateWaypoint(const tube_anim_record& anim_rec, ABM::Agent* Driver)
+{
+	//so AnimationDT is the current animation time and FrameTimeN is the next animation frame time
+
+	string ALineCode = Driver->Get<std::string>("lineCode");
+	ABM::Agent* fromNode = Driver->Get<ABM::Agent*>("fromNode");
+	ABM::Agent* toNode = Driver->Get<ABM::Agent*>("toNode");
+	float FrameNFutureSecs = FrameTimeN - AnimationDT._DT; //this is how many seconds in to the future the FrameN time is - needed for timing offset and velocity
+
+	//get animation node frame that this agent is heading towards
+	std::vector<ABM::Agent*> agent_d = _agents.With("name",anim_rec.StationCode); //destination node station
+	if (agent_d.size()!=1) {
+		cerr<<"Error: waypoint station code not found for: "<<anim_rec.StationCode<<endl;
+		return;
+	}
+	ABM::Agent* frameToNode = agent_d.front();
+
+	vector<ABM::Agent*> path;
+	Traverse(ALineCode,fromNode,frameToNode,path);
+	if ((path.size()==0)||(path.back()!=frameToNode)) {
+		cerr<<"Error: no path from "<<fromNode->Name<<" to "<<frameToNode->Name<<endl;
+		return;
+	}
+
+	//get distance along path between current position and position of waypoint, but first we need to calculate
+	//where the waypoint is by linear interpolation
+	if (path.size()<2) {
+		cerr<<"Error: path size"<<endl;
+	}
+	ABM::Agent* A1 = path.at(path.size()-2);
+	ABM::Agent* A2 = path.at(path.size()-1);
+	ABM::Link* lnk = GetRunlink(ALineCode,A1,A2); //between path.end-1 and path.end
+	float runlink = lnk->Get<float>("runlink");
+	float delta = FrameTimeN-anim_rec.TimeToStation;
+	glm::dvec3 End1=lnk->end1->GetXYZ();
+	glm::dvec3 End2=lnk->end2->GetXYZ();
+	glm::dvec3 End12 = End2-End1;
+	glm::dvec3 Waypoint(End12.x*delta+End1.x, End12.y*delta+End1.y, End12.z*delta+End1.z); //this is the finish position
+	double dist = GetPathDistance(fromNode->GetXYZ(),Waypoint,path); //get distance between two points on path
+	float v = dist/FrameNFutureSecs;
+	Driver->Set<float>("v",v);
+	//OK, that's set the velocity to get to the next waypoint at the correct time.
+	//Now let's see whether the agent's toNode needs updating if we're at the current next node.
+	if (.00001f > Driver->Distance(*toNode))
+	{
+		Driver->Set<ABM::Agent*>("fromNode",toNode);
+		toNode = path.at(1); //second node in the path sequence
+		Driver->Set<ABM::Agent*>("toNode",toNode);
+	}
+}
+
+/// <summary>
 /// Version of Step to be called when animating using the tube_anim_frames store of positions from a set of CSV files.
 /// The intention is just to call this from Step(Ticks) instead of the real-time version.
 /// </summary>
@@ -951,7 +1049,16 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 		//the distance you move is the velocity times the simulation step - in this case hard coded to 1 frame = 0.1s - MAKE SURE this matches what you add to AnimationDT at the top
 		//d->Forward(min(d->Get<float>("v") * (float)Ticks,(float)d->Distance(*toNode)));
 		d->Forward(min(d->Get<float>("v") * 0.5f,(float)d->Distance(*toNode)));
-		if (.00001f > d->Distance(*toNode))
+
+		////massive new code!!
+		string AName = d->Get<std::string>("Name"); //e.g. V_1_123
+		tube_anim_record anim_rec = FrameN[AName];
+		RecalculateWaypoint(anim_rec,d);
+		//TODO: check if it should die
+		/////end
+
+
+		/*if (.00001f > d->Distance(*toNode))
 		{
 			//decision point - we've reached the next toNode, so we need to choose a new direction
 			
@@ -1058,12 +1165,12 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 			//calculate distance to next waypoint
 			//update velocity
 			//what if the next station changes?
-		}
+		}*/
 
 	}
 
 	//now check for new agents this frame which we need to create
-	for (map<string,tube_anim_record>::iterator it = FrameN.begin(); it!=FrameN.end(); ++it) {
+	/*for (map<string,tube_anim_record>::iterator it = FrameN.begin(); it!=FrameN.end(); ++it) {
 		string Name = it->first;
 		if (UniqueAgents.find(Name)==UniqueAgents.end()) {
 			//agent from frame data not found on current active list of drivers, so need to hatch it
@@ -1077,7 +1184,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 				cout<<"Hatched agent: "<<Name<<endl;
 			}
 		}
-	}
+	}*/
 
 }
 

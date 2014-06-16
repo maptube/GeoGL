@@ -81,6 +81,8 @@ public:
 	time_t GetNextAnimationTime(const time_t Current);
 	void StepAnimation(double Ticks);
 	ABM::Agent* NextNodeOnPath(const std::string& LineCode, ABM::Agent* Begin, ABM::Agent* End);
+	double GetPathDistance(const glm::dvec3& Begin,const glm::dvec3& End,const std::vector<ABM::Agent*>& Path);
+	void RecalculateWaypoint(const tube_anim_record& anim_rec, ABM::Agent* Driver);
 	void StepRealTime(double Ticks);
 
 	//ABM::Model virtuals
