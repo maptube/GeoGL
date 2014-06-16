@@ -66,6 +66,17 @@ void Object3D::AddChild(Object3D* Child) {
 	Children.push_back(Child);
 }
 
+/// <summary>Remove child object from the scene graph. This does not delete the object, only remove it from the scene.</summary>
+void Object3D::RemoveChild(Object3D* Child) {
+	for (vector<Object3D*>::iterator it=Children.begin(); it!=Children.end(); ++it) {
+		Object3D* o3d = *it;
+		if (o3d==Child) {
+			Children.erase(it);
+			break;
+		}
+	}
+}
+
 
 /// <summary>Get bounding box for this object and all its children, but only for the geometry that you can actually see.
 /// A pure Object3D returns nothing as you can't see it. A mesh and its subclasses return the bounds of their contained face vertices.</summary>

@@ -430,16 +430,38 @@ void ModelTubeNetwork::LoadAnimatePositions() {
 	{
 		string UniqueName = it->first;
 		tube_anim_record rec = it->second;
-		//string strLineCode = "X";
-		//strLineCode[0]=rec.LineCode; //how else are you supposed to create a string from a char?
-		ABM::Agent* a = _agents.Hatch("driver");
-		a->Name = UniqueName; //unique name to match up to next data download
-		a->SetColour(LineCodeToVectorColour(rec.LineCode));
-		if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,(int)rec.Direction))
-			if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,1-(int)rec.Direction)) //try other direction - shouldn't happen, but it does
-				cerr<<"Error hatching agent "<<UniqueName<<endl;
+		////string strLineCode = "X";
+		////strLineCode[0]=rec.LineCode; //how else are you supposed to create a string from a char?
+		//ABM::Agent* a = _agents.Hatch("driver");
+		//a->Name = UniqueName; //unique name to match up to next data download
+		//a->SetColour(LineCodeToVectorColour(rec.LineCode));
+		//if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,(int)rec.Direction))
+		//{
+		//	if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,1-(int)rec.Direction)) //try other direction - shouldn't happen, but it does
+		//	{
+		//		cerr<<"Error hatching agent "<<UniqueName<<endl;
+		//		a->Die();
+		//	}
+		//}
+		HatchAgentFromAnimationRecord(UniqueName,rec); //this is a function as we need to do the same thing in the animation loop
 	}
 
+}
+
+ABM::Agent* ModelTubeNetwork::HatchAgentFromAnimationRecord(const std::string& UniqueName, const tube_anim_record& rec) {
+	ABM::Agent* a = _agents.Hatch("driver");
+	a->Name = UniqueName; //unique name to match up to next data download
+	a->SetColour(LineCodeToVectorColour(rec.LineCode));
+	if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,(int)rec.Direction))
+	{
+		if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,1-(int)rec.Direction)) //try other direction - shouldn't happen, but it does
+		{
+			cerr<<"Error hatching agent "<<UniqueName<<endl;
+			a->Die();
+			return nullptr;
+		}
+	}
+	return a;
 }
 
 /// <summary>
@@ -853,10 +875,10 @@ void Traverse(const std::string& LineCode, ABM::Agent* Begin, ABM::Agent* End, v
 	list.push_back(Begin); //otherwise, push this node
 
 	//debugging code
-	cout<<"Traverse: ";
-	for (vector<ABM::Agent*>::iterator it=list.begin(); it!=list.end(); ++it)
-		cout<<(*it)->Name<<" ";
-	cout<<endl;
+	//cout<<"Traverse: ";
+	//for (vector<ABM::Agent*>::iterator it=list.begin(); it!=list.end(); ++it)
+	//	cout<<(*it)->Name<<" ";
+	//cout<<endl;
 
 	if (Begin==End) return; //guard case, this node is the end, so exit early
 
@@ -873,21 +895,22 @@ void Traverse(const std::string& LineCode, ABM::Agent* Begin, ABM::Agent* End, v
 
 /// <summary>
 /// Return the next node after begin along a route between begin and end.
-/// You need a line code!
 /// </summary>
+/// <param name="LineCode"></param>
+/// <param name="Begin"></param>
+/// <param name="End"></param>
+/// <returns>the next node, or nullptr</returns>
 ABM::Agent* ModelTubeNetwork::NextNodeOnPath(const std::string& LineCode, ABM::Agent* Begin, ABM::Agent* End)
 {
 	if (Begin==End) return End; //trivial and shouldn't really happen
-
-	//working on the basis that the tube network isn't that complicated, let's do it the brute force way
 	
 	vector<ABM::Agent*> list;
 	Traverse(LineCode,Begin,End,list);
-	for (vector<ABM::Agent*>::iterator it = list.begin(); it!=list.end(); ++it) {
-		cout<<(*it)->Name<<" ";
-	}
-	cout<<endl;
-	if (list.back()==End) return list.at(1); //not the first, as that's where we are, but the second
+	//for (vector<ABM::Agent*>::iterator it = list.begin(); it!=list.end(); ++it) {
+	//	cout<<(*it)->Name<<" ";
+	//}
+	//cout<<endl;
+	if ((list.size()>0)&&(list.back()==End)) return list.at(1); //not the first, as that's where we are, but the second
 	return nullptr;
 }
 
@@ -899,7 +922,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 {
 	bool NewData = false; //TODO: check animation time and frames
 	//AnimationDT=AnimationDT+0.5
-	AnimationDT += 0.25f; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
+	AnimationDT += 0.5f; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
 	if (AnimationDT>=FrameTimeN) {
 		//new data is available, so move the frame time ahead
 		NewData = true;
@@ -912,18 +935,22 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 	
 	cout<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<" Next Frame: "<<AgentTime::ToString(FrameTimeN)<<endl;
 
+	set<std::string> UniqueAgents; //holds names of all agents so we can check for new ones
+
 	std::vector<ABM::Agent*> drivers = _agents.Ask("driver"); //should be drivers really, but haven't implemented plural breeds yet
 	for (std::vector<ABM::Agent*>::iterator dIT = drivers.begin(); dIT!=drivers.end(); ++dIT)
 	{
 		ABM::Agent* d = *dIT;
 		string temp = d->Get<std::string>("Name");
-		if (temp!="V_26_230") continue;
+		UniqueAgents.insert(temp);
+		//cout<<temp<<endl;
+		//if (temp!="V_26_230") continue;
 
 		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
 		d->Face(*toNode);
 		//the distance you move is the velocity times the simulation step - in this case hard coded to 1 frame = 0.1s - MAKE SURE this matches what you add to AnimationDT at the top
 		//d->Forward(min(d->Get<float>("v") * (float)Ticks,(float)d->Distance(*toNode)));
-		d->Forward(min(d->Get<float>("v") * 0.25f,(float)d->Distance(*toNode)));
+		d->Forward(min(d->Get<float>("v") * 0.5f,(float)d->Distance(*toNode)));
 		if (.00001f > d->Distance(*toNode))
 		{
 			//decision point - we've reached the next toNode, so we need to choose a new direction
@@ -953,6 +980,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 				std::vector<ABM::Link*> lnks = toNode->OutLinks();
 				std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLine(ALineCode)); //note end iterator
 				bool Found=false;
+				//TODO: you could merge this block and the if (!Found) block below, as they do similar things - NextNodeOnPath isn't much more expensive than the link iteration
 				for (std::vector<ABM::Link*>::iterator itLnks = lnks.begin(); itLnks!=end; ++itLnks) {
 					ABM::Link* lnk = *itLnks;
 					if (lnk->end2->Name==FrameNextStation) {
@@ -966,7 +994,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 						break;
 					}
 				}
-				//final catch if we can't find the next station any other way - look it up in the global node list and position tube manually (computationally expensive)
+				//final catch if we can't find the next station any other way - look it up in the global node list and position tube manually (computationally expensive, but only a little bit)
 				if (!Found)
 				{
 					//We need a route from the current node to the next toNode on the frame data.
@@ -983,7 +1011,32 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 					ABM::Agent* nextNode = NextNodeOnPath(ALineCode,toNode,frameNode);
 					if (nextNode!=nullptr)
 					{
-						//TODO: set here
+						//update fromnode, tonode, and velocity
+						d->Set<ABM::Agent*>("fromNode",toNode); //set agent's from node to the current to node that he's just reached
+						toNode = nextNode; //switch the tonode to the new next station node that we've just found
+						d->Set<ABM::Agent*>("toNode",toNode);
+						//distance is the distance to the next node (now toNode), but time is the time to get to the node on the frame list which is more than one node away.
+						//In other words, we don't have an accurate estimate of when the tube actually got to the next station, so the best option is probably to either
+						//continue at the same speed, or use the runlink to the next node. A more complex option would be to get the path length along all the nodes and
+						//average it, but here I'm using the runlink estimate. This could go wrong if it doesn't get to the next frame node in time though.
+						//double dist = d->Distance(*toNode);
+						//d->Set<float>("v",dist/(FrameNFutureSecs + FrameTimeToStation)); //make sure denominator isn't zero!!!!
+						
+						//new code
+						//get runlink between fromNode and toNode
+						//set v to this
+						for (std::vector<ABM::Link*>::iterator itLnks = lnks.begin(); itLnks!=end; ++itLnks) {
+							ABM::Link* lnk = *itLnks;
+							if (lnk->end2==toNode) {
+								//TODO: this is basically a HACK, use faster speed than necessary to make sure we get to the next node before the data is
+								//telling us we need to be at the one after. You could do a really complicated calculation here and take the distance along
+								//all the nodes from the current agent position to the next frame waypoint (two or more links ahead) and then average the
+								//speed across all the nodes until the next information point. This hack just increases the speed to the next node to make
+								//sure we get to the one after in time. It won't work so well if we're skipping >1 node though.
+								d->Set<float>("v",lnk->Get<float>("velocity")*2.0f);
+							}
+						}
+
 						cout<<"Path: found next node is "<<nextNode->Name<<endl;
 					}
 					else {
@@ -999,45 +1052,34 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 			}
 		}
 		else if (NewData) {
-////////////////////////////////
+			//TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			//covers the case where a new data frame causes an update to the velocity e.g. a tube was 3 mins from station in the last frame, but 3 mins later it's still 1 min away
-/*			if (FrameNextStation == ANextStation) {
-				//frame and agent's next station hasn't changed, so not there yet, update velocity (we implicitly assume direction hasn't changed as it can't have)
-				double dist = d->Distance(*toNode); //this is how far I am from the next station based on my current position
-				//use: l->Get<float>("velocity") to get the velocity for this link based on the official runlinks
-				//we know how long they're telling us it's going to take to get to this station, so calculate a velocity based on v=dist/time
-				//and the fact that the frame time is in the future i.e. 60 seconds from NOW, the tube will be 30 seconds from the station: 60+30=90s away now
-				d->Set<float>("v",dist/(FrameNFutureSecs + FrameTimeToStation)); //make sure denominator isn't zero!!!!
-			}
-			else {
-				bool Found=false;
-				//different next station
-				//check it hasn't changed direction and look at current next station's out links based on dir
-				if (ADir==FrameDir) //still going the same way, so should be able to find the next station easily from the current next station's out links
-				{
-					std::vector<ABM::Link*> lnks = toNode->OutLinks();
-					std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLineDirection(ALineCode,ADir)); //note end iterator
-					for (std::vector<ABM::Link*>::iterator itLnks = lnks.begin(); itLnks!=end; ++itLnks) {
-						ABM::Link* lnk = *itLnks;
-						if (lnk->end2->Name==FrameNextStation) {
-							//update fromnode, tonode, and velocity
-							d->Set<ABM::Agent*>("fromNode",toNode); //set agent's from node to the current to node that he's just reached
-							toNode = lnk->end2; //switch the tonode to the new next station node that we've just found
-							d->Set<ABM::Agent*>("toNode",toNode);
-							double dist = d->Distance(*toNode);
-							d->Set<float>("v",dist/(FrameNFutureSecs + FrameTimeToStation)); //make sure denominator isn't zero!!!!
-							Found=true;
-							break;
-						}
-					}
-				}
-*/
-////////////////////////////////////////////////
+			//for all drivers
+			//calculate distance to next waypoint
+			//update velocity
+			//what if the next station changes?
 		}
 
 	}
-	//how to you pick up any extra tubes on the frame list which aren't currently created as agents?
+
+	//now check for new agents this frame which we need to create
+	for (map<string,tube_anim_record>::iterator it = FrameN.begin(); it!=FrameN.end(); ++it) {
+		string Name = it->first;
+		if (UniqueAgents.find(Name)==UniqueAgents.end()) {
+			//agent from frame data not found on current active list of drivers, so need to hatch it
+			tube_anim_record rec = it->second;
+			ABM::Agent* a = HatchAgentFromAnimationRecord(Name,rec);
+			if (a!=nullptr) {
+				//this is a really nasty hack - we need to set the shader on the agent we've just created, so copy it from one of the other agents
+				std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+				ABM::Agent* A2 = drivers.front();
+				a->_pAgentMesh->AttachShader(A2->_pAgentMesh->GetDrawObject()._ShaderProgram,true);
+				cout<<"Hatched agent: "<<Name<<endl;
+			}
+		}
+	}
 
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////

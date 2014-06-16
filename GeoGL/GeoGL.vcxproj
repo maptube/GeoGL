@@ -211,6 +211,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="gengine\texture2d.h" />
     <ClInclude Include="trefoilknot.h" />
+    <ClInclude Include="triangulator.h" />
     <ClInclude Include="tubegeometry.h" />
     <ClInclude Include="model_tubenetwork.h" />
     <ClInclude Include="turtle.h" />
@@ -269,6 +270,7 @@
     </ClCompile>
     <ClCompile Include="gengine\texture2d.cpp" />
     <ClCompile Include="trefoilknot.cpp" />
+    <ClCompile Include="triangulator.cpp" />
     <ClCompile Include="tubegeometry.cpp" />
     <ClCompile Include="model_tubenetwork.cpp" />
     <ClCompile Include="turtle.cpp" />

@@ -30,6 +30,7 @@ public:
 	virtual bool HasGeometry() { return false; } //no, this object has no geometry and cannot be rendered
 	virtual const gengine::DrawObject& GetDrawObject(); //not implemented in this class
 	void AddChild(Object3D* Child);
+	void RemoveChild(Object3D* Child);
 	std::vector<Object3D*>::const_iterator BeginChild() { return Children.begin(); } //todo: this isn't exactly elegant!
 	std::vector<Object3D*>::const_iterator EndChild() { return Children.end(); }
 	virtual void AttachShader(gengine::Shader* pShader, bool Recursive);

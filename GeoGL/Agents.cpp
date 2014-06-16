@@ -132,8 +132,8 @@ namespace ABM {
 		std::vector<Agent*>::iterator it = std::find(_Agents.begin(),_Agents.end(),A);
 		_Agents.erase(it);
 		--NumAgents; //do you need to do this, as it's a sequence number of created agents?
-		//TODO: need to remove from scene graph as well!
-
+		_pSceneRoot->RemoveChild(A->_pAgentMesh); //remove from scenegraph
+		delete A->_pAgentMesh; //and free the mesh
 	}
 
 	/// <summary>

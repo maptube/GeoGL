@@ -69,6 +69,7 @@ public:
 	void loadLinks(std::string NetworkJSONFilename);
 	void loadPositions(std::string Filename);
 	void LoadAnimatePositions();
+	ABM::Agent* HatchAgentFromAnimationRecord(const std::string& UniqueName, const tube_anim_record& rec);
 	void LoadAnimation(const std::string& DirectoryName);
 	NetGraphGeometry* GenerateLineMesh(char LineCode);
 	Object3D* GenerateMesh();
