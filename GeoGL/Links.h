@@ -29,6 +29,7 @@ namespace ABM {
 		Object3D* _pSceneRoot; //Root of links in scene graph. I'd like to get rid of this, but we need it to keep the 3D in step
 
 		Link* Create(Agent* AStart,Agent* AEnd);
+
 	};
 
 }

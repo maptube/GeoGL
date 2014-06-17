@@ -108,8 +108,10 @@ namespace ABM {
 	void Agent::SetColour(glm::vec3 new_colour)
 	{
 		//get at the mesh object in the scene
-		_colour=new_colour;
-		_pAgentMesh->SetColour(new_colour);
+		if (_colour!=new_colour) { //it's computationally expensive to change the buffers, so only do it if you really need to
+			_colour=new_colour;
+			_pAgentMesh->SetColour(new_colour);
+		}
 	}
 
 	/// <summary>
