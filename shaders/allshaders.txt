@@ -1,0 +1,169 @@
+4.6
+Pass through
+
+//vertex shader
+in vec4 position;
+uniform mat4 og_modelViewPerspectiveMatrix;
+
+void main ()
+{
+gl_Position = og_ModelViewPerspectiveMatrix * position;
+}
+
+//frag
+out vec3 fragmentColor;
+void main() {
+fragmentColor = vec3(0,0,0);
+}
+
+////////////////////////////////
+4.7
+Diffuse vertex
+in vec4 position;
+out vec3 worldPosition;
+out vec3 positionToLight;
+
+uniform mat4 og_modelViewPerspectiveMatrix;
+uniform vec3 og_cameraLightPosition;
+
+void main()
+{
+gl_Position = og_modelViewPerspectiveMatrix * position;
+worldPosition = position.xyz;
+positionToLight = og_cameraLightPosition - worldPosition;
+}
+
+//4.8
+Diffuse fragment
+in vec3 worldPosition;
+in vec3 positionToLight;
+out vec3 fragmentColor;
+
+void main()
+{
+vec3 toLight = normalize(positionToLight);
+vec3 normal = normalize(worldPosition);
+float diffuse = max(dot(toLight,normal),0.0);
+fragmentColor = vec3(difuse,diffuse,diffuse)
+}
+
+//4.9 phong vertex diffuse+specular
+int vec3 position;
+out vec3 worldPosition;
+out vec3 positionToLight;
+out vec3 positionToEye;
+
+uniform mat4 og_modelViewPerspectiveMatrix;
+unfirom vec3 og_cameraEye;
+uniform vec3 og_cameraLightPosition;
+
+void main()
+{
+gl_Position = og_modelViewPerspectiveMatrix * position;
+worldPosition = position.xyz;
+positionToLight = og_cameraLightPosition-worldPosition;
+positionToEye = og_cameraEye-worldPosition;
+}
+
+///4.10 phong frag
+
+in vec3 worldPosition;
+in vec3 positionToLight;
+in vec3 positionToEye;
+out vec3 fragmentColor;
+
+uniform vec4 og_diffuseSpecularAmbientShininess;
+
+float LightIntensity(vec3 normal, vec3 toLight, vec3 toEye,
+vec4 diffuseSpecularAmbientShininess)
+{
+vec3 toReflectedLight = reflect(-toLight,normal);
+
+float diffuse = max(dot(toLight,normal),0.0);
+float specular = max(dot(toReflectedLight,toEye),0.0);
+specular = pow(specular,diffuseSpecularAmbientShininess.w);
+
+return (diffuseAmbientShininess.x * diffuse) +
+(diffuseSpecularAmbientShininess.y * specular) +
+diffuseSpecularAmbientShininess.z;
+}
+
+void main()
+{
+vec3 normal = normalize(worldPosition);
+float intensity = LightIntensity(normal,
+normalize(positionToLight), normalize(positionToEye),
+og_diffuseSpecularAmbientShininess);
+fragmentColor = vec3(intensity,intensity,intensity);
+}
+
+/////
+//globe texture frag 4.11
+in vec3 worldPosition;
+out vec3 fragmentColor;
+
+uniform sampler2D og_texture0;
+uniform vec3 u_globeOneOverRadiiSquared;
+
+vec3 GeodeticSurfaceNormal(vec3 positionOnEllipsoid,
+vec3 oneOverEllipsoidRadiiSquared)
+{
+return normalize(positionOnEllipsoid*oneOverEllipsoidRadiiSquared);
+}
+
+vec2 ComputeTextureCoordinate(vec3 normal)
+{
+return vec2(
+atan(normal.y, normal.x)*og_oneOverTwoPi + 0.5,
+asin(normal.z)*og_oneOverPi + 0.5);
+}
+
+void main()
+{
+vec3 normal = GeodeticSuefaceNormal(
+worldPosition, u_globeOneOverRadiiSquared);
+vec2 textureCoordinate = ComputeTextureCoordinates(normal);
+fragmentColor = texture(og_texture0, textureCoordinate).rgb;
+}
+/////
+
+//lat/lon fragment grid shader 4.12 + 4.13
+uniform vec2 u_gridLineWidth;
+uniform vec2 u_gridResolution;
+
+void main() {
+vec3 normal = GeodeticSurfaceNormal(
+worldPosition, u_globeOneOverRadiiSquared);
+vec2 textureCoordinate = ComputeTextureCoordinates(normal);
+vec2 distanceToLine = mod(textureCoordinate, u_gridResolution);
+vec2 dx = abs(dFdx(textureCoordinate));
+vec2 dy = abs(dFdy(textureCoordinate));
+vec2 dF = vec2(max(dx.s,dy.s),max(dx.t,dy.t))*u_gridLineWidth;
+
+if (any(lessThan(distanceToLine, dF)))
+{
+fragmentColor=vec3(1.0,0.0,0.0);
+}
+else {
+float intensity = LightIntensity(normal,
+normalize(positionToLight),
+normalize(positionToEye),
+og_diffuseSpecularAmbientShininess);
+fragmentColor = intensity*
+texture(og_teture0,textureCoordinates).rgb;
+}
+
+
+}
+////////
+
+//4.18 ellipsoid world space depth (glFragDepth)
+float ComputeWorldPositionDepth(vec3 position)
+{
+vec4 v = og_modelViewPerspectiveMatrix * vec4(position,1);
+v.z/=v.w;
+v.z=(v.z+1.0)*0.5;
+return v.z;
+}
+
+/////////

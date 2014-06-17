@@ -484,10 +484,10 @@ void ModelTubeNetwork::LoadAnimation(const std::string& DirectoryName) {
 		return; // errno;
 	}
 	
-	int count=0;
+	//int count=0;
 	while ((dirp = readdir(dp)))
 	{
-		if (++count>20) break;
+		//if (++count>20) break;
 		//string fname = dirp->d_name;
 		//if (fname>"20140119_003000") continue; //DEBUGGING!!!!
 		filepath = DirectoryName + "/" + dirp->d_name;
@@ -621,7 +621,7 @@ void ModelTubeNetwork::Setup() {
 	
 	/////this needs to depend on the animate settings
 	//loadPositions(Filename_TrackernetPositions); //train positions
-	LoadAnimation(/*"../data/tube-anim"*/"../data/tube-anim2");
+	LoadAnimation("../data/tube-anim"/*"../data/tube-anim2"*/);
 	LoadAnimatePositions();
 	//set current animation time to the first time in the data sample
 	AnimationDT._DT=GetFirstAnimationTime();
@@ -1055,7 +1055,7 @@ void ModelTubeNetwork::RecalculateWaypoint(const tube_anim_record& anim_rec, ABM
 void ModelTubeNetwork::StepAnimation(double Ticks)
 {
 	bool NewData = false; //TODO: check animation time and frames
-	float AnimSpeed = 2.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
+	float AnimSpeed = 20.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
 	//AnimationDT=AnimationDT+0.5
 	AnimationDT += AnimSpeed; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
 	if (AnimationDT>=FrameTimeN) {
@@ -1228,24 +1228,24 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 	}
 
 	//now check for new agents this frame which we need to create - Hatching agents is computationally expensive
-	//if (NewData)
-	//{
-	//	for (map<string,tube_anim_record>::iterator it = FrameN.begin(); it!=FrameN.end(); ++it) {
-	//		string Name = it->first;
-	//		if (UniqueAgents.find(Name)==UniqueAgents.end()) {
-	//			//agent from frame data not found on current active list of drivers, so need to hatch it
-	//			tube_anim_record rec = it->second;
-	//			ABM::Agent* a = HatchAgentFromAnimationRecord(Name,rec);
-	//			if (a!=nullptr) {
-	//				//this is a really nasty hack - we need to set the shader on the agent we've just created, so copy it from one of the other agents
-	//				std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
-	//				ABM::Agent* A2 = drivers.front();
-	//				a->_pAgentMesh->AttachShader(A2->_pAgentMesh->GetDrawObject()._ShaderProgram,true);
-	//				//cout<<"Hatched agent: "<<Name<<endl;
-	//			}
-	//		}
-	//	}
-	//}
+	if (NewData)
+	{
+		for (map<string,tube_anim_record>::iterator it = FrameN.begin(); it!=FrameN.end(); ++it) {
+			string Name = it->first;
+			if (UniqueAgents.find(Name)==UniqueAgents.end()) {
+				//agent from frame data not found on current active list of drivers, so need to hatch it
+				tube_anim_record rec = it->second;
+				ABM::Agent* a = HatchAgentFromAnimationRecord(Name,rec);
+				if (a!=nullptr) {
+					//this is a really nasty hack - we need to set the shader on the agent we've just created, so copy it from one of the other agents
+					std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+					ABM::Agent* A2 = drivers.front();
+					a->_pAgentMesh->AttachShader(A2->_pAgentMesh->GetDrawObject()._ShaderProgram,true);
+					//cout<<"Hatched agent: "<<Name<<endl;
+				}
+			}
+		}
+	}
 
 }
 
