@@ -233,6 +233,9 @@
     <ClInclude Include="triangulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pyramid4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -389,6 +392,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="triangulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pyramid4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

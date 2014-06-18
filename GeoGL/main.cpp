@@ -11,6 +11,7 @@
 #include "main.h"
 #include "gengine/ogldevice.h"
 #include "globe.h"
+#include "ellipsoid.h";
 //#include "opengl4.h"
 #include "model_tubenetwork.h"
 #include "netgraphgeometry.h"
@@ -32,6 +33,8 @@
 #include "mesh2.h"
 #include "sphere.h"
 #include "cuboid.h"
+#include "cylinder.h"
+#include "pyramid4.h"
 #include "turtle.h"
 #include "Agent.h"
 #include "LogoVariantOwns.h"
@@ -122,6 +125,29 @@ static void error_callback(int error, const char* description)
 	fputs(description, stderr);
 }
 
+//create a fake version of London
+void fakeLondon(Globe& globe) {
+	SceneGraphType* SG = globe.GetSceneGraph();
+	Ellipsoid e; //bit naughty, shouldn't globe do the coord conversion
+	Cylinder* eye = new Cylinder(10,100,20);
+	glm::translate(eye->modelMatrix,glm::vec3(0,100,0)); //move it up so the base is on the ground
+	glm::vec3 eye_pos = e.toVector(-0.119752*3.141592654/180.0,51.503313*3.141592654/180.0);
+	eye->Rotate(90.0*3.141592654/180.0,glm::vec3(0,1,0)); //tip it on its end
+	eye->Rotate(-85*3.141592654/180.0,glm::vec3(1,0,0)); //angle to river
+	eye->Rotate(-51.503313*3.141592654/180,glm::vec3(0,0,1)); //azimuthal rotation
+	eye->SetPos(eye_pos.x,eye_pos.y,eye_pos.z);
+	eye->AttachShader(globe.GetShader(0),true); //presumably shader 0 is the right one?
+	SG->push_back(eye);
+
+	Pyramid4* shard = new Pyramid4(100,306,100);
+	shard->Rotate(90*3.141592654/180,glm::vec3(1,0,0)); //rotate it so it's pointing up
+	glm::translate(shard->modelMatrix,glm::vec3(0,100,0)); //move it up so the base is on the ground
+	glm::vec3 shard_pos = e.toVector(-0.086598*3.141592654/180.0,51.504358*3.141592654/180.0);
+	shard->Rotate(-51.504358*3.141592654/180,glm::vec3(0,0,1)); //azimuthal rotation
+	shard->SetPos(shard_pos.x,shard_pos.y,shard_pos.z);
+	shard->AttachShader(globe.GetShader(0),true); //presumably shader 0 is the right one?
+	SG->push_back(shard);
+}
 
 
 //alternative main function for GLFW
@@ -241,7 +267,7 @@ int main(int argc, char *argv[])
 	//delete A;
 
 	Globe globe;
-	
+	fakeLondon(globe);
 	
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
@@ -257,8 +283,8 @@ int main(int argc, char *argv[])
 	//GeoJSON* geoj = globe.LoadLayerGeoJSON("..\\data\\TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
 	
 	//Thames in WGS84
-	//GeoJSON* thames = globe.LoadLayerGeoJSON(/*"data/TQ_TidalWater_503500_155500.geojson"*/"..\\data\\TQ_TidalWater_503500_155500.geojson");
-	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	GeoJSON* thames = globe.LoadLayerGeoJSON(/*"data/TQ_TidalWater_503500_155500.geojson"*/"..\\data\\TQ_TidalWater_503500_155500.geojson");
+	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON(/*"data/TQ_Building_530000_180000_WGS84.geojson"*/"..\\data\\TQ_Building_530000_180000_WGS84.geojson");

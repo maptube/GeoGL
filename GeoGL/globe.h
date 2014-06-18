@@ -86,6 +86,8 @@ public:
 	//GLFWwindow* GetWindow() { return openglContext.window; }
 	SceneGraphType* GetSceneGraph() { return &SceneGraph; }
 
+	gengine::Shader* GetShader(const int Num) { return _Shaders[Num]; }
+
 	GeoJSON* LoadLayerGeoJSON(std::string Filename);
 	void LoadLayerKML(std::string Filename);
 	void LoadLayerShapefile(std::string Filename);

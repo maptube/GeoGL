@@ -205,6 +205,7 @@
     <ClInclude Include="gengine\shaderattributecollection.h" />
     <ClInclude Include="gengine\shaderuniform.h" />
     <ClInclude Include="gengine\shaderuniformcollection.h" />
+    <ClInclude Include="pyramid4.h" />
     <ClInclude Include="sierpinskipyramid.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="stdafx.h" />
@@ -260,6 +261,7 @@
     <ClCompile Include="gengine\shaderattributecollection.cpp" />
     <ClCompile Include="gengine\shaderuniform.cpp" />
     <ClCompile Include="gengine\shaderuniformcollection.cpp" />
+    <ClCompile Include="pyramid4.cpp" />
     <ClCompile Include="sierpinskipyramid.cpp" />
     <ClCompile Include="sphere.cpp" />
     <ClCompile Include="stdafx.cpp">

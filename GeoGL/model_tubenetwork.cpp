@@ -1055,7 +1055,7 @@ void ModelTubeNetwork::RecalculateWaypoint(const tube_anim_record& anim_rec, ABM
 void ModelTubeNetwork::StepAnimation(double Ticks)
 {
 	bool NewData = false; //TODO: check animation time and frames
-	float AnimSpeed = 20.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
+	float AnimSpeed = 1.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
 	//AnimationDT=AnimationDT+0.5
 	AnimationDT += AnimSpeed; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
 	if (AnimationDT>=FrameTimeN) {
