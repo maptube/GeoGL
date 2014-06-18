@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 	//GeoJSON* geoj = globe.LoadLayerGeoJSON("..\\data\\TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
 	
 	//Thames in WGS84
-	GeoJSON* thames = globe.LoadLayerGeoJSON(/*"data/TQ_TidalWater_503500_155500.geojson"*/"..\\data\\TQ_TidalWater_503500_155500.geojson");
+	GeoJSON* thames = globe.LoadLayerGeoJSON(/*"data/TQ_TidalWater_503500_155500.geojson"*/"../data/TQ_TidalWater_503500_155500.geojson");
 	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84

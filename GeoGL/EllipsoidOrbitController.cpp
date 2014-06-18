@@ -24,7 +24,7 @@ EllipsoidOrbitController::EllipsoidOrbitController(gengine::Camera* camera, Elli
 
 	scrollSpeed = 0.05f; //speed when zooming in and out - bigger is faster
 	dragging = false;
-	panning = false; //TODO: there is no pan mode!
+	looking = false;
 
 	//now hook up the mouse events
 	EventManager& em=EventManager::getInstance();
@@ -153,6 +153,15 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 			//std::cout<<"Camera: "<<vCameraPos.x<<" "<<vCameraPos.y<<" "<<vCameraPos.z<<" "<<glm::length(vCameraPos)<<std::endl;
 		}
 	}
+	else if (looking) {
+		//when using the right mouse button to rotate the view around the current fixed point in space
+		//angles are linear factors from the point where the right mouse button was click to the mouse current position
+		const double pxspeed = 0.005*3.14/180.0;
+		glm::dvec2 delta = glm::dvec2(mx,-my)-lookPoint;
+		glm::dmat4 mCamera=con_camera->viewMatrix;
+		mCamera=glm::rotate(mCamera,delta.x*pxspeed,glm::dvec3(0,0,1));
+		con_camera->viewMatrix = mCamera;
+	}
 }
 
 /// <summary>
@@ -193,6 +202,7 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 	if (button==GLFW_MOUSE_BUTTON_LEFT) {
 		if (action==GLFW_PRESS) {
 			dragging=true;
+			looking=false;
 			//set click point
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
@@ -240,14 +250,26 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 	}
 	else if (button==GLFW_MOUSE_BUTTON_RIGHT) {
 		if (action==GLFW_PRESS) {
-			panning=true;
-			//set click point
+			//here! spin camera around point
+			looking=true;
+			dragging=false;
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
-			dragPoint = glm::dvec3(Px,Py,0);
+			glm::vec4 vViewport = con_camera->GetViewport();
+			double winX = Px;
+			double winY = (double)vViewport[3]-Py;
+			lookPoint.x=winX; lookPoint.y=winY;
+			//glm::dvec4 dvViewport(vViewport);
+			//glm::dmat4 mCamera=con_camera->GetCameraMatrix();
+			//glm::dvec3 vCamera=con_camera->GetCameraPos();
+			//mCamera = glm::rotate(mCamera,5*3.14/180.0,-vCamera);
+			//con_camera->SetCameraMatrix(mCamera);
+			//glm::dmat4 mCamera=con_camera->viewMatrix;
+			//mCamera=glm::rotate(mCamera,0.05*3.14/180.0,glm::dvec3(0,0,1));
+			//con_camera->viewMatrix = mCamera;
 		}
 		else {
-			panning=false;
+			looking=false;
 		}
 	}
 }

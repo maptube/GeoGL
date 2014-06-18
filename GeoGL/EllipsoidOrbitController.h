@@ -28,8 +28,9 @@ public:
 
 protected:
 	bool dragging; //true when left mouse is dragging camera direction around orbit
-	bool panning; //true when right mouse is panning the view left/right/up/down
+	bool looking; //true when right mouse is rotating the view left/right/up/down
 	glm::dvec3 dragPoint; //point on sphere (ellipsoid) that is being dragged
+	glm::dvec2 lookPoint; //point on screen that we are using as a linear rotation point
 
 	//event callbacks
 	virtual void CursorPosCallback(GLFWwindow *window, double mx, double my);
