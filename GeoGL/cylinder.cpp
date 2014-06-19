@@ -124,7 +124,14 @@
 	delete indices;
 }*/
 
-
+/// <summary>
+/// Cylinder constructor, takes length, radius and number of segments and creates cylinder at origin looking along Z axis (TODO: is this the best orientation?)
+/// Circular faces are both in the XY plane.
+/// This version is based on a mesh2 object.
+/// </summary>
+/// <param name="Length">Length (height) of cylinder which is the distance between the two circular faces</param>
+/// <param name="Radius">Radius of each of the circular faces</param>
+/// <param name="NumSegments">Number of segments making up each of the circular faces</param>
 Cylinder::Cylinder(float Length, float Radius, unsigned int NumSegments) {
 	//cylinder constructor based on a mesh object
 	

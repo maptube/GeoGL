@@ -46,7 +46,7 @@ const std::string ModelTubeNetwork::Filename_TubeODNetwork =
 const std::string ModelTubeNetwork::Filename_TrackernetPositions =
 		/*"data/trackernet_20140127_154200.csv";*/
 		"../data/trackernet_20140127_154200.csv"; //train positions
-const float ModelTubeNetwork::LineSize = 50; //size of track
+const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
 const float ModelTubeNetwork::TrainSize = 300.0f; //size of train geometry object

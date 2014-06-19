@@ -23,6 +23,8 @@ EllipsoidOrbitController::EllipsoidOrbitController(gengine::Camera* camera, Elli
 	con_camera = camera;
 
 	scrollSpeed = 0.05f; //speed when zooming in and out - bigger is faster
+	rollSpeed = 0.05f*3.14f/180.0f; //roll speed using mouse right button - 0.05 radians rotation per pixel moved with the mouse
+	pitchSpeed = 0.05f*3.14f/180.0f; //pitch speed using right mouse button - 0.05 radians rotation per pixel moved with the mouse
 	dragging = false;
 	looking = false;
 
@@ -156,11 +158,12 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 	else if (looking) {
 		//when using the right mouse button to rotate the view around the current fixed point in space
 		//angles are linear factors from the point where the right mouse button was click to the mouse current position
-		const double pxspeed = 0.005*3.14/180.0;
-		glm::dvec2 delta = glm::dvec2(mx,-my)-lookPoint;
-		glm::dmat4 mCamera=con_camera->viewMatrix;
-		mCamera=glm::rotate(mCamera,delta.x*pxspeed,glm::dvec3(0,0,1));
-		con_camera->viewMatrix = mCamera;
+		const double pxspeed = 0.05*3.14/180.0;
+		glm::dvec2 delta = glm::dvec2(mx,my)-lookPoint;
+		glm::dmat4 mCamera = lookCameraMatrix;
+		mCamera = glm::rotate(mCamera,-pxspeed*delta.x,glm::dvec3(0,0,1));
+		mCamera = glm::rotate(mCamera,pxspeed*delta.y,glm::dvec3(1,0,0));
+		con_camera->SetCameraMatrix(mCamera);
 	}
 }
 
@@ -250,23 +253,13 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 	}
 	else if (button==GLFW_MOUSE_BUTTON_RIGHT) {
 		if (action==GLFW_PRESS) {
-			//here! spin camera around point
+			//spin camera around point
 			looking=true;
 			dragging=false;
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
-			glm::vec4 vViewport = con_camera->GetViewport();
-			double winX = Px;
-			double winY = (double)vViewport[3]-Py;
-			lookPoint.x=winX; lookPoint.y=winY;
-			//glm::dvec4 dvViewport(vViewport);
-			//glm::dmat4 mCamera=con_camera->GetCameraMatrix();
-			//glm::dvec3 vCamera=con_camera->GetCameraPos();
-			//mCamera = glm::rotate(mCamera,5*3.14/180.0,-vCamera);
-			//con_camera->SetCameraMatrix(mCamera);
-			//glm::dmat4 mCamera=con_camera->viewMatrix;
-			//mCamera=glm::rotate(mCamera,0.05*3.14/180.0,glm::dvec3(0,0,1));
-			//con_camera->viewMatrix = mCamera;
+			lookPoint.x=Px; lookPoint.y=Py;
+			lookCameraMatrix = con_camera->GetCameraMatrix();
 		}
 		else {
 			looking=false;
