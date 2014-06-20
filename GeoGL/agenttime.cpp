@@ -2,6 +2,7 @@
 #include "agenttime.h"
 #include <ctime>
 #include <sstream>
+#include <iomanip>
 
 #include <math.h>
 
@@ -53,7 +54,7 @@ std::string AgentTime::ToString(const AgentTime& ATime)
 
 	std::stringstream Result("");
 	int Year = t->tm_year+1900;
-	Result<<(t->tm_year+1900)<<(t->tm_mon+1)<<(t->tm_mday)<<" "<<(t->tm_hour)<<":"<<(t->tm_min)<<":"<<(t->tm_sec);
+	Result<<(t->tm_year+1900)<<setfill('0')<<setw(2)<<(t->tm_mon+1)<<(t->tm_mday)<<" "<<setfill('0')<<setw(2)<<(t->tm_hour)<<":"<<setfill('0')<<setw(2)<<(t->tm_min)<<":"<<setfill('0')<<setw(2)<<(t->tm_sec);
 
 	return Result.str();
 }

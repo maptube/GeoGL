@@ -27,6 +27,7 @@ namespace ABM {
 	Agents::Agents(void)
 	{
 		NumAgents=0;
+		Birth=0; Death=0;
 		//initialise static pointer from Agent to Agents (this)
 		//This is necessary so that an Agent can hatch another Agent, although Agents needs to keep the list
 		Agent::_pParentAgents=this;
@@ -106,6 +107,7 @@ namespace ABM {
 		Agent* a = new Agent();
 		a->Number=NumAgents;
 		++NumAgents;
+		++Birth;
 		a->_BreedName = Breed;
 		SetAgentDefaults(*a); //sets the size etc, but NOT the mesh - must wait for the breed to be set before calling this
 		_Agents.push_back(a); //put him onto the global agent list
@@ -132,6 +134,7 @@ namespace ABM {
 		std::vector<Agent*>::iterator it = std::find(_Agents.begin(),_Agents.end(),A);
 		_Agents.erase(it);
 		--NumAgents; //do you need to do this, as it's a sequence number of created agents?
+		++Death;
 		_pSceneRoot->RemoveChild(A->_pAgentMesh); //remove from scenegraph
 		delete A->_pAgentMesh; //and free the mesh
 	}

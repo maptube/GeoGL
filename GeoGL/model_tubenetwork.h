@@ -36,6 +36,8 @@ struct tube_anim_record {
 * If you create one of these then you're creating a real working tube network
 */
 class ModelTubeNetwork : public ABM::Model {
+protected:
+	void DisplayStatistics();
 public:
 	static const std::string Filename_StationCodes; //station locations
 	static const std::string Filename_TubeODNetwork; //network from JSON origin destination file

@@ -38,6 +38,8 @@ namespace ABM {
 		Object3D* _pSceneRoot; //Root of agents in scene graph. I'd like to get rid of this, but we need it to keep the 3D in step
 
 		int NumAgents; //counter for how many agents are in the model
+		unsigned int Birth; //number of agents created in the last animation frame
+		unsigned int Death; //number of agents destroyed in the last animation frame
 		std::set<std::string> _BreedNames;
 		std::vector<ABM::Agent*> _Agents; //list of all agents?
 

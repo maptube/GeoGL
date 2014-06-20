@@ -621,7 +621,7 @@ void ModelTubeNetwork::Setup() {
 	
 	/////this needs to depend on the animate settings
 	//loadPositions(Filename_TrackernetPositions); //train positions
-	LoadAnimation("../data/tube-anim"/*"../data/tube-anim2"*/);
+	LoadAnimation(/*"../data/tube-anim"*/"../data/tube-anim2");
 	LoadAnimatePositions();
 	//set current animation time to the first time in the data sample
 	AnimationDT._DT=GetFirstAnimationTime();
@@ -666,8 +666,13 @@ void ModelTubeNetwork::Setup() {
 /// Animation step virtual from ABM::Model. This calls one of two animation step functions based on whether we're animating from an archive, or displaying real data.
 /// </summary>
 void ModelTubeNetwork::Step(double Ticks) {
+	//reset the birth and death rate for this frame
+	//_agents.Birth=0;
+	//_agents.Death=0;
 	if (AnimateMode) StepAnimation(Ticks);
 	else StepRealTime(Ticks);
+	//write out agent turnover - you could actually interrogate the data yourself to get the numbers
+	//cout<<"B,"<<_agents.Birth<<",D,"<<_agents.Death<<endl;
 }
 
 //visitor callback for filtering links by line and direction code
@@ -1048,6 +1053,57 @@ void ModelTubeNetwork::RecalculateWaypoint(const tube_anim_record& anim_rec, ABM
 	}
 }
 
+//display statistics to console
+void ModelTubeNetwork::DisplayStatistics()
+{
+	cout<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<",";
+	cout<<"S,"<<_agents.NumAgents<<",B,"<<_agents.Birth<<",D,"<<_agents.Death;
+	std::string lines[]={"B","C","D","H","J","M","N","P","V","W"};
+	for (int i=0; i<10; ++i)
+	{
+		std::string L = lines[i];
+		vector<ABM::Agent*> agents = _agents.With("lineCode",L);
+		size_t count=0;
+		size_t one=0;
+		size_t zero=0;
+		size_t at=0;
+		size_t vdeltaplus=0;
+		size_t vdeltaminus=0;
+		size_t vzero=0;
+		for (vector<ABM::Agent*>::iterator it = agents.begin(); it!=agents.end(); ++it) {
+			ABM::Agent* A = (*it);
+			++count;
+			if (A->Get<int>("direction")==1) ++one;
+			else ++zero;
+			ABM::Agent* toNode=A->Get<ABM::Agent*>("toNode");
+			ABM::Agent* fromNode=A->Get<ABM::Agent*>("fromNode");
+			float avelocity = A->Get<float>("v");
+			double dist = A->Distance(*toNode);
+			if (dist<50) ++at; //put 50 metre geofence around station for "AT" statistic
+			if (abs(avelocity)<10) ++vzero; //count zero velocity tubes 
+			if (toNode!=fromNode) {
+				vector<ABM::Link*> lnks = fromNode->OutLinks();
+				for (vector<ABM::Link*>::iterator itLnk=lnks.begin(); itLnk!=lnks.end(); ++itLnk) {
+					ABM::Link* lnk = (*itLnk);
+					string lineCode = lnk->Get<std::string>("lineCode");
+					if ((lineCode==L)&&(lnk->end1==fromNode)&&(lnk->end2==toNode)) {
+						float velocity = lnk->Get<float>("v");
+						if (avelocity>velocity*1.1) ++vdeltaplus; //10% over average runlink
+						if (avelocity<velocity*0.9) --vdeltaminus; //10% under average runlink
+						break;
+					}
+				}
+
+			}
+		}
+		cout<<","<<L<<"S,"<<count<<","<<L<<"1,"<<one<<","<<L<<"0,"<<zero<<","<<L<<"at,"<<at<<","<<L<<"mvel,"<<vdeltaminus<<","<<L<<"pvel,"<<vdeltaplus<<","<<L<<"zerovel,"<<vzero;
+	}
+	cout<<endl;
+	//ideally I want to do an "agents.with" and include a complex expression containing the line code as well (multiple args or functor?)
+	//size_t oneV = _agents.With("direction",1);
+	//size_t zeroV = _agents.With("direction",0);
+}
+
 /// <summary>
 /// Version of Step to be called when animating using the tube_anim_frames store of positions from a set of CSV files.
 /// The intention is just to call this from Step(Ticks) instead of the real-time version.
@@ -1055,14 +1111,17 @@ void ModelTubeNetwork::RecalculateWaypoint(const tube_anim_record& anim_rec, ABM
 void ModelTubeNetwork::StepAnimation(double Ticks)
 {
 	bool NewData = false; //TODO: check animation time and frames
-	float AnimSpeed = 1.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
+	float AnimSpeed = 20.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
 	//AnimationDT=AnimationDT+0.5
 	AnimationDT += AnimSpeed; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
 	if (AnimationDT>=FrameTimeN) {
 		//new data is available, so move the frame time ahead
 		NewData = true;
 		FrameTimeN = GetNextAnimationTime(AnimationDT._DT); //this is the next animation time >current i.e. the keyframe we're working towards
-		cout<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<" Next Frame: "<<AgentTime::ToString(FrameTimeN)<<endl;
+		cerr<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<" Next Frame: "<<AgentTime::ToString(FrameTimeN)<<endl;
+		DisplayStatistics();
+		//reset birth and death rates
+		_agents.Birth=0; _agents.Death=0;
 	}
 	//FrameN is always ahead of the agents in time, so it contains the next data needed to make a decision on
 	map<string,tube_anim_record> FrameN = tube_anim_frames[FrameTimeN];
