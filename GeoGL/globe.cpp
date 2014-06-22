@@ -75,11 +75,17 @@ Globe::Globe(void)
 	);
 	_Shaders.push_back(diffuse);
 
+	//create globe texture shader
+	Shader* texshader = OGLDevice::CreateShaderProgram(
+			"../shaders/texshader.vert","../shaders/texshader.frag");
+	_Shaders.push_back(texshader);
+
 	//add sphere representing the earth and shade using diffuse shader
 	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
 	//sphere->SetColour(glm::vec3(0.0,0.4,0.05));
 	sphere->SetColour(glm::vec3(1.0,1.0,1.0));
-	sphere->AttachShader(diffuse,false);
+	//sphere->AttachShader(diffuse,false);
+	sphere->AttachShader(texshader,false);
 	SceneGraph.push_back(sphere);
 
 	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);

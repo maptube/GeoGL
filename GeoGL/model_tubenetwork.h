@@ -42,6 +42,7 @@ public:
 	static const std::string Filename_StationCodes; //station locations
 	static const std::string Filename_TubeODNetwork; //network from JSON origin destination file
 	static const std::string Filename_TrackernetPositions; //train positions
+	static const std::string Filename_AnimationDir; //directory containing animation data as csv files
 	static const float LineSize; //size of track
 	static const int LineTubeSegments; //number of segments making up the tube geometry
 	static const float StationSize; //size of station geometry object

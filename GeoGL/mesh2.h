@@ -53,6 +53,9 @@ public:
 	virtual const gengine::DrawObject& GetDrawObject();
 	//TODO: SetMatrix - VERY IMPORTANT!
 protected:
+	//an alternative way of doing this is to change the vertex format
+	//TODO: create a vertex buffer format e.g. vertex only, vertex+colour, vertex+texture?
+
 	//localised vb,vc,ib and stored in vertexData
 	//gengine::VertexBuffer* vb; //vertex buffer
 	//gengine::VertexBuffer* vc; //colour buffer

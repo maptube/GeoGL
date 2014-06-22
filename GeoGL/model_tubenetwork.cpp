@@ -46,6 +46,8 @@ const std::string ModelTubeNetwork::Filename_TubeODNetwork =
 const std::string ModelTubeNetwork::Filename_TrackernetPositions =
 		/*"data/trackernet_20140127_154200.csv";*/
 		"../data/trackernet_20140127_154200.csv"; //train positions
+const std::string ModelTubeNetwork::Filename_AnimationDir =
+		"../data/tube-anim-strike/29";
 const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
@@ -621,7 +623,7 @@ void ModelTubeNetwork::Setup() {
 	
 	/////this needs to depend on the animate settings
 	//loadPositions(Filename_TrackernetPositions); //train positions
-	LoadAnimation(/*"../data/tube-anim"*/"../data/tube-anim2");
+	LoadAnimation(Filename_AnimationDir);
 	LoadAnimatePositions();
 	//set current animation time to the first time in the data sample
 	AnimationDT._DT=GetFirstAnimationTime();
