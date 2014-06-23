@@ -47,7 +47,7 @@ const std::string ModelTubeNetwork::Filename_TrackernetPositions =
 		/*"data/trackernet_20140127_154200.csv";*/
 		"../data/trackernet_20140127_154200.csv"; //train positions
 const std::string ModelTubeNetwork::Filename_AnimationDir =
-		"../data/tube-anim-strike/29";
+		"../data/tube-anim-strike/28";
 const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
@@ -1061,6 +1061,10 @@ void ModelTubeNetwork::DisplayStatistics()
 	cout<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<",";
 	cout<<"S,"<<_agents.NumAgents<<",B,"<<_agents.Birth<<",D,"<<_agents.Death;
 	std::string lines[]={"B","C","D","H","J","M","N","P","V","W"};
+	size_t all_at=0;
+	size_t all_vdeltaplus=0;
+	size_t all_vdeltaminus=0;
+	size_t all_vzero=0;
 	for (int i=0; i<10; ++i)
 	{
 		std::string L = lines[i];
@@ -1081,17 +1085,17 @@ void ModelTubeNetwork::DisplayStatistics()
 			ABM::Agent* fromNode=A->Get<ABM::Agent*>("fromNode");
 			float avelocity = A->Get<float>("v");
 			double dist = A->Distance(*toNode);
-			if (dist<50) ++at; //put 50 metre geofence around station for "AT" statistic
-			if (abs(avelocity)<10) ++vzero; //count zero velocity tubes 
+			if (dist<50) { ++at; ++all_at; } //put 50 metre geofence around station for "AT" statistic
+			if (abs(avelocity)<10) { ++vzero; ++all_vzero; } //count zero velocity tubes 
 			if (toNode!=fromNode) {
 				vector<ABM::Link*> lnks = fromNode->OutLinks();
 				for (vector<ABM::Link*>::iterator itLnk=lnks.begin(); itLnk!=lnks.end(); ++itLnk) {
 					ABM::Link* lnk = (*itLnk);
 					string lineCode = lnk->Get<std::string>("lineCode");
 					if ((lineCode==L)&&(lnk->end1==fromNode)&&(lnk->end2==toNode)) {
-						float velocity = lnk->Get<float>("v");
-						if (avelocity>velocity*1.1) ++vdeltaplus; //10% over average runlink
-						if (avelocity<velocity*0.9) --vdeltaminus; //10% under average runlink
+						float velocity = lnk->Get<float>("velocity");
+						if (avelocity>velocity*1.1) { ++vdeltaplus; ++all_vdeltaplus; } //10% over average runlink
+						else if (avelocity<velocity*0.9) { ++vdeltaminus; ++all_vdeltaminus; } //10% under average runlink
 						break;
 					}
 				}
@@ -1100,10 +1104,35 @@ void ModelTubeNetwork::DisplayStatistics()
 		}
 		cout<<","<<L<<"S,"<<count<<","<<L<<"1,"<<one<<","<<L<<"0,"<<zero<<","<<L<<"at,"<<at<<","<<L<<"mvel,"<<vdeltaminus<<","<<L<<"pvel,"<<vdeltaplus<<","<<L<<"zerovel,"<<vzero;
 	}
+	//accumulated counts of all tubes at station, minus and plus velocities and zero velocity count
+	cout<<",all_at,"<<all_at<<",all_mvel,"<<all_vdeltaminus<<",all_pvel,"<<all_vdeltaplus<<",all_zerovel,"<<all_vzero;
 	cout<<endl;
 	//ideally I want to do an "agents.with" and include a complex expression containing the line code as well (multiple args or functor?)
 	//size_t oneV = _agents.With("direction",1);
 	//size_t zeroV = _agents.With("direction",0);
+}
+
+/// colour the agent according to whether it is faster or slower than the average link speed
+void ColourAgentByVelocity(ABM::Agent* A) {
+	string L = A->Get<std::string>("lineCode");
+	ABM::Agent* toNode=A->Get<ABM::Agent*>("toNode");
+	ABM::Agent* fromNode=A->Get<ABM::Agent*>("fromNode");
+	float avelocity = A->Get<float>("v");
+	if (toNode!=fromNode) {
+		vector<ABM::Link*> lnks = fromNode->OutLinks();
+		for (vector<ABM::Link*>::iterator itLnk=lnks.begin(); itLnk!=lnks.end(); ++itLnk) {
+			ABM::Link* lnk = (*itLnk);
+			string lineCode = lnk->Get<std::string>("lineCode");
+					if ((lineCode==L)&&(lnk->end1==fromNode)&&(lnk->end2==toNode)) {
+						float velocity = lnk->Get<float>("velocity");
+						if (avelocity>velocity*1.2) { A->SetColour(glm::vec3(1.0,0,0)); } //20% over average runlink
+						else if (avelocity<velocity*0.8) { A->SetColour(glm::vec3(0,0,1.0)); } //20% under average runlink
+						else A->SetColour(glm::vec3(1.0,1.0,1.0));
+						break;
+					}
+				}
+
+			}
 }
 
 /// <summary>
@@ -1113,7 +1142,7 @@ void ModelTubeNetwork::DisplayStatistics()
 void ModelTubeNetwork::StepAnimation(double Ticks)
 {
 	bool NewData = false; //TODO: check animation time and frames
-	float AnimSpeed = 20.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
+	float AnimSpeed = 1.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
 	//AnimationDT=AnimationDT+0.5
 	AnimationDT += AnimSpeed; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
 	if (AnimationDT>=FrameTimeN) {
@@ -1121,7 +1150,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 		NewData = true;
 		FrameTimeN = GetNextAnimationTime(AnimationDT._DT); //this is the next animation time >current i.e. the keyframe we're working towards
 		cerr<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<" Next Frame: "<<AgentTime::ToString(FrameTimeN)<<endl;
-		DisplayStatistics();
+		//DisplayStatistics();
 		//reset birth and death rates
 		_agents.Birth=0; _agents.Death=0;
 	}
@@ -1145,7 +1174,9 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 		//if (temp=="B_2_202") {
 		//	cout<<"B_2_202"<<endl;
 		//}
-		d->SetColour(LineCodeToVectorColour(d->Get<std::string>("lineCode")[0]));
+
+//used with the white colour to flash the false velocities
+//		d->SetColour(LineCodeToVectorColour(d->Get<std::string>("lineCode")[0]));
 
 		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
 		d->Face(*toNode);
@@ -1246,7 +1277,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 								//d->Set<float>("v",lnk->Get<float>("velocity")*2.0f*AnimSpeed); //isn't it 2.0 * 0.5 which is the frame rate?
 								RecalculateWaypoint(anim_rec,d); //this is the complex recalculate properly on a graph using accurate distance which is computationally expensive
 								//cout<<"Hacked velocity "<<d->Name<<endl;
-								d->SetColour(glm::vec3(1.0,1.0,1.0));
+//								d->SetColour(glm::vec3(1.0,1.0,1.0)); //this is the white colour for false velocity
 							}
 						}
 
@@ -1285,6 +1316,10 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 			//TODO: check if it should die
 			/////end
 		}
+
+		/////////////////////////
+//		ColourAgentByVelocity(d);
+		/////////////////////////
 
 	}
 

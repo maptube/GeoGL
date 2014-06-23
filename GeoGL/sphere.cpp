@@ -13,6 +13,13 @@ Sphere::Sphere(double A, double B, double C, int WidthSegments, int HeightSegmen
 	init2(A,B,C,WidthSegments,HeightSegments);
 }
 
+/// <summary>Overloaded constructor which allows the vertex format to be set for the mesh</summary>
+/// <param name="VF">Format of vertices used by mesh e.g. Position only or the Mesh2 default of PositionColour</param>
+Sphere::Sphere(double A, double B, double C, int WidthSegments, int HeightSegments, gengine::VertexFormat VF) {
+	_VertexFormat = VF;
+	init2(A,B,C,WidthSegments,HeightSegments);
+}
+
 /// <summary>
 /// Private initialisation of the sphere as I need to call this from both constructors
 /// </summary>

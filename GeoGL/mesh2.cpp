@@ -9,6 +9,7 @@
 #include "gengine/glbuffertypes.h"
 #include "gengine/vertexbuffer.h"
 #include "gengine/indexbuffer.h"
+#include "gengine/vertexformat.h"
 #include "gengine/vertexdata.h"
 #include "gengine/shader.h"
 #include "gengine/renderstate.h"
@@ -61,6 +62,9 @@ void checkPointOrdering(vector<struct VertexColour> vertices) {
 Mesh2::Mesh2(void)
 {
 	epsilon = 0.0000001f;
+
+	//set default vertex format to have position and colour indices
+	_VertexFormat = PositionColour;
 
 	//vertices.reserve(1024);
 	//faces.reserve(1024);
@@ -301,22 +305,26 @@ void Mesh2::CreateBuffers() {
 	//these should be constants? From the shader...
 	//string AttributeName("in_Position");
 
+	bool hasColourBuffer = (_VertexFormat&0x2); //this should be a separate colour buffer ONLY
 
 	unsigned int NumVertices = vertices.size();
 	unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
 
 	//graphics card buffer vertices, colours, indexes
-	//GLfloat* buf_vertices = new GLfloat[NumVertices*3];
-	//GLfloat* buf_colours = new GLfloat[NumVertices*3];
-	//GLuint* buf_indices = new GLuint[NumFaces];
+	
+	VertexBuffer* vb=nullptr;
+	VertexBuffer* vc=nullptr;
 	//TODO: the sizes are really GL sizes, but we shouldn't be using GL types directly outside gengine - how to best do this?
-	VertexBuffer* vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
-	VertexBuffer* vc = OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
+	vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
+	if (hasColourBuffer)
+		vc = OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
 	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*sizeof(unsigned int)); //note that NumFaces is already *3 (see def above)
 
 	//create internal memory blocks in format suitable for copying to opengl vertex and index buffers
-	float* buf_vertices = new float[NumVertices*3]; //technically it's a GLfloat
-	float* buf_colours = new float[NumVertices*3]; //GLfloat
+	float* buf_vertices, *buf_colours;
+	buf_vertices = new float[NumVertices*3]; //technically it's a GLfloat
+	if (hasColourBuffer)
+		buf_colours = new float[NumVertices*3]; //GLfloat
 	unsigned int* buf_indices = new unsigned int[NumFaces*3]; //GLuint
 
 	//copy data from internal mesh vectors into array buffers for the graphics card
@@ -338,9 +346,12 @@ void Mesh2::CreateBuffers() {
 		buf_vertices[v+1]=VC.P.y;
 		buf_vertices[v+2]=VC.P.z;
 		//colours
-		buf_colours[v]=VC.RGB.r;
-		buf_colours[v+1]=VC.RGB.g;
-		buf_colours[v+2]=VC.RGB.b;
+		if (hasColourBuffer)
+		{
+			buf_colours[v]=VC.RGB.r;
+			buf_colours[v+1]=VC.RGB.g;
+			buf_colours[v+2]=VC.RGB.b;
+		}
 	}
 	int fc=0;
 	for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
@@ -349,19 +360,22 @@ void Mesh2::CreateBuffers() {
 
 	//now copy the vertex, colour and index data to the buffers
 	vb->CopyFromMemory(buf_vertices);
-	vc->CopyFromMemory(buf_colours);
+	if (hasColourBuffer)
+		vc->CopyFromMemory(buf_colours);
 	ib->CopyFromMemory(buf_indices);
 
 	//free the in-memory buffers as we don't need them any more
 	delete [] buf_vertices;
-	delete [] buf_colours;
+	if (hasColourBuffer)
+		delete [] buf_colours;
 	delete [] buf_indices;
 	//todo: could clear vertices and faces as well to save memory as our original data still exists
 
 	//create a vertex data object that holds our buffer definitions
 	vertexData = new VertexData();
 	vertexData->_vb.push_back(vb); //push the vertex buffer
-	vertexData->_vb.push_back(vc); //push the colour buffer
+	if (hasColourBuffer)
+		vertexData->_vb.push_back(vc); //push the colour buffer
 	vertexData->_ib=ib; //set the index buffer
 	vertexData->_NumElements=NumFaces; //*3;
 	drawObject._vertexData = vertexData; //attach the vertex data to the draw object so we know what buffers are needed for drawing

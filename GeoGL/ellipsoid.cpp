@@ -9,9 +9,14 @@ Ellipsoid::Ellipsoid(void)
 	a=6378137.0;
 	b=a;
 	c=6356752.314245;
+	//squared
 	a2=a*a;
 	b2=b*b;
 	c2=c*c;
+	//recipricals
+	ra2=1/a2;
+	rb2=1/b2;
+	rc2=1/c2;
 }
 
 Ellipsoid::Ellipsoid(double semimajor, double semiminor, double semiminor2)
@@ -22,7 +27,9 @@ Ellipsoid::Ellipsoid(double semimajor, double semiminor, double semiminor2)
 	a2=a*a;
 	b2=b*b;
 	c2=c*c;
-	//TODO: cache the reciprical of the squares
+	ra2=1/a2;
+	rb2=1/b2;
+	rc2=1/c2;
 }
 
 

@@ -113,12 +113,50 @@ namespace gengine {
 		}
 	}
 
+	void ShaderUniformCollection::SetUniform1f(const std::string& Name, const float f)
+	{
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glUniform1f(Location, f);
+		}
+	}
+
+	void ShaderUniformCollection::SetUniform3fv(const std::string& Name, const glm::vec3& v)
+	{
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glUniform3fv(Location, 1, &v[0]);
+		}
+	}
+
 	void ShaderUniformCollection::SetUniform4fv(const std::string& Name, const glm::vec4& v)
 	{
 		int Location = FindLocationIndex(Name);
 		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
 		else {
 			glUniform4fv(Location, 1, &v[0]);
+		}
+	}
+
+	void ShaderUniformCollection::SetUniform3dv(const std::string& Name, const glm::dvec3& v)
+	{
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glm::vec3 fv(v); //cast it down to a float vector
+			glUniform3fv(Location, 1, &fv[0]);
+		}
+	}
+
+	void ShaderUniformCollection::SetUniform4dv(const std::string& Name, const glm::dvec4& v)
+	{
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glm::vec4 fv(v); //cast it down to a float vector
+			glUniform4fv(Location, 1, &fv[0]);
 		}
 	}
 

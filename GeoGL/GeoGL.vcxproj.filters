@@ -236,6 +236,9 @@
     <ClInclude Include="pyramid4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gengine\vertexformat.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "gengine/gengine.h"
+#include "gengine/vertexformat.h"
 //#include "gengine/vertexbuffer.h"
 //#include "gengine/indexbuffer.h"
 //#include "gengine/shader.h"
@@ -37,6 +38,8 @@ class Mesh2 : public Object3D
 {
 public:
 	float epsilon;
+	enum gengine::VertexFormat _VertexFormat; //Format of buffers used e.g. separate or interleaved, position, colour, texture, normal
+
 	Mesh2(void);
 	~Mesh2(void);
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);

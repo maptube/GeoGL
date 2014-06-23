@@ -20,6 +20,7 @@
 #include "gengine/scenedataobject.h"
 #include "gengine/shader.h"
 #include "gengine/shaderuniformcollection.h"
+#include "gengine/vertexformat.h"
 //#include "opengl4.h"
 #include "object3d.h"
 #include "sphere.h"
@@ -81,11 +82,17 @@ Globe::Globe(void)
 	_Shaders.push_back(texshader);
 
 	//add sphere representing the earth and shade using diffuse shader
-	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40);
+	//Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40); //old version with diffuse shading
+	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40,Position); //sphere with just position vertices
 	//sphere->SetColour(glm::vec3(0.0,0.4,0.05));
-	sphere->SetColour(glm::vec3(1.0,1.0,1.0));
+	//sphere->SetColour(glm::vec3(1.0,1.0,1.0));
 	//sphere->AttachShader(diffuse,false);
 	sphere->AttachShader(texshader,false);
+	//Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
+	//uniform sampler2D u_texture0; //TODO!!!!
+	texshader->_shaderUniforms->SetUniform3fv("u_globeOneOverRadiiSquared",ellipsoid.OneOverRadiiSquared()); //uniform vec3 u_globeOneOverRadiiSquared;
+	texshader->_shaderUniforms->SetUniform1f("u_oneOverPi",glm::one_over_pi<float>()); //uniform float u_oneOverPi;
+	texshader->_shaderUniforms->SetUniform1f("u_oneOverTwoPi",glm::one_over_pi<float>()/2.0f); //uniform float u_oneOverTwoPi;
 	SceneGraph.push_back(sphere);
 
 	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);

@@ -219,6 +219,7 @@
     <ClInclude Include="gengine\vertexarrayobject.h" />
     <ClInclude Include="gengine\vertexbuffer.h" />
     <ClInclude Include="gengine\vertexdata.h" />
+    <ClInclude Include="gengine\vertexformat.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agent.cpp" />
