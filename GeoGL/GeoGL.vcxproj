@@ -70,8 +70,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\richard\GitHub\GeoGL\externals\dirent-1.20.1\include;C:\richard\GitHub\GeoGL\externals\freetype-2.5.3\include;$(ProjectDir)\..\poly2tri;C:\richard\GitHub\GeoGL\externals\LeapDeveloperKit\LeapSDK\include;C:\richard\GitHub\GeoGL\externals\glfw-3.0.4.mine\include;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\include;C:\richard\GitHub\GeoGL\externals;C:\richard\GitHub\GeoGL\externals\jsoncpp-src-0.5.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\richard\GitHub\GeoGL\x64\Debug;C:\richard\GitHub\GeoGL\externals\freetype-2.5.3\objs\win64\vc2010;C:\richard\GitHub\GeoGL\externals\LeapDeveloperKit\LeapSDK\lib\x64;C:\richard\GitHub\GeoGL\externals\glfw-3.0.4.mine\lib\x64;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\lib\x86;C:\richard\GitHub\GeoGL\externals\jsoncpp-src-0.5.0\lib\win64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\richard\GitHub\GeoGL\externals\jpegsr9a\jpeg-9a;C:\richard\GitHub\GeoGL\externals\dirent-1.20.1\include;C:\richard\GitHub\GeoGL\externals\freetype-2.5.3\include;$(ProjectDir)\..\poly2tri;C:\richard\GitHub\GeoGL\externals\LeapDeveloperKit\LeapSDK\include;C:\richard\GitHub\GeoGL\externals\glfw-3.0.4.mine\include;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\include;C:\richard\GitHub\GeoGL\externals;C:\richard\GitHub\GeoGL\externals\jsoncpp-src-0.5.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\richard\GitHub\GeoGL\externals\jpegsr9a\jpeg-9a\x64\Debug;C:\richard\GitHub\GeoGL\x64\Debug;C:\richard\GitHub\GeoGL\externals\freetype-2.5.3\objs\win64\vc2010;C:\richard\GitHub\GeoGL\externals\LeapDeveloperKit\LeapSDK\lib\x64;C:\richard\GitHub\GeoGL\externals\glfw-3.0.4.mine\lib\x64;C:\richard\projects\VC++\GeoGL\externals\SDL2-devel-2.0.2-VC\SDL2-2.0.2\lib\x86;C:\richard\GitHub\GeoGL\externals\jsoncpp-src-0.5.0\lib\win64;$(LibraryPath)</LibraryPath>
     <SourcePath>C:\richard\projects\VC++\GeoGL\GeoGL\clipper;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -182,6 +182,8 @@
     <ClInclude Include="graph.h" />
     <ClInclude Include="gengine\graphicscontext.h" />
     <ClInclude Include="gengine\indexbuffer.h" />
+    <ClInclude Include="gengine\image\jpeg.h" />
+    <ClInclude Include="gengine\image\image2d.h" />
     <ClInclude Include="LeapController.h" />
     <ClInclude Include="Link.h" />
     <ClInclude Include="Links.h" />
@@ -211,6 +213,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="gengine\texture2d.h" />
+    <ClInclude Include="gengine\textureunits.h" />
     <ClInclude Include="trefoilknot.h" />
     <ClInclude Include="triangulator.h" />
     <ClInclude Include="tubegeometry.h" />
@@ -240,6 +243,8 @@
     <ClCompile Include="globe.cpp" />
     <ClCompile Include="gengine\graphicscontext.cpp" />
     <ClCompile Include="gengine\indexbuffer.cpp" />
+    <ClCompile Include="gengine\image\jpeg.cpp" />
+    <ClCompile Include="gengine\image\image2d.cpp" />
     <ClCompile Include="LeapController.cpp" />
     <ClCompile Include="Link.cpp" />
     <ClCompile Include="Links.cpp" />
@@ -272,6 +277,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="gengine\texture2d.cpp" />
+    <ClCompile Include="gengine\textureunits.cpp" />
     <ClCompile Include="trefoilknot.cpp" />
     <ClCompile Include="triangulator.cpp" />
     <ClCompile Include="tubegeometry.cpp" />

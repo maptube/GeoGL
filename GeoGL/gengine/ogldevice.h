@@ -53,6 +53,7 @@ namespace gengine {
 		static VertexBuffer* CreateVertexBuffer(const std::string& AttributeName, BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
 		static IndexBuffer* CreateIndexBuffer(BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);
 		static Texture2D* CreateTexture2D(const int Width, const int Height, const TexturePixelFormat PixelFormat);
+		static Texture2D* CreateTexture2DFromFile(const std::string& Filename);
 
 		static void SetRenderState(const RenderState& rs);
 		static void QueryRenderState(void);

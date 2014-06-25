@@ -16,9 +16,11 @@
 #include "texture2d.h"
 #include "gltexturetypes.h"
 #include "vertexarrayobject.h"
+#include "image/jpeg.h"
 
 #include <iostream>
 #include <string>
+
 
 namespace gengine {
 
@@ -100,6 +102,10 @@ namespace gengine {
 		int DepthBits;
 		glGetIntegerv(GL_DEPTH_BITS,&DepthBits);
 		std::cout<<"Z Buffer depth bits = "<<DepthBits<<" (should be 24)"<<std::endl;
+		int MaxCombinedTexUnits, MaxTexUnits; //this is guaranteed>=16
+		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB,&MaxCombinedTexUnits); //this returns the total number of textures that OGL can handle
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&MaxTexUnits); //this returns the total number of textures that the fragment shader can access
+		std::cout<<"Max combined texture units = "<<MaxCombinedTexUnits<<" Max texture units = "<<MaxTexUnits<<std::endl;
 	
 		//check for shader support - todo: make use of the version number
 		const GLubyte *glShaderVersionString = glGetString(GL_SHADING_LANGUAGE_VERSION);
@@ -160,9 +166,32 @@ namespace gengine {
 		return new IndexBuffer(Target, Usage, NumBytes);
 	}
 
+	/// <summary>
+	/// Create a new, blank, 2D texture
+	/// </summary>
+	/// <param name="Width">Width of texture image in pixels</param>
+	/// <param name="Height">Height of texture image in pixels</param>
+	/// <param name="PixelFormat">Bit format used by one pixel for colours and alpha</param>
+	/// <returns>The blank texture</returns>
 	Texture2D* OGLDevice::CreateTexture2D(const int Width, const int Height, const TexturePixelFormat PixelFormat)
 	{
 		return new Texture2D(Width,Height,TexTarget2D,PixelFormat);
+	}
+
+	/// <summary>Creates a 2D texture from an image in a file</summary>
+	/// <param name="Filename">The file to load into the texture we've going to create</param>
+	/// <returns>The new texture created from the image file specified</returns>
+	Texture2D* OGLDevice::CreateTexture2DFromFile(const std::string& Filename)
+	{
+		//OK, how do you do this?
+		//for now, assume a jpeg file and switch this to detect the format and call specialised texture format loaders e.g. jpeg, png, gif
+		image::Jpeg jpeg = image::Jpeg(Filename);
+		//then put the file into the texture
+		Texture2D* tex = new Texture2D(jpeg._width,jpeg._height,TexTarget2D,TexPixelRGBA); //is this right for the format? and what about endian?
+		//copy jpeg data into tex image
+		tex->CopyFromMemory((unsigned char*)jpeg._raw_buffer);
+		
+		return tex;
 	}
 
 	/// <summary>

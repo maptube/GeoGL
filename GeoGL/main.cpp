@@ -11,7 +11,7 @@
 #include "main.h"
 #include "gengine/ogldevice.h"
 #include "globe.h"
-#include "ellipsoid.h";
+#include "ellipsoid.h"
 //#include "opengl4.h"
 #include "model_tubenetwork.h"
 #include "netgraphgeometry.h"

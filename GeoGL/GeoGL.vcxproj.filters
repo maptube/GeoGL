@@ -32,6 +32,12 @@
     <Filter Include="Source Files\gengine\events">
       <UniqueIdentifier>{19277c84-081f-40c7-bb98-d1ea6d1174b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\gengine\image">
+      <UniqueIdentifier>{494eb6ec-3b55-4e51-af35-b83dee542d22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gengine\image">
+      <UniqueIdentifier>{fa85230b-79a8-4974-b65d-c0a99b86b021}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -239,6 +245,15 @@
     <ClInclude Include="gengine\vertexformat.h">
       <Filter>Header Files\gengine</Filter>
     </ClInclude>
+    <ClInclude Include="gengine\textureunits.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\image\jpeg.h">
+      <Filter>Header Files\gengine\image</Filter>
+    </ClInclude>
+    <ClInclude Include="gengine\image\image2d.h">
+      <Filter>Header Files\gengine\image</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -399,6 +414,15 @@
     </ClCompile>
     <ClCompile Include="pyramid4.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\textureunits.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\image\jpeg.cpp">
+      <Filter>Source Files\gengine\image</Filter>
+    </ClCompile>
+    <ClCompile Include="gengine\image\image2d.cpp">
+      <Filter>Source Files\gengine\image</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

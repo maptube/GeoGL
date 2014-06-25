@@ -66,6 +66,7 @@ protected:
 	//gengine::Shader* shader;
 	gengine::VertexData* vertexData; //collection of vertex and index buffers
 	gengine::RenderState* renderState;
+	gengine::TextureUnits* textureUnits; //collection of textures used for this object
 	gengine::DrawObject drawObject;
 
 	std::vector<struct VertexColour> vertices;

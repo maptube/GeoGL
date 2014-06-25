@@ -70,7 +70,9 @@ Mesh2::Mesh2(void)
 	//faces.reserve(1024);
 
 	renderState = new RenderState();
+	textureUnits = new TextureUnits();
 	drawObject._rs=renderState; //TODO: find a more elegant way of doing this
+	drawObject._texUnits = textureUnits; //TODO: and this
 }
 
 /// <summary>
@@ -86,6 +88,7 @@ Mesh2::~Mesh2(void)
 
 	FreeBuffers();
 	delete renderState;
+	delete textureUnits;
 }
 
 //Pattern: add vertices, then add faces OR just add faces?

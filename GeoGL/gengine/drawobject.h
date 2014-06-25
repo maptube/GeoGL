@@ -1,6 +1,7 @@
 #pragma once
 
 #include "primitivetypes.h"
+#include "textureunits.h"
 
 namespace gengine {
 
@@ -29,6 +30,7 @@ namespace gengine {
 		Shader* _ShaderProgram;
 		PrimitiveType _PrimType;
 		VertexData* _vertexData;
+		TextureUnits* _texUnits;
 		glm::mat4 _ModelMatrix;
 	};
 

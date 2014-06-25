@@ -19,12 +19,14 @@
 #include "vertexbuffer.h"
 #include "indexbuffer.h"
 #include "texture2d.h"
+#include "textureunits.h"
 #include "ogldevice.h"
 #include "shaderuniformcollection.h"
 #include "shaderuniform.h"
 #include "Camera.h"
 #include "shader.h"
 #include "glbuffertypes.h"
+
 
 namespace gengine {
 
@@ -41,8 +43,6 @@ namespace gengine {
 		
 		//shader for the font rendering
 		_FontShader = OGLDevice::CreateShaderProgram(
-				/*"shaders/fontshader.vert", "shaders/fontshader.frag"*/
-				/*"..\\shaders\\fontshader.vert", "..\\shaders\\fontshader.frag"*/
 				"../shaders/fontshader.vert", "../shaders/fontshader.frag"
 		);
 		//vertex data and buffer for box required to put the texture for font rendering in
@@ -141,6 +141,7 @@ namespace gengine {
 
 		//bind vertex arrays
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes);
+		if (obj._texUnits!=nullptr) obj._texUnits->Bind(); //bind any required textures
 		//set device render state globals
 		OGLDevice::SetRenderState(*obj._rs);
 	
@@ -156,6 +157,7 @@ namespace gengine {
 		}
 
 		obj._vertexData->unbind(*obj._ShaderProgram->_shaderAttributes); //unbind vertex, colour and index buffers where used
+		if (obj._texUnits!=nullptr) obj._texUnits->Unbind(); //unbind textures
 
 		obj._ShaderProgram->unbind(); // Unbind our shader
 	}
@@ -180,6 +182,7 @@ namespace gengine {
 		glLoadMatrixd(&ModelViewMatrix[0][0]);
 
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes); //DO YOU ACTUALLY NEED TO DO THIS?
+		if (obj._texUnits!=nullptr) obj._texUnits->Bind(); //bind any required textures
 		//set device render state globals
 		OGLDevice::SetRenderState(*obj._rs);
 
@@ -192,6 +195,7 @@ namespace gengine {
 			//render using only a primitive type and vertex buffer e.g. tristrip or trifan
 			glDrawArrays(obj._PrimType,0,obj._vertexData->_NumElements);
 		}
+		if (obj._texUnits!=nullptr) obj._texUnits->Unbind(); //unbind textures
 	}
 
 	/// <summary>
@@ -295,10 +299,6 @@ namespace gengine {
 		//glBindTexture(GL_TEXTURE_2D, tex);
 		Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
 		_FontShader->_shaderUniforms->SetUniform1i("tex",0);
-		
-		/* We require 1 byte alignment when uploading texture data */
-//TODO: here vvvvvvvvvvvvvvvvvvvv
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		
 		/* Clamping to edges is important to prevent artifacts when scaling */
 		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

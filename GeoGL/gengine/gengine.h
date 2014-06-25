@@ -56,6 +56,11 @@
 //=============
 //Used dirent header only library which provides Unix style directory listing functions for Windows by wrapping FindFirst, FindNext
 
+//Libjpeg 9a
+//==========
+//There are instructions included for windows which tells you to run NMAKE /f makefile.vc  setup-v10
+//in order to configure the project for vs2010. You then have to add an x64 project to the jpeg.sln yourself by copying from the win32 one
+
 //////////////////////////////////////////////////////////////
 //Windows include block - probably need WIN32 and WIN64!
 #ifdef WIN32
@@ -118,6 +123,8 @@
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glfw3.lib")
+
+#pragma comment(lib, "jpeg.lib")
 
 #pragma comment(lib, "poly2tri.lib")
 
