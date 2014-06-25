@@ -11,6 +11,7 @@ JSONCPP_HOME=/home/richard/projects/jsoncpp-src-0.5.0
 #GLFW_HOME=/home/richard/projects/glfw-3.0.4
 LEAPSDK_HOME=/home/richard/projects/LeapDeveloperKit/LeapSDK
 POLY2TRI_HOME=poly2tri
+LIBJPEG_HOME=externals/jpeg-9a
 FREETYPE_INCLUDE=/usr/include/freetype2
 
 CC=gcc
@@ -22,10 +23,11 @@ CFLAGS=-c -w
 CPPFLAGS=-g -std=c++11 -DLINUX
 #note json cpp coming from projects folder i.e. not installed
 LDFLAGS=-Wall -lstdc++ -lm -lGL -lGLU -lglut -lGLEW -lglfw -ljson_linux-gcc-4.8.2_libmt\
--lLeap -lpoly2tri -lfreetype
-LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY2TRI_HOME)
-INCLUDEDIRS=-IGeoGL -I$(JSONCPP_HOME)/include -I$(LEAPSDK_HOME)/include -I$(POLY2TRI_HOME) -I$(FREETYPE_INCLUDE)
-SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/clipper/*.cpp)
+-lLeap -lpoly2tri -lfreetype -ljpeg
+LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY2TRI_HOME) -L$(LIBJPEG_HOME)
+INCLUDEDIRS=-IGeoGL -I$(JSONCPP_HOME)/include -I$(LEAPSDK_HOME)/include -I$(POLY2TRI_HOME) -I$(FREETYPE_INCLUDE) -I$(LIBJPEG_HOME)
+SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/image/*.cpp) \
+$(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/clipper/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=bin/GeoGLProgram
 

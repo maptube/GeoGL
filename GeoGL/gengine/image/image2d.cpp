@@ -15,7 +15,7 @@ namespace gengine {
 		/// <summary>Initialise the buffer ready to take image data</summary>
 		/// <param name="w">Width in pixels</param>
 		/// <param name="h">Height in pixels</param>
-		void Image2D::InitBuffer(size_t w,size_t h)
+		void Image2D::InitBuffer(unsigned int w,unsigned int h)
 		{
 			_width=w;
 			_height=h;
