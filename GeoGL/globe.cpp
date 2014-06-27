@@ -47,7 +47,8 @@ Globe::Globe(void)
 	ellipsoid = Ellipsoid(); //bit naughty, but the default is the WGS 84 definition
 
 	int WindowWidth=512,WindowHeight=512;
-	GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight); //create graphics context that we can render to
+	//GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight); //create graphics context that we can render to
+	GC = OGLDevice::CreateStereoWindow(); //create graphics context that we can render to IN 3d!!!
 
 	//initialise font rendering
 	_FontFace = GC->LoadFont(

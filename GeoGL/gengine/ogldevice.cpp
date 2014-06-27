@@ -117,6 +117,66 @@ namespace gengine {
 		return new GraphicsContext(window);
 	}
 
+	void writeerror(int e, const char * text) {
+		std::cout<<text<<std::endl;
+	}
+
+	//copy of x create window
+	GraphicsContext* OGLDevice::CreateStereoWindow()
+	{
+		glfwSetErrorCallback(writeerror); 
+		//see: http://horde3d.org/wiki/index.php5?title=Tutorial_-_Stereo_rendering
+		int Width, Height;
+		//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		//glfwGetMonitorPhysicalSize(monitor, &Width, &Height);
+		glfwWindowHint( GLFW_STEREO, GL_TRUE );
+		Width=1600; Height=640;
+		GLFWwindow* window = glfwCreateWindow(Width, Height, "GeoGL", NULL, NULL);
+		if (!window) {
+			glfwTerminate();
+			exit(EXIT_FAILURE);
+		}
+
+		glfwMakeContextCurrent(window);
+
+		//you need to have created a window and OpenGL context before you tyr and initialise GLEW
+		GLenum error = glewInit(); // Enable GLEW
+		if (error != GLEW_OK) // If GLEW fails
+			return NULL; //and destroy window?
+
+		//GLFW initialisation should have requested the latest version of OpenGL without all the GLEW messing about before
+
+		int glVersion[2] = {-1, -1}; // Set some default values for the version
+		glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]); // Get back the OpenGL MAJOR version we are using
+		glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]); // Get back the OpenGL MAJOR version we are using
+		VersionMajor=glVersion[0];
+		VersionMinor=glVersion[1];
+		std::cout << "Using OpenGL: " << glVersion[0] << "." << glVersion[1] << std::endl; // Output which version of OpenGL we are using
+	
+		//todo: additional version checking here using GLEW?
+
+		const GLubyte *glVersionString = glGetString(GL_VERSION); // Get the version of OpenGL we are using
+		std::cout<<"OpenGL version string: "<<glVersionString<<std::endl;
+
+		//OpenGL parameters
+		int DepthBits;
+		glGetIntegerv(GL_DEPTH_BITS,&DepthBits);
+		std::cout<<"Z Buffer depth bits = "<<DepthBits<<" (should be 24)"<<std::endl;
+		int MaxCombinedTexUnits, MaxTexUnits; //this is guaranteed>=16
+		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB,&MaxCombinedTexUnits); //this returns the total number of textures that OGL can handle
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&MaxTexUnits); //this returns the total number of textures that the fragment shader can access
+		std::cout<<"Max combined texture units = "<<MaxCombinedTexUnits<<" Max texture units = "<<MaxTexUnits<<std::endl;
+	
+		//check for shader support - todo: make use of the version number
+		const GLubyte *glShaderVersionString = glGetString(GL_SHADING_LANGUAGE_VERSION);
+		hasProgrammableShaders=(glShaderVersionString!=NULL);
+//HACK!	For testing fallback mode if you've got a real graphics card
+//	hasProgrammableShaders = false;
+
+
+		return new GraphicsContext(window);
+	}
+
 	/// <summary>
 	/// Create a shader program from a fragment and vertex shader file.
 	/// If device does not support hardware shaders then do nothing.
