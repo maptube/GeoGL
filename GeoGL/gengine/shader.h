@@ -5,7 +5,7 @@ namespace gengine {
 
 	//forward references
 	//class VertexArrayObject;
-	struct ShaderUniform;
+	class ShaderUniform;
 	class ShaderUniformCollection;
 	struct ShaderAttribute;
 	class ShaderAttributeCollection;

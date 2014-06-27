@@ -14,5 +14,6 @@ out vec3 worldPosition;
 void main()
 {
 	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(in_Position, 1.0);
-	worldPosition = gl_Position.xyz;
+	//this is the position on the globe i.e. with globe centre at origin and the correct ellipsoid size
+	worldPosition = in_Position.xyz; //gl_Position.xyz;
 }

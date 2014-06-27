@@ -98,7 +98,7 @@ void GeoJSON::LoadFile(std::string Filename)
 	const Json::Value& jsFeatures = (*root)["features"]; //root["features"];
 	for (Json::Value::iterator it = jsFeatures.begin(); it!=jsFeatures.end(); ++it) {
 		//cout<<"Feature"<<endl;
-		cout<<"Feature "<<feature_count<<endl;
+		//cout<<"Feature "<<feature_count<<endl;
 		++feature_count;
 		//HACK!!!!
 		//if (feature_count>10) break; //ONLY DO THE FIRST 10 FEATURES

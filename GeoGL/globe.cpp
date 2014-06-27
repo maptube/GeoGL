@@ -20,6 +20,7 @@
 #include "gengine/scenedataobject.h"
 #include "gengine/shader.h"
 #include "gengine/shaderuniformcollection.h"
+#include "gengine/shaderuniform.h"
 #include "gengine/texture2d.h"
 #include "gengine/vertexformat.h"
 //#include "opengl4.h"
@@ -90,15 +91,22 @@ Globe::Globe(void)
 	//sphere->AttachShader(diffuse,false);
 	sphere->AttachShader(texshader,false);
 	//Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
-	Texture2D* texture=OGLDevice::CreateTexture2DFromFile(/*"../textures/land_ocean_ice_350.jpg"*/ "../textures/test-blue.jpg");
+	Texture2D* texture=OGLDevice::CreateTexture2DFromFile("../textures/land_ocean_ice_2048_I.jpg" /*"../textures/land_ocean_ice_350_I.jpg"*/ /*"../textures/test-blue.jpg"*/);
 	texture->SetWrapS(TexClampToEdge);
 	texture->SetWrapT(TexClampToEdge);
 	texture->SetMinFilter(TexMinFilterLinear);
 	texture->SetMagFilter(TexMagFilterLinear);
-	texshader->_shaderUniforms->SetUniform1i("u_texture0",0);
-	texshader->_shaderUniforms->SetUniform3fv("u_globeOneOverRadiiSquared",ellipsoid.OneOverRadiiSquared()); //uniform vec3 u_globeOneOverRadiiSquared;
-	texshader->_shaderUniforms->SetUniform1f("u_oneOverPi",glm::one_over_pi<float>()); //uniform float u_oneOverPi;
-	texshader->_shaderUniforms->SetUniform1f("u_oneOverTwoPi",glm::one_over_pi<float>()/2.0f); //uniform float u_oneOverTwoPi;
+	//set uniform collection the new way...
+	ShaderUniformCollection* uniforms=texshader->_shaderUniforms;
+	//texshader->_shaderUniforms->SetUniform1i("u_texture0",0);
+	(*uniforms)["u_texture0"]=0;
+	//texshader->_shaderUniforms->SetUniform3fv("u_globeOneOverRadiiSquared",ellipsoid.OneOverRadiiSquared()); //uniform vec3 u_globeOneOverRadiiSquared;
+	(*uniforms)["u_globeOneOverRadiiSquared"]=ellipsoid.OneOverRadiiSquared();
+	//texshader->_shaderUniforms->SetUniform1f("u_oneOverPi",glm::one_over_pi<float>()); //uniform float u_oneOverPi;
+	(*uniforms)["u_oneOverPi"]=glm::one_over_pi<float>();
+	//texshader->_shaderUniforms->SetUniform1f("u_oneOverTwoPi",glm::one_over_pi<float>()/2.0f); //uniform float u_oneOverTwoPi;
+	(*uniforms)["u_oneOverTwoPi"]=glm::one_over_pi<float>()/2.0f;
+
 	sphere->GetDrawObject()._texUnits->Assign(0,texture); //you're not really supposed to be able to do this - draw object is a const?
 	//TODO: texture is going to go out of scope and not be freed!!!
 	SceneGraph.push_back(sphere);

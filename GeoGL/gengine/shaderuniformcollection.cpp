@@ -17,6 +17,16 @@ namespace gengine {
 
 	ShaderUniformCollection::~ShaderUniformCollection(void)
 	{
+		for (vector<ShaderUniform*>::iterator it=_uniforms.begin(); it!=_uniforms.end(); ++it)
+			delete *it;
+	}
+
+	/// <summary>
+	/// Array operator returns a uniform by name
+	/// </summary>
+	ShaderUniform& ShaderUniformCollection::operator[](const std::string& Name)
+	{
+		return GetUniform(Name);
 	}
 
 	/// <summary>
@@ -42,8 +52,50 @@ namespace gengine {
 			glGetActiveUniform(shader_id, GLuint(i), sizeof(name)-1, &name_len, &num, &type, name);
 			name[name_len] = 0;
 			GLuint location = glGetUniformLocation(shader_id, name);
-			ShaderUniform u(shader_id,std::string(name),type,location);
-			_uniforms.push_back(u);
+			//ShaderUniform u(shader_id,std::string(name),type,location);
+			//_uniforms.push_back(u);
+			ShaderUniform* u;
+			switch (type) {
+			case GL_INT : //or GL_UNSIGNED_INT ?
+				u = new ShaderUniformInt(shader_id,std::string(name),type,location);
+				_uniforms.push_back(u);
+				break;
+			case GL_FLOAT :
+				u = new ShaderUniformFloat(shader_id,std::string(name),type,location);
+				_uniforms.push_back(u);
+				break;
+			//GL_FLOAT_VEC2
+			case GL_FLOAT_VEC3 :
+				u = new ShaderUniformVec3(shader_id,std::string(name),type,location);
+				_uniforms.push_back(u);
+				break;
+			case GL_FLOAT_VEC4 :
+				u = new ShaderUniformVec4(shader_id,std::string(name),type,location);
+				_uniforms.push_back(u);
+				break;
+			//you don't get these for single precision shaders
+			//case ? :
+			//	u = new ShaderUniformDVec3(shader_id,std::string(name),type,location);
+			//	_uniforms.push_back(u);
+			//	break;
+			//case ? :
+			//	u = new ShaderUniformDVec4(shader_id,std::string(name),type,location);
+			//	_uniforms.push_back(u);
+			//	break;
+
+			//GL_FLOAT_MAT2
+			//GL_FLOAT_MAT3
+			case GL_FLOAT_MAT4:
+				u = new ShaderUniformMat4(shader_id,std::string(name),type,location);
+				_uniforms.push_back(u);
+				break;
+			//GL_SAMPLER_1D
+			//GL_SAMPLER_3D
+			case GL_SAMPLER_2D:
+				u = new ShaderUniformSampler2D(shader_id,std::string(name),type,location);
+				_uniforms.push_back(u);
+				break;
+			}
 		}
 
 	}
@@ -56,9 +108,9 @@ namespace gengine {
 		cout<<"Shader uniforms"<<endl;
 		cout<<"Index: Shader ID, Location, Name, Type Enum"<<endl;
 		int i=0;
-		for (vector<ShaderUniform>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
-			ShaderUniform u = *it;
-			cout<<i<<": "<<u._shaderID<<" "<<u._Location<<" "<<u._Name<<" "<<u._Type<<endl;
+		for (vector<ShaderUniform*>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
+			ShaderUniform* u = *it;
+			cout<<i<<": "<<u->_shaderID<<" "<<u->_Location<<" "<<u->_Name<<" "<<u->_Type<<endl;
 			++i;
 		}
 	}
@@ -69,12 +121,26 @@ namespace gengine {
 	int ShaderUniformCollection::FindLocationIndex(const std::string& Name)
 	{
 		// TODO: not exactly elegant, but there aren't going to be many uniforms and a hash is probably overkill?
-		for (vector<ShaderUniform>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
-			ShaderUniform u = *it;
-			if (u._Name==Name)
-				return u._Location;
+		for (vector<ShaderUniform*>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
+			ShaderUniform* u = *it;
+			if (u->_Name==Name)
+				return u->_Location;
 		}
 		return -1; //not found
+	}
+
+	/// <summary>
+	/// Return a strongly typed uniform with the given name which allows the user to set the value so that it is stored
+	/// </summary>
+	ShaderUniform& ShaderUniformCollection::GetUniform(const std::string& Name)
+	{
+		for (vector<ShaderUniform*>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it) {
+			ShaderUniform* u = *it;
+			if (u->_Name==Name)
+				return **it;
+		}
+		//return nullptr; //not found - from "return ShaderUniform*" code
+		return **_uniforms.end(); //this should cause an error if you try and set it
 	}
 
 	/// <summary>
@@ -157,6 +223,19 @@ namespace gengine {
 		else {
 			glm::vec4 fv(v); //cast it down to a float vector
 			glUniform4fv(Location, 1, &fv[0]);
+		}
+	}
+
+	/// <summary>
+	/// Bind all the uniforms to the shader using the currently stored values
+	/// </summary>
+	void ShaderUniformCollection::Bind(void)
+	{
+		for (vector<ShaderUniform*>::iterator it = _uniforms.begin(); it!=_uniforms.end(); ++it)
+		{
+			//(*it)->Bind();
+			ShaderUniform* u = (*it);
+			u->Bind();
 		}
 	}
 

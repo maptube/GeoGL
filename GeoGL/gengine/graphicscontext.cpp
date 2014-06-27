@@ -134,7 +134,9 @@ namespace gengine {
 		//glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, &camera->viewMatrix[0][0]); // Send our view matrix to the shader
 		//glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelMatrix[0][0]); // Send our model matrix to the shader
 
-		//bind automatic uniforms
+		//bind custom uniforms
+		obj._ShaderProgram->_shaderUniforms->Bind();
+		//bind automatic uniforms - todo: set these on the above to avoid doing it twice
 		obj._ShaderProgram->_shaderUniforms->SetMatrix4dv("projectionMatrix",sceneobj._camera->projectionMatrix); //was 4fv originally
 		obj._ShaderProgram->_shaderUniforms->SetMatrix4dv("viewMatrix",sceneobj._camera->viewMatrix); //was 4fv originally
 		obj._ShaderProgram->_shaderUniforms->SetMatrix4fv("modelMatrix",obj._ModelMatrix);

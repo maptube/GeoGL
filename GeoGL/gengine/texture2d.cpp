@@ -3,6 +3,9 @@
 #include "gengine.h"
 #include "gltexturetypes.h"
 
+//////////////////
+//You're going to have a problem with multitexturing as this only binds to texture 0!!!!
+
 namespace gengine {
 
 	Texture2D::Texture2D(const int Width, const int Height, const TextureTarget Target, const TexturePixelFormat PixelFormat)
