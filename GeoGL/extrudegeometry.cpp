@@ -33,6 +33,8 @@ void ExtrudeGeometry::AddShape(const PathShape& Shape)
 /// </summary>
 Mesh2* ExtrudeGeometry::ExtrudeMesh(float HeightMetres)
 {
+	glm::vec3 red(1.0,0.0,0.0);
+
 	Mesh2* mesh = new Mesh2();
 	Triangulator tri;
 	for (vector<PathShape>::iterator it = _shapes.begin(); it!=_shapes.end(); ++it)
@@ -51,15 +53,18 @@ Mesh2* ExtrudeGeometry::ExtrudeMesh(float HeightMetres)
 			//is this an epsilon check?
 			if (P0!=P1) //OK, so skipping the first point like this isn't great programming
 			{
-				glm::vec3 P2(P1.x,P1.y+100,P1.z), P3(P0.x,P0.y+100,P0.z);
-				//mesh->AddFace(P1,P0,P3);
-				//mesh->AddFace(P1,P3,P2);
+				glm::vec3 P2(P1.x,P1.y+HeightMetres,P1.z), P3(P0.x,P0.y+HeightMetres,P0.z);
+				mesh->AddFace(P1,P0,P3,red,red,red);
+				mesh->AddFace(P1,P3,P2,red,red,red);
 			}
 			P0=P1;
 		}
 		//TODO: add last to first here
 
+		//TODO: inner faces going the other way
+
 		//build top and triangulate
+		tri.Triangulate(*mesh);
 	}
 
 	return mesh;

@@ -290,5 +290,28 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 	delete cdt; //and finally free the triangulator object
 }
 
+//testing extrusion function
+void GeoJSON::ParseJSONPolygonExtrude(Mesh2& geom, const Json::Value& jsPolygon) {
+	ExtrudeGeometry egeom();
+	PathShape shape;
+	int count=0;
+	for (Json::Value::iterator ringIT=jsPolygon.begin(); ringIT!=jsPolygon.end(); ++ringIT) {
+		const Json::Value& jsRing = *ringIT;
+		LinearRing ring;
+		for (unsigned int p=0; p<=count; p++) {
+			const Json::Value& jsPointTuple = jsRing[p];
+			const Json::Value& px = jsPointTuple[(unsigned int)0];
+			const Json::Value& py = jsPointTuple[(unsigned int)1];
+			ring.push_back(glm::vec3(px,0,py));
+		}
+		if (count==0) shape.outer=ring;
+		else shape.inner.push_back(ring);
+		++count;
+	}
+	egeom.AddShape(shape);
+	Mesh2* mesh = egeom.ExtrudeGeometry(100);
+
+}
+
 
 

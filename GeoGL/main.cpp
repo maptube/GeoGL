@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
 	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
-	//GeoJSON* buildings = globe.LoadLayerGeoJSON(/*"data/TQ_Building_530000_180000_WGS84.geojson"*/"..\\data\\TQ_Building_530000_180000_WGS84.geojson");
-	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+	GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");
+	buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 
 	//London outline in WGS84
 	//GeoJSON* london = new GeoJSON();
@@ -359,10 +359,10 @@ int main(int argc, char *argv[])
 
 		//set viewpoint to first agent
 		//V_3_211 or V_3_202 or D_1_24 or D_1_42
-		std::vector<ABM::Agent*> a = tn->_agents.With("name","D_1_42");
+		//std::vector<ABM::Agent*> a = tn->_agents.With("name","D_1_42");
 		//globe.camera.LookAt(a[0]->GetXYZ());
-		glm::mat4 m = a[0]->_pAgentMesh->modelMatrix;
-		globe.camera.SetCameraMatrix(glm::dmat4(m));
+		//glm::mat4 m = a[0]->_pAgentMesh->modelMatrix;
+		//globe.camera.SetCameraMatrix(glm::dmat4(m));
 
 		//rendering
 		globe.RenderScene();
