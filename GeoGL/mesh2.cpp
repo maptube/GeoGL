@@ -70,9 +70,7 @@ Mesh2::Mesh2(void)
 	//faces.reserve(1024);
 
 	renderState = new RenderState();
-	textureUnits = new TextureUnits();
 	drawObject._rs=renderState; //TODO: find a more elegant way of doing this
-	drawObject._texUnits = textureUnits; //TODO: and this
 }
 
 /// <summary>
@@ -88,7 +86,6 @@ Mesh2::~Mesh2(void)
 
 	FreeBuffers();
 	delete renderState;
-	delete textureUnits;
 }
 
 //Pattern: add vertices, then add faces OR just add faces?
@@ -510,6 +507,14 @@ const gengine::DrawObject& Mesh2::GetDrawObject() {
 	//TODO: you could pass in a parent modelMatrix and do the pre-multiply here?
 	drawObject._ModelMatrix = this->modelMatrix;
 	return drawObject;
+}
+
+/// <summary>
+/// Attach a texture and assign its texture unit number
+/// <summary>
+void Mesh2::AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture) {
+	drawObject._textures[TextureUnitNum]=Texture;
+	cout<<"Num textures = "<<drawObject._textures.size()<<endl;
 }
 
 

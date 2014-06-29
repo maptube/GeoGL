@@ -25,6 +25,7 @@ namespace gengine {
 	class VertexBuffer;
 	class IndexBuffer;
 	class Shader;
+	class Texture2D;
 }
 
 struct VertexColour {
@@ -45,6 +46,7 @@ public:
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour);
 	void AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3, glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3);
+	void AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture);
 	void SetColour(glm::vec3 new_colour);
 	void ScaleVertices(double Sx,double Sy,double Sz);
 	void CreateBuffers();
@@ -66,8 +68,8 @@ protected:
 	//gengine::Shader* shader;
 	gengine::VertexData* vertexData; //collection of vertex and index buffers
 	gengine::RenderState* renderState;
-	gengine::TextureUnits* textureUnits; //collection of textures used for this object
-	gengine::DrawObject drawObject;
+	//gengine::TextureUnits* textureUnits; //collection of textures used for this object
+	gengine::DrawObject drawObject; //contains textures
 
 	std::vector<struct VertexColour> vertices;
 	std::vector<int> faces; //indexed into vertices

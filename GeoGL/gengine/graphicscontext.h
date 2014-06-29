@@ -28,14 +28,17 @@ namespace gengine {
 	//class VertexBuffer;
 	class VertexData;
 	class Shader;
+	class TextureUnits;
 
 	/// <summary>
 	/// A graphics context is something we can render to and includes a window
 	/// </summary>
 	class GraphicsContext : public events::EventListener
 	{
+	private:
+		TextureUnits* _TexUnits; //private copy of textures bound to device units
 	public:
-		GLFWwindow *window;
+		GLFWwindow* window;
 		FT_Library ft; //freetype text library
 		//buffer for texture
 		Shader* _FontShader;

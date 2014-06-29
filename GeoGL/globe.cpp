@@ -47,8 +47,8 @@ Globe::Globe(void)
 	ellipsoid = Ellipsoid(); //bit naughty, but the default is the WGS 84 definition
 
 	int WindowWidth=512,WindowHeight=512;
-	//GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight); //create graphics context that we can render to
-	GC = OGLDevice::CreateStereoWindow(); //create graphics context that we can render to IN 3d!!!
+	GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight); //create graphics context that we can render to
+	//GC = OGLDevice::CreateStereoWindow(); //create graphics context that we can render to IN 3d!!!
 
 	//initialise font rendering
 	_FontFace = GC->LoadFont(
@@ -108,7 +108,7 @@ Globe::Globe(void)
 	//texshader->_shaderUniforms->SetUniform1f("u_oneOverTwoPi",glm::one_over_pi<float>()/2.0f); //uniform float u_oneOverTwoPi;
 	(*uniforms)["u_oneOverTwoPi"]=glm::one_over_pi<float>()/2.0f;
 
-	sphere->GetDrawObject()._texUnits->Assign(0,texture); //you're not really supposed to be able to do this - draw object is a const?
+	sphere->AttachTexture(0,texture);
 	//TODO: texture is going to go out of scope and not be freed!!!
 	SceneGraph.push_back(sphere);
 

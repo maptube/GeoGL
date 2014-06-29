@@ -39,6 +39,8 @@
 #include "Agent.h"
 #include "LogoVariantOwns.h"
 
+#include <vector>
+
 //extern "C" {
 //#include "GLFW/glfw3.h"
 //GLFWAPI void glfwTerminate(void);
@@ -272,9 +274,9 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	//tn->Setup(); //who's responsible for this? globe or me?
-	//globe.AddLayerModel(tn);
+	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	tn->Setup(); //who's responsible for this? globe or me?
+	globe.AddLayerModel(tn);
 
 	//World in WGS84
 	//GeoJSON* geoj = new GeoJSON();
@@ -283,8 +285,8 @@ int main(int argc, char *argv[])
 	//GeoJSON* geoj = globe.LoadLayerGeoJSON("../data/TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
 	
 	//Thames in WGS84
-	//GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
-	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
+	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON(/*"data/TQ_Building_530000_180000_WGS84.geojson"*/"..\\data\\TQ_Building_530000_180000_WGS84.geojson");
@@ -337,7 +339,7 @@ int main(int argc, char *argv[])
 
 	globe.LookAt("LondonUnderground");
 	
-	long counter=10000;
+
 	while (globe.IsRunning()) {
 		double startTicks = glfwGetTime();
 
@@ -355,6 +357,13 @@ int main(int argc, char *argv[])
 		//model update
 		globe.Step();
 
+		//set viewpoint to first agent
+		//V_3_211 or V_3_202 or D_1_24 or D_1_42
+		std::vector<ABM::Agent*> a = tn->_agents.With("name","D_1_42");
+		//globe.camera.LookAt(a[0]->GetXYZ());
+		glm::mat4 m = a[0]->_pAgentMesh->modelMatrix;
+		globe.camera.SetCameraMatrix(glm::dmat4(m));
+
 		//rendering
 		globe.RenderScene();
 
@@ -362,8 +371,6 @@ int main(int argc, char *argv[])
 		double ticksNow = glfwGetTime();
 		double fps = 1/(ticksNow-startTicks);
 		globe._debugFPS=fps;
-		--counter;
-		if (counter<=0) return 0; //exit timer
 	}
 
 	return 0;

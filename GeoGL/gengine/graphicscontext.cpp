@@ -36,6 +36,9 @@ namespace gengine {
 	{
 		window=pWindow;
 
+		//initialise texture units
+		_TexUnits = new TextureUnits();
+
 		//initialise FreeType text rendering library
 		if(FT_Init_FreeType(&ft)) {
 			std::cerr<<"Could not initialise freetype library"<<std::endl;
@@ -57,6 +60,7 @@ namespace gengine {
 
 	GraphicsContext::~GraphicsContext(void)
 	{
+		delete _TexUnits;
 		delete _FontShader;
 		delete _FontVertexData;
 		glfwDestroyWindow(window);
@@ -143,7 +147,7 @@ namespace gengine {
 
 		//bind vertex arrays
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes);
-		if (obj._texUnits!=nullptr) obj._texUnits->Bind(); //bind any required textures
+		if (obj._textures.size()!=0) _TexUnits->Bind(obj._textures); //bind any required textures
 		//set device render state globals
 		OGLDevice::SetRenderState(*obj._rs);
 	
@@ -159,7 +163,8 @@ namespace gengine {
 		}
 
 		obj._vertexData->unbind(*obj._ShaderProgram->_shaderAttributes); //unbind vertex, colour and index buffers where used
-		if (obj._texUnits!=nullptr) obj._texUnits->Unbind(); //unbind textures
+		//don't unbind the textures, you might want to reuse them
+		//if (obj._textures.size()!=0) _TexUnits->Unbind(); //unbind textures
 
 		obj._ShaderProgram->unbind(); // Unbind our shader
 	}
@@ -184,7 +189,7 @@ namespace gengine {
 		glLoadMatrixd(&ModelViewMatrix[0][0]);
 
 		obj._vertexData->bind(*obj._ShaderProgram->_shaderAttributes); //DO YOU ACTUALLY NEED TO DO THIS?
-		if (obj._texUnits!=nullptr) obj._texUnits->Bind(); //bind any required textures
+		if (obj._textures.size()!=0) _TexUnits->Bind(obj._textures); //bind any required textures
 		//set device render state globals
 		OGLDevice::SetRenderState(*obj._rs);
 
@@ -197,7 +202,8 @@ namespace gengine {
 			//render using only a primitive type and vertex buffer e.g. tristrip or trifan
 			glDrawArrays(obj._PrimType,0,obj._vertexData->_NumElements);
 		}
-		if (obj._texUnits!=nullptr) obj._texUnits->Unbind(); //unbind textures
+		//don't unbind the textures, you might want to reuse them
+		//if (obj._textures.size()!=0) _TexUnits->Unbind(); //unbind textures
 	}
 
 	/// <summary>

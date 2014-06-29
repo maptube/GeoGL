@@ -4,7 +4,7 @@
 /* globe texture frag 4.11 */
 
 in vec3 worldPosition;
-out vec3 fragmentColor;
+out vec4 fragmentColor;
 
 uniform sampler2D u_texture0;
 uniform vec3 u_globeOneOverRadiiSquared;
@@ -28,5 +28,5 @@ void main()
 {
 	vec3 normal = GeodeticSurfaceNormal(worldPosition, u_globeOneOverRadiiSquared);
 	vec2 textureCoordinate = ComputeTextureCoordinates(normal);
-	fragmentColor = texture(u_texture0, textureCoordinate).rgb;
+	fragmentColor = vec4(texture(u_texture0, textureCoordinate).rgb,1.0);
 }

@@ -1,7 +1,9 @@
 #pragma once
 
+#include <map>
+
 #include "primitivetypes.h"
-#include "textureunits.h"
+//#include "textureunits.h"
 
 namespace gengine {
 
@@ -11,6 +13,7 @@ namespace gengine {
 	class VertexData;
 	//enum PrimitiveType : int;
 	//enum class PrimitiveType;
+	class Texture2D;
 
 	/// <summary>
 	/// We need to be able to return a null draw object for an Object3D which has no renderable geometry.
@@ -30,7 +33,8 @@ namespace gengine {
 		Shader* _ShaderProgram;
 		PrimitiveType _PrimType;
 		VertexData* _vertexData;
-		TextureUnits* _texUnits;
+		//TextureUnits* _texUnits;
+		std::map<unsigned int,Texture2D*> _textures; //mapping between texture unit number and texture
 		glm::mat4 _ModelMatrix;
 	};
 
