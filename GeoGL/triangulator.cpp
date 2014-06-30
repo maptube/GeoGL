@@ -19,15 +19,41 @@ using namespace std;
 Triangulator::Triangulator() {
 	//TODO: USE A SMART POINTER FOR THIS!
 	_cdt=nullptr;
+	_hasData=false;
 }
 
 Triangulator::~Triangulator() {
-	if (_cdt!=nullptr) delete _cdt;
+	FreeData();
 }
 
+/// <summary>
+/// Clear the data and free any previous temporary point stores. Reset the triangulator ready for the next time.
+/// </summary>
 void Triangulator::Clear(void) {
 	_Shape.outer.clear();
 	_Shape.inner.clear();
+	FreeData();
+}
+
+/// <summary>
+/// Private method to free any internal data being used. Called be Clear() and Destructor.
+/// </summary>
+void Triangulator::FreeData(void) {
+	if (_hasData) {
+		//clear existing data
+		if (_cdt!=nullptr) {
+			delete _cdt;
+			_cdt=nullptr;
+		}
+		//deallocate poly2tri linear rings
+		for (vector<vector<p2t::Point*>>::iterator ringsIT=_p2t_linearrings.begin(); ringsIT!=_p2t_linearrings.end(); ++ringsIT) {
+			vector<p2t::Point*> linearring = *ringsIT;
+			for (vector<p2t::Point*>::iterator ringIT=linearring.begin(); ringIT!=linearring.end(); ++ringIT) {
+				delete *ringIT; //free the point created earlier
+			}
+		}
+		_p2t_linearrings.clear();
+	}
 }
 
 void Triangulator::SetOuterRing(const LinearRing& Outer) {
@@ -43,6 +69,8 @@ void Triangulator::SetShape(const PathShape& Shape) {
 }
 
 void Triangulator::Triangulate() {
+	if (_hasData) FreeData(); //safety check in case Clear() wasn't called
+
 	//use Clipper to do the polygon cleaning: http://www.angusj.com/delphi/clipper.php
 	//use poly2tri to do the triangulation see: http://threejsdoc.appspot.com/doc/three.js/src.source/extras/core/Shape.js.html
 	ClipperLib::Clipper clipper;
@@ -96,7 +124,7 @@ void Triangulator::Triangulate() {
 	//OK, that's it for clipping, now move the points to the poly2tri structure for triangularisation
 
 	//put clipper points to poly2tri rings
-	vector<vector<p2t::Point*>> p2t_linearrings;
+	//vector<vector<p2t::Point*>> p2t_linearrings;
 	for (ClipperLib::Paths::iterator solIT=solution.begin(); solIT!=solution.end(); ++solIT) {
 		vector<p2t::Point*> p2t_linearring;
 		ClipperLib::Path solPath = *solIT;
@@ -107,15 +135,15 @@ void Triangulator::Triangulate() {
 			p2t_linearring.push_back(new p2t::Point(x,y)); //need to deallocate this - once code is finished...
 			//cout<<x<<","<<y<<endl;
 		}
-		p2t_linearrings.push_back(p2t_linearring);
+		_p2t_linearrings.push_back(p2t_linearring);
 	}
 
 	//sanity check rings.count>0 ?
 	//hack, passed clipper sanitised first outer ring instead
-	_cdt = new p2t::CDT(p2t_linearrings[0]); //start off with the outer boundary
+	_cdt = new p2t::CDT(_p2t_linearrings[0]); //start off with the outer boundary
 	//add holes, which get added on to the points array used to create the SweepContext
-	for (unsigned int i=1; i<p2t_linearrings.size(); i++) {
-		_cdt->AddHole(p2t_linearrings[i]);
+	for (unsigned int i=1; i<_p2t_linearrings.size(); i++) {
+		_cdt->AddHole(_p2t_linearrings[i]);
 	}
 
 	//cout<<"Num points"<<linearring.size()<<endl;
@@ -126,16 +154,16 @@ void Triangulator::Triangulate() {
 
 	}
 	catch (...) {
-		cout<<"poly2tri exception occurred"<<endl; //actually it tends to just crash rather than give throw an exception
+		cerr<<"poly2tri exception occurred"<<endl; //actually it tends to just crash rather than give throw an exception
 	} //probably a collinear error - can't do anything about that
 
 	//deallocate poly2tri linear rings
-	for (vector<vector<p2t::Point*>>::iterator ringsIT=p2t_linearrings.begin(); ringsIT!=p2t_linearrings.end(); ++ringsIT) {
-		vector<p2t::Point*> linearring = *ringsIT;
-		for (vector<p2t::Point*>::iterator ringIT=linearring.begin(); ringIT!=linearring.end(); ++ringIT) {
-			delete *ringIT; //free the point created earlier
-		}
-	}
+	//for (vector<vector<p2t::Point*>>::iterator ringsIT=p2t_linearrings.begin(); ringsIT!=p2t_linearrings.end(); ++ringsIT) {
+	//	vector<p2t::Point*> linearring = *ringsIT;
+	//	for (vector<p2t::Point*>::iterator ringIT=linearring.begin(); ringIT!=linearring.end(); ++ringIT) {
+	//		delete *ringIT; //free the point created earlier
+	//	}
+	//}
 
 	//NO!!!!!
 	//delete cdt; //and finally free the triangulator object

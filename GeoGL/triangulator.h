@@ -11,6 +11,11 @@ class Mesh2;
 class Triangulator {
 protected:
 	PathShape _Shape;
+private:
+	//storage for points used by triangulator
+	std::vector<std::vector<p2t::Point*>> _p2t_linearrings;
+	bool _hasData; //used to determine whether data needs to be deleted before a new triangulation is performed
+	void FreeData(void);
 public:
 	Triangulator();
 	~Triangulator();
