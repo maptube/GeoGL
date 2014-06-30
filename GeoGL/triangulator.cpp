@@ -17,12 +17,12 @@
 using namespace std;
 
 Triangulator::Triangulator() {
-	// TODO Auto-generated constructor stub
-
+	//TODO: USE A SMART POINTER FOR THIS!
+	_cdt=nullptr;
 }
 
 Triangulator::~Triangulator() {
-	// TODO Auto-generated destructor stub
+	if (_cdt!=nullptr) delete _cdt;
 }
 
 void Triangulator::Clear(void) {
@@ -42,7 +42,7 @@ void Triangulator::SetShape(const PathShape& Shape) {
 	_Shape=Shape;
 }
 
-void Triangulator::Triangulate(Mesh2& geom) {
+void Triangulator::Triangulate() {
 	//use Clipper to do the polygon cleaning: http://www.angusj.com/delphi/clipper.php
 	//use poly2tri to do the triangulation see: http://threejsdoc.appspot.com/doc/three.js/src.source/extras/core/Shape.js.html
 	ClipperLib::Clipper clipper;
@@ -87,7 +87,7 @@ void Triangulator::Triangulate(Mesh2& geom) {
 	//add outer ring
 	clipper.AddPath(linearrings[0],ClipperLib::ptSubject,true);
 	//add inner holes
-	for (unsigned int i=0; i<linearrings.size(); i++) {
+	for (unsigned int i=1; i<linearrings.size(); i++) {
 		clipper.AddPath(linearrings[i],ClipperLib::ptClip,true);
 	}
 	ClipperLib::Paths solution;
@@ -112,44 +112,18 @@ void Triangulator::Triangulate(Mesh2& geom) {
 
 	//sanity check rings.count>0 ?
 	//hack, passed clipper sanitised first outer ring instead
-	p2t::CDT* cdt = new p2t::CDT(p2t_linearrings[0]); //start off with the outer boundary
+	_cdt = new p2t::CDT(p2t_linearrings[0]); //start off with the outer boundary
 	//add holes, which get added on to the points array used to create the SweepContext
 	for (unsigned int i=1; i<p2t_linearrings.size(); i++) {
-		cdt->AddHole(p2t_linearrings[i]);
+		_cdt->AddHole(p2t_linearrings[i]);
 	}
 
 	//cout<<"Num points"<<linearring.size()<<endl;
 
 	try {
-		cdt->Triangulate(); //throws a collinear error for degenerates
+		_cdt->Triangulate(); //throws a collinear error for degenerates
 		//now get the data out as a mesh
-		vector<p2t::Triangle*> triangles = cdt->GetTriangles();
 
-		//TODO: can you optimise this?
-
-		//NO! mesh is already nicely triangulated, so don't need to use the unique test for points
-		//push all the points onto the mesh points vector
-		glm::vec3 Col(1.0,0.0,0.0); //red
-		//p2t::Point points[] = swctx.GetPoints();
-		//for (size_t i=0; i<swctx.point_count; i++) {
-		//	glm::vec3 P(points[i].x,points[i].y,0);
-		//	AddVertex(P,Col);
-		//}
-		//now go through all the triangles and make the faces
-
-		//can't get index from tri, so going to build face using points
-		for (vector<p2t::Triangle*>::iterator trIT = triangles.begin(); trIT!=triangles.end(); ++trIT ) {
-			p2t::Point* v1 = (*trIT)->GetPoint(0);
-			p2t::Point* v2 = (*trIT)->GetPoint(1);
-			p2t::Point* v3 = (*trIT)->GetPoint(2);
-			//glm::vec3 P1 = _pellipsoid->toVector(glm::radians(v1->x),glm::radians(v1->y)); //don't forget to convert to radians for the ellipse!
-			//glm::vec3 P2 = _pellipsoid->toVector(glm::radians(v2->x),glm::radians(v2->y));
-			//glm::vec3 P3 = _pellipsoid->toVector(glm::radians(v3->x),glm::radians(v3->y));
-			glm::vec3 P1(v1->x,v1->y,0);
-			glm::vec3 P2(v2->x,v2->y,0);
-			glm::vec3 P3(v3->x,v3->y,0);
-			geom.AddFace(P1,P2,P3,Col,Col,Col); //uses x-order uniqueness of point, so not best efficiency
-		}
 	}
 	catch (...) {
 		cout<<"poly2tri exception occurred"<<endl; //actually it tends to just crash rather than give throw an exception
@@ -163,6 +137,39 @@ void Triangulator::Triangulate(Mesh2& geom) {
 		}
 	}
 
-	delete cdt; //and finally free the triangulator object
+	//NO!!!!!
+	//delete cdt; //and finally free the triangulator object
+}
+
+//example of how to gat the data out
+void Triangulator::debugWriteTriangles() {
+	vector<p2t::Triangle*> triangles = _cdt->GetTriangles();
+	
+	//TODO: can you optimise this?
+	
+	//NO! mesh is already nicely triangulated, so don't need to use the unique test for points
+	//push all the points onto the mesh points vector
+	glm::vec3 Col(1.0,0.0,0.0); //red
+	//p2t::Point points[] = swctx.GetPoints();
+	//for (size_t i=0; i<swctx.point_count; i++) {
+	//	glm::vec3 P(points[i].x,points[i].y,0);
+	//	AddVertex(P,Col);
+	//}
+	//now go through all the triangles and make the faces
+	
+	//can't get index from tri, so going to build face using points
+	for (vector<p2t::Triangle*>::iterator trIT = triangles.begin(); trIT!=triangles.end(); ++trIT ) {
+		p2t::Point* v1 = (*trIT)->GetPoint(0);
+		p2t::Point* v2 = (*trIT)->GetPoint(1);
+		p2t::Point* v3 = (*trIT)->GetPoint(2);
+		//glm::vec3 P1 = _pellipsoid->toVector(glm::radians(v1->x),glm::radians(v1->y)); //don't forget to convert to radians for the ellipse!
+		//glm::vec3 P2 = _pellipsoid->toVector(glm::radians(v2->x),glm::radians(v2->y));
+		//glm::vec3 P3 = _pellipsoid->toVector(glm::radians(v3->x),glm::radians(v3->y));
+		glm::vec3 P1(v1->x,v1->y,0);
+		glm::vec3 P2(v2->x,v2->y,0);
+		glm::vec3 P3(v3->x,v3->y,0);
+		//geom.AddFace(P1,P2,P3,Col,Col,Col); //uses x-order uniqueness of point, so not best efficiency
+		//write something out here?
+	}
 }
 

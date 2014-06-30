@@ -207,6 +207,7 @@
     <ClInclude Include="gengine\shaderattributecollection.h" />
     <ClInclude Include="gengine\shaderuniform.h" />
     <ClInclude Include="gengine\shaderuniformcollection.h" />
+    <ClInclude Include="pathshapes.h" />
     <ClInclude Include="pyramid4.h" />
     <ClInclude Include="sierpinskipyramid.h" />
     <ClInclude Include="sphere.h" />

@@ -11,6 +11,8 @@
 
 #include "mesh2.h"
 #include "ellipsoid.h"
+#include "extrudegeometry.h"
+#include "pathshapes.h"
 
 #include "poly2tri.h"
 #include "clipper/clipper.hpp"
@@ -147,7 +149,9 @@ Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 	else if (strType=="Polygon") {
 		//cout<<"Polygon"<<endl;
 		const Json::Value& jsCoordinates = jsGeometry["coordinates"];
-		ParseJSONPolygon(*geom,jsCoordinates);
+		//ParseJSONPolygon(*geom,jsCoordinates);
+//hack!
+		ParseJSONPolygonExtrude(*geom,jsCoordinates);
 	}
 	else if (strType=="MultiPoint") {
 		//cout<<"MultiPoint"<<endl;
@@ -179,6 +183,8 @@ Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 /// <param name="geom">The mesh that this polygon is to be added to (could be part of a multi set)</param>
 /// <param name="jsPolygon">The javascript geojson data describing the points</param>
 void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
+
+	//TODO: this should use the trianglator now
 	
 	//use Clipper to do the polygon cleaning: http://www.angusj.com/delphi/clipper.php
 	//use poly2tri to do the triangulation see: http://threejsdoc.appspot.com/doc/three.js/src.source/extras/core/Shape.js.html
@@ -292,26 +298,23 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 
 //testing extrusion function
 void GeoJSON::ParseJSONPolygonExtrude(Mesh2& geom, const Json::Value& jsPolygon) {
-	ExtrudeGeometry egeom();
+	ExtrudeGeometry egeom;
 	PathShape shape;
 	int count=0;
 	for (Json::Value::iterator ringIT=jsPolygon.begin(); ringIT!=jsPolygon.end(); ++ringIT) {
 		const Json::Value& jsRing = *ringIT;
 		LinearRing ring;
-		for (unsigned int p=0; p<=count; p++) {
+		int pcount=jsRing.size();
+		for (unsigned int p=0; p<pcount; p++) {
 			const Json::Value& jsPointTuple = jsRing[p];
 			const Json::Value& px = jsPointTuple[(unsigned int)0];
 			const Json::Value& py = jsPointTuple[(unsigned int)1];
-			ring.push_back(glm::vec3(px,0,py));
+			ring.push_back(glm::vec3((float)px.asDouble(),(float)py.asDouble(),0)); //note shape uses (x,y) on zero z plane for clipping and triangulation
 		}
 		if (count==0) shape.outer=ring;
 		else shape.inner.push_back(ring);
 		++count;
 	}
 	egeom.AddShape(shape);
-	Mesh2* mesh = egeom.ExtrudeGeometry(100);
-
+	egeom.ExtrudeMesh(geom,*_pellipsoid,100); //extrude shape (XY plane) into geom on the specified ellipsoid
 }
-
-
-

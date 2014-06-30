@@ -16,6 +16,7 @@
 #include "ellipsoid.h"
 //#include "opengl4.h"
 #include "gengine/Camera.h"
+#include "gengine/events/EventManager.h"
 #include "BBox.h"
 
 //forward declarations
@@ -45,7 +46,7 @@ typedef std::vector<Object3D*> SceneGraphType;
 /// <summary>
 /// Virtual Globe class which wraps up all the functions required to render the globe and draw the data on the window
 /// </summary>
-class Globe //: public EventListener
+class Globe : public gengine::events::EventListener
 {
 private:
 	Ellipsoid ellipsoid;
@@ -71,6 +72,8 @@ private:
 
 	void DestroyScene(void);
 	void RenderChildren(Object3D* Parent, double nearClip, double farClip);
+protected:
+	virtual void WindowSizeCallback(GLFWwindow *window, int w, int h);
 public:
 	gengine::Camera camera;
 	Cuboid* debugCube1;

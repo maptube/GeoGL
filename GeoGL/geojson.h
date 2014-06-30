@@ -25,6 +25,7 @@ public:
 	void LoadFile(std::string Filename);
 	Mesh2* ParseJSONGeometry(const Json::Value& jsGeometry);
 	void ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon);
+	void ParseJSONPolygonExtrude(Mesh2& geom, const Json::Value& jsPolygon);
 	void SetColour(glm::vec3 new_colour);
 private:
 	Ellipsoid* _pellipsoid;

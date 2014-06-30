@@ -41,7 +41,7 @@ using namespace gengine;
 using namespace gengine::events;
 
 Globe::Globe(void)
-{
+{	
 	_debugFPS=0;
 
 	ellipsoid = Ellipsoid(); //bit naughty, but the default is the WGS 84 definition
@@ -141,7 +141,7 @@ Globe::Globe(void)
 	//set up events manager - should this be in the GC code?
 	EventManager& eventmanager = EventManager::getInstance(); //singleton pattern
 	eventmanager.SetWindow(GC->window); //initialise event system with OpenGL window handle
-	//eventmanager.AddWindowSizeEventListener(this);
+	eventmanager.AddWindowSizeEventListener(this);
 
 	//set up camera controller
 	//controller = new OrbitController(&camera);
@@ -157,6 +157,10 @@ Globe::Globe(void)
 
 Globe::~Globe(void)
 {
+	//remove event handler
+	EventManager& em=EventManager::getInstance();
+	em.RemoveWindowSizeEventListener(this);
+
 	//destroy opengl context
 	//TODO: I really hope this destroys all the buffers..... ??????
 	//openglContext.destroyContextGLFW();
@@ -174,6 +178,15 @@ Globe::~Globe(void)
 
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();
+}
+
+/// <summary>
+/// Window resize handler callback, reset the aspect ratio for the projection matrix so the world stays round
+/// </summary>
+void Globe::WindowSizeCallback(GLFWwindow *window, int w, int h)
+{
+	//cout<<"Window resize"<<endl;
+	camera.SetupPerspective(w, h, 1000.0f, 27000000.0f); //near and far don't really matter with the multi-frustum rendering
 }
 
 /// <summary>

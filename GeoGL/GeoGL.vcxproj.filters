@@ -254,6 +254,9 @@
     <ClInclude Include="gengine\image\image2d.h">
       <Filter>Header Files\gengine\image</Filter>
     </ClInclude>
+    <ClInclude Include="pathshapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -274,9 +274,9 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	tn->Setup(); //who's responsible for this? globe or me?
-	globe.AddLayerModel(tn);
+	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	//tn->Setup(); //who's responsible for this? globe or me?
+	//globe.AddLayerModel(tn);
 
 	//World in WGS84
 	//GeoJSON* geoj = new GeoJSON();
@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
 	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
-	GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");
-	buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");
+	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 
 	//London outline in WGS84
 	//GeoJSON* london = new GeoJSON();

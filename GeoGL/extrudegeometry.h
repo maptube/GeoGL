@@ -5,6 +5,8 @@
 #include "pathshapes.h"
 #include "mesh2.h"
 
+//forward references
+class Ellipsoid;
 
 //extrude geometry is a factory for mesh geometry
 class ExtrudeGeometry
@@ -21,6 +23,6 @@ public:
 	//create mesh or extrude method - takes spheroid and height to extrude by
 
 	void AddShape(const PathShape& Shape);
-	Mesh2* ExtrudeMesh(float HeightMetres);
+	void ExtrudeMesh(Mesh2& geom, Ellipsoid& e, float HeightMetres);
 };
 
