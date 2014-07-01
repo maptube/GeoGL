@@ -133,7 +133,7 @@ void fakeLondon(Globe& globe) {
 	Ellipsoid e; //bit naughty, shouldn't globe do the coord conversion
 	Cylinder* eye = new Cylinder(10,100,20);
 	glm::translate(eye->modelMatrix,glm::vec3(0,100,0)); //move it up so the base is on the ground
-	glm::vec3 eye_pos = e.toVector(-0.119752*3.141592654/180.0,51.503313*3.141592654/180.0);
+	glm::vec3 eye_pos = e.toVector(-0.119752*3.141592654/180.0,51.503313*3.141592654/180.0,0);
 	eye->Rotate(90.0*3.141592654/180.0,glm::vec3(0,1,0)); //tip it on its end
 	eye->Rotate(-85*3.141592654/180.0,glm::vec3(1,0,0)); //angle to river
 	eye->Rotate(-51.503313*3.141592654/180,glm::vec3(0,0,1)); //azimuthal rotation
@@ -144,7 +144,7 @@ void fakeLondon(Globe& globe) {
 	Pyramid4* shard = new Pyramid4(100,306,100);
 	shard->Rotate(90*3.141592654/180,glm::vec3(1,0,0)); //rotate it so it's pointing up
 	glm::translate(shard->modelMatrix,glm::vec3(0,100,0)); //move it up so the base is on the ground
-	glm::vec3 shard_pos = e.toVector(-0.086598*3.141592654/180.0,51.504358*3.141592654/180.0);
+	glm::vec3 shard_pos = e.toVector(-0.086598*3.141592654/180.0,51.504358*3.141592654/180.0,0);
 	shard->Rotate(-51.504358*3.141592654/180,glm::vec3(0,0,1)); //azimuthal rotation
 	shard->SetPos(shard_pos.x,shard_pos.y,shard_pos.z);
 	shard->AttachShader(globe.GetShader(0),true); //presumably shader 0 is the right one?
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 	
 	//Thames in WGS84
 	GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
-	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");

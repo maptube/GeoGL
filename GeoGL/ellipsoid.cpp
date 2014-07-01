@@ -42,8 +42,9 @@ Ellipsoid::~Ellipsoid(void)
 /// </summary>
 /// <param name="lon">Geodetic longitude in radians</param>
 /// <param name="lat">Geodetic latitude in radians</param>
+/// <param name="geodeticHeight">Above ellipsoid in metres</param>
 /// <returns>Cartesian position on the spheriod in metres</returns>
-glm::vec3 Ellipsoid::toVector(double lon, double lat)
+glm::vec3 Ellipsoid::toVector(double lon, double lat, double geodeticHeight)
 {
 	//work out normal position on surface of unit sphere using Euler formula and lat/lon
 	//The latitude in this case is a geodetic latitude, so it's defined as the angle between the equatorial plane and the surface normal.
@@ -64,6 +65,7 @@ glm::vec3 Ellipsoid::toVector(double lon, double lat)
 	glm::vec3 rSurface(k.x/gamma,k.y/gamma,k.z/gamma);
 
 	//NOTE: you do rSurface = rSurface + (geodetic.height * n) to add the height on if you need it
+	rSurface= rSurface + glm::vec3(geodeticHeight*n.x,geodeticHeight*n.y,geodeticHeight*n.z);
 
 	return rSurface;
 }

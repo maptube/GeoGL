@@ -39,6 +39,7 @@ void ExtrudeGeometry::AddShape(const PathShape& Shape)
 void ExtrudeGeometry::ExtrudeMesh(Mesh2& geom, Ellipsoid& e, float HeightMetres)
 {
 	glm::vec3 red(1.0,0.0,0.0);
+	glm::vec3 green(0.0,1.0,0.0);
 
 	Triangulator tri;
 	for (vector<PathShape>::iterator it = _shapes.begin(); it!=_shapes.end(); ++it)
@@ -51,24 +52,27 @@ void ExtrudeGeometry::ExtrudeMesh(Mesh2& geom, Ellipsoid& e, float HeightMetres)
 		//This is done by walking the outer and inner rings, checking for duplicate points
 		//as you go and building the facade. First point might be the same as the last, so
 		//we have to check for this.
-		//glm::vec3 P0 = shape.outer.front();
-		//for (vector<glm::vec3>::iterator it = shape.outer.begin(); it!=shape.outer.end(); ++it) {
-		//	glm::vec3 P1 = *it;
-		//	//is this an epsilon check?
-		//	if (P0!=P1) //OK, so skipping the first point like this isn't great programming
-		//	{
-		//		glm::vec3 P2(P1.x,P1.y+HeightMetres,P1.z), P3(P0.x,P0.y+HeightMetres,P0.z);
-		//		geom.AddFace(P1,P0,P3,red,red,red);
-		//		geom.AddFace(P1,P3,P2,red,red,red);
-		//	}
-		//	P0=P1;
-		//}
+		glm::vec3 SP0=shape.outer.front(); //need to keep the spherical lat/lon coords and the cartesian coords
+		glm::vec3 P0 = e.toVector(glm::radians(SP0.x),glm::radians(SP0.y),0);
+		for (vector<glm::vec3>::iterator it = shape.outer.begin(); it!=shape.outer.end(); ++it) {
+			glm::vec3 SP1=*it;
+			glm::vec3 P1 = e.toVector(glm::radians(SP1.x),glm::radians(SP1.y),0);
+			//is this an epsilon check?
+			if (P0!=P1) //OK, so skipping the first point like this isn't great programming
+			{
+				glm::vec3 P2 = e.toVector(glm::radians(SP1.x),glm::radians(SP1.y),HeightMetres);
+				glm::vec3 P3 = e.toVector(glm::radians(SP0.x),glm::radians(SP0.y),HeightMetres);
+				geom.AddFace(P1,P0,P3,green,green,green);
+				geom.AddFace(P1,P3,P2,green,green,green);
+			}
+			SP0=SP1;
+			P0=P1;
+		}
 		//TODO: add last to first here
 
 		//TODO: inner faces going the other way
 
-		//build top and triangulate
-		//this is no good, you need to lift the shape
+		//build top and triangulate (2D), lifting the shape when converting onto the ellipsoid
 		tri.Triangulate(); //triangulate data from tri.SetShape() into geom
 		//now read the triangles back
 		glm::vec3 Col(1.0,0.0,0.0); //red
@@ -81,9 +85,9 @@ void ExtrudeGeometry::ExtrudeMesh(Mesh2& geom, Ellipsoid& e, float HeightMetres)
 			p2t::Point* v2 = (*trIT)->GetPoint(1);
 			p2t::Point* v3 = (*trIT)->GetPoint(2);
 			//todo: the height goes in here!
-			glm::vec3 P1 = e.toVector(glm::radians(v1->x),glm::radians(v1->y)); //don't forget to convert to radians for the ellipse!
-			glm::vec3 P2 = e.toVector(glm::radians(v2->x),glm::radians(v2->y));
-			glm::vec3 P3 = e.toVector(glm::radians(v3->x),glm::radians(v3->y));
+			glm::vec3 P1 = e.toVector(glm::radians(v1->x),glm::radians(v1->y),HeightMetres); //don't forget to convert to radians for the ellipse!
+			glm::vec3 P2 = e.toVector(glm::radians(v2->x),glm::radians(v2->y),HeightMetres);
+			glm::vec3 P3 = e.toVector(glm::radians(v3->x),glm::radians(v3->y),HeightMetres);
 			geom.AddFace(P1,P2,P3,Col,Col,Col); //uses x-order uniqueness of point, so not best efficiency
 		}
 

@@ -165,7 +165,7 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 				//TubeStationWGS84 pos = {lon,lat};
 				GraphNameXYZ pos;
 				//pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0; 
-				pos.Name=code1; pos.P=_pEllipsoid->toVector(glm::radians(lon),glm::radians(lat));
+				pos.Name=code1; pos.P=_pEllipsoid->toVector(glm::radians(lon),glm::radians(lat),0);
 				tube_stations->insert(make_pair/*<string,struct GraphNameXYZ>*/(code1,pos));
 				
 				//and create the node agent
