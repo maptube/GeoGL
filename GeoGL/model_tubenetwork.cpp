@@ -1058,13 +1058,18 @@ void ModelTubeNetwork::RecalculateWaypoint(const tube_anim_record& anim_rec, ABM
 //display statistics to console
 void ModelTubeNetwork::DisplayStatistics()
 {
+	std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+	size_t DriverCount = drivers.size(); //this is the real number of agents, not _agents.NumAgents
+
 	cout<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<",";
-	cout<<"S,"<<_agents.NumAgents<<",B,"<<_agents.Birth<<",D,"<<_agents.Death;
+	cout<<"S,"<<DriverCount<<",B,"<<_agents.Birth<<",D,"<<_agents.Death;
 	std::string lines[]={"B","C","D","H","J","M","N","P","V","W"};
 	size_t all_at=0;
 	size_t all_vdeltaplus=0;
 	size_t all_vdeltaminus=0;
 	size_t all_vzero=0;
+	float all_vsum=0;
+	float all_vmean=0;
 	for (int i=0; i<10; ++i)
 	{
 		std::string L = lines[i];
@@ -1076,6 +1081,8 @@ void ModelTubeNetwork::DisplayStatistics()
 		size_t vdeltaplus=0;
 		size_t vdeltaminus=0;
 		size_t vzero=0;
+		float vsum=0;
+		float vmean=0;
 		for (vector<ABM::Agent*>::iterator it = agents.begin(); it!=agents.end(); ++it) {
 			ABM::Agent* A = (*it);
 			++count;
@@ -1084,6 +1091,8 @@ void ModelTubeNetwork::DisplayStatistics()
 			ABM::Agent* toNode=A->Get<ABM::Agent*>("toNode");
 			ABM::Agent* fromNode=A->Get<ABM::Agent*>("fromNode");
 			float avelocity = A->Get<float>("v");
+			vsum+=avelocity; //sum velocity to get mean (later)
+			all_vsum+=avelocity;
 			double dist = A->Distance(*toNode);
 			if (dist<50) { ++at; ++all_at; } //put 50 metre geofence around station for "AT" statistic
 			if (abs(avelocity)<10) { ++vzero; ++all_vzero; } //count zero velocity tubes 
@@ -1101,11 +1110,13 @@ void ModelTubeNetwork::DisplayStatistics()
 				}
 
 			}
+			vmean=vsum/(float)count;
 		}
-		cout<<","<<L<<"S,"<<count<<","<<L<<"1,"<<one<<","<<L<<"0,"<<zero<<","<<L<<"at,"<<at<<","<<L<<"mvel,"<<vdeltaminus<<","<<L<<"pvel,"<<vdeltaplus<<","<<L<<"zerovel,"<<vzero;
+		all_vmean = all_vsum/(float)DriverCount;
+		cout<<","<<L<<"S,"<<count<<","<<L<<"1,"<<one<<","<<L<<"0,"<<zero<<","<<L<<"at,"<<at<<","<<L<<"mvel,"<<vdeltaminus<<","<<L<<"pvel,"<<vdeltaplus<<","<<L<<"zerovel,"<<vzero<<","<<L<<"vsum,"<<vsum<<","<<L<<"vmean,"<<vmean;
 	}
 	//accumulated counts of all tubes at station, minus and plus velocities and zero velocity count
-	cout<<",all_at,"<<all_at<<",all_mvel,"<<all_vdeltaminus<<",all_pvel,"<<all_vdeltaplus<<",all_zerovel,"<<all_vzero;
+	cout<<",all_at,"<<all_at<<",all_mvel,"<<all_vdeltaminus<<",all_pvel,"<<all_vdeltaplus<<",all_zerovel,"<<all_vzero<<",all_vsum,"<<all_vsum<<",all_vmean,"<<all_vmean;
 	cout<<endl;
 	//ideally I want to do an "agents.with" and include a complex expression containing the line code as well (multiple args or functor?)
 	//size_t oneV = _agents.With("direction",1);
