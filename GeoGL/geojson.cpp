@@ -103,7 +103,7 @@ void GeoJSON::LoadFile(std::string Filename)
 		//cout<<"Feature "<<feature_count<<endl;
 		++feature_count;
 		//HACK!!!!
-		if (feature_count>80) break; //ONLY DO THE FIRST 10 FEATURES
+		//if (feature_count>10) break; //ONLY DO THE FIRST 10 FEATURES
 
 		//note the const & types for much better json performance
 		std::string strType = (*it)["type"].asString();
@@ -312,7 +312,7 @@ void GeoJSON::ParseJSONPolygonExtrude(Mesh2& geom, const Json::Value& jsPolygon)
 			const Json::Value& jsPointTuple = jsRing[p];
 			const Json::Value& px = jsPointTuple[(unsigned int)0];
 			const Json::Value& py = jsPointTuple[(unsigned int)1];
-			ring.push_back(glm::vec3((float)px.asDouble(),(float)py.asDouble(),0)); //note shape uses (x,y) on zero z plane for clipping and triangulation
+			ring.push_back(glm::dvec3(px.asDouble(),py.asDouble(),0)); //note shape uses (x,y) on zero z plane for clipping and triangulation
 		}
 		if (count==0) shape.outer=ring;
 		else shape.inner.push_back(ring);

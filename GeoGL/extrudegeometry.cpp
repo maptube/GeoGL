@@ -38,10 +38,10 @@ void ExtrudeGeometry::ExtrudeSidesFromRing(Mesh2& geom,Ellipsoid& e,bool isClock
 {
 	glm::vec3 green(0.0,1.0,0.0);
 
-	glm::vec3 SP0=ring.front(); //need to keep the spherical lat/lon coords and the cartesian coords
+	glm::dvec3 SP0=ring.front(); //need to keep the spherical lat/lon coords and the cartesian coords
 	glm::vec3 P0 = e.toVector(glm::radians(SP0.x),glm::radians(SP0.y),0);
-	for (vector<glm::vec3>::const_iterator it = ring.begin(); it!=ring.end(); ++it) {
-		glm::vec3 SP1=*it;
+	for (vector<glm::dvec3>::const_iterator it = ring.begin(); it!=ring.end(); ++it) {
+		glm::dvec3 SP1=*it;
 		glm::vec3 P1 = e.toVector(glm::radians(SP1.x),glm::radians(SP1.y),0);
 		//is this an epsilon check?
 		if (P0!=P1) //OK, so skipping the first point like this isn't great programming

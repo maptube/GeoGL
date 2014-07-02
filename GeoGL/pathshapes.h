@@ -4,7 +4,7 @@
 #include <vector>
 
 //definition of rings and anything else used for geographic objects
-typedef std::vector<glm::vec3> LinearRing;
+typedef std::vector<glm::dvec3> LinearRing;
 
 struct PathShape {
 	LinearRing outer;

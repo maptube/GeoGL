@@ -79,7 +79,7 @@ void Triangulator::Triangulate() {
 	ClipperLib::Path outerring;
 	unsigned int count=_Shape.outer.size();
 	for (unsigned int p=0; p<count; p++) { //leave off last point as it's a duplicate TODO: need to check for this
-		glm::vec3 P = _Shape.outer[p];
+		glm::dvec3 P = _Shape.outer[p];
 		double x = (double)P.x;
 		double y = (double)P.y;
 		int xi = (int)(x*10000000);
@@ -97,7 +97,7 @@ void Triangulator::Triangulate() {
 		ClipperLib::Path linearring; //it's a vector of clipper int points
 		unsigned int count=ring.size();
 		for (unsigned int p=0; p<count; p++) { //leave off last point as it's a duplicate TODO: need to check for this
-			glm::vec3 P = ring[p];
+			glm::dvec3 P = ring[p];
 			double x = (double)P.x;
 			double y = (double)P.y;
 			int xi = (int)(x*10000000);
