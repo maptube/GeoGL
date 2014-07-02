@@ -11,6 +11,8 @@ class Ellipsoid;
 //extrude geometry is a factory for mesh geometry
 class ExtrudeGeometry
 {
+private:
+	void ExtrudeSidesFromRing(Mesh2& geom,Ellipsoid& e,bool isClockwise,const LinearRing& ring,float HeightMetres);
 public:
 	std::vector<PathShape> _shapes;
 

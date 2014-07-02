@@ -103,7 +103,7 @@ void GeoJSON::LoadFile(std::string Filename)
 		//cout<<"Feature "<<feature_count<<endl;
 		++feature_count;
 		//HACK!!!!
-		//if (feature_count>10) break; //ONLY DO THE FIRST 10 FEATURES
+		if (feature_count>80) break; //ONLY DO THE FIRST 10 FEATURES
 
 		//note the const & types for much better json performance
 		std::string strType = (*it)["type"].asString();
@@ -165,7 +165,10 @@ Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 		const Json::Value& jsCoordinates = jsGeometry["coordinates"];
 		for (Json::Value::iterator it = jsCoordinates.begin(); it!=jsCoordinates.end(); ++it) {
 			//const Json::Value& poly = *it;
-			ParseJSONPolygon(*geom,*it);
+			
+//			ParseJSONPolygon(*geom,*it);
+//hack!
+			ParseJSONPolygonExtrude(*geom,*it);
 		}
 	}
 

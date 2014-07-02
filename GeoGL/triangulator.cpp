@@ -93,7 +93,7 @@ void Triangulator::Triangulate() {
 	int ring_i=1;
 	for (vector<LinearRing>::iterator ringIT=_Shape.inner.begin(); ringIT!=_Shape.inner.end(); ++ringIT) {
 		const LinearRing& ring = *ringIT;
-		//cout<<"Ring "<<ring_i<<" size="<<ring.size()<<endl;
+		cout<<"Ring "<<ring_i<<" size="<<ring.size()<<endl;
 		ClipperLib::Path linearring; //it's a vector of clipper int points
 		unsigned int count=ring.size();
 		for (unsigned int p=0; p<count; p++) { //leave off last point as it's a duplicate TODO: need to check for this
@@ -146,7 +146,7 @@ void Triangulator::Triangulate() {
 		_cdt->AddHole(_p2t_linearrings[i]);
 	}
 
-	//cout<<"Num points"<<linearring.size()<<endl;
+	//cout<<"Num points"<<_p2t_linearrings.size()<<endl;
 
 	try {
 		_cdt->Triangulate(); //throws a collinear error for degenerates
