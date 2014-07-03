@@ -411,7 +411,7 @@ void GeoJSON::ExtrudeMesh(Ellipsoid& e,double HeightMetres) {
 	
 	//this is a hack for generating random sized buildings
 	std::default_random_engine generator;
-	std::uniform_int_distribution<double> distribution(0,150);
+	std::uniform_int_distribution<int> distribution(0,150);
 
 
 	//step 1: delete any existing children
