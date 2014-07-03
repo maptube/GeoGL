@@ -5,12 +5,14 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <random>
 
 #include "json/json.h"
 #include "json/reader.h"
 
 #include "mesh2.h"
 #include "ellipsoid.h"
+#include "triangulator.h"
 #include "extrudegeometry.h"
 #include "pathshapes.h"
 
@@ -21,7 +23,7 @@ using namespace std;
 
 GeoJSON::GeoJSON(void)
 {
-	_pellipsoid = new Ellipsoid(); //hack! I really want to be passing this in for coordinate conversions
+	//_pellipsoid = new Ellipsoid(); //hack! I really want to be passing this in for coordinate conversions
 }
 
 GeoJSON::~GeoJSON(void)
@@ -113,8 +115,11 @@ void GeoJSON::LoadFile(std::string Filename)
 		//ParseJSONGeometry(jsGeometry);
 		const Json::Value& jsGeometry = (*it)["geometry"];
 		//cout<<jsGeometry["type"].asString()<<endl;
-		Mesh2* feature_mesh = ParseJSONGeometry(jsGeometry);
-		AddChild(feature_mesh);
+	//old code
+		//Mesh2* feature_mesh = ParseJSONGeometry(jsGeometry);
+		//AddChild(feature_mesh);
+	//new code
+		ParseJSONGeometry(jsGeometry);
 	}
 	//cout<<"GeoJSON loaded "<<feature_count<<" features"<<endl;
 	//cout<<"GeoJSON vertices="<<vertex_count<<" faces="<<face_count<<endl;
@@ -132,8 +137,8 @@ void GeoJSON::LoadFile(std::string Filename)
 /// </summary>
 /// <param name="jsGeometry">The features[i].geometry part of the GeoJSON FeatureCollection</param>
 /// <returns>A mesh object containing the geometry</returns>
-Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
-	Mesh2* geom = new Mesh2();
+/*Mesh2**/void GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
+	//Mesh2* geom = new Mesh2();
 
 	const Json::Value& jsType = jsGeometry["type"];
 	std::string strType = jsType.asString();
@@ -149,9 +154,10 @@ Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 	else if (strType=="Polygon") {
 		//cout<<"Polygon"<<endl;
 		const Json::Value& jsCoordinates = jsGeometry["coordinates"];
-		//ParseJSONPolygon(*geom,jsCoordinates);
+//		ParseJSONPolygon(*geom,jsCoordinates);
 //hack!
-		ParseJSONPolygonExtrude(*geom,jsCoordinates);
+//		ParseJSONPolygonExtrude(*geom,jsCoordinates);
+		ParseJSONPolygon2(jsCoordinates);
 	}
 	else if (strType=="MultiPoint") {
 		//cout<<"MultiPoint"<<endl;
@@ -168,15 +174,16 @@ Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 			
 //			ParseJSONPolygon(*geom,*it);
 //hack!
-			ParseJSONPolygonExtrude(*geom,*it);
+//			ParseJSONPolygonExtrude(*geom,*it);
+			ParseJSONPolygon2(*it);
 		}
 	}
 
-	geom->CreateBuffers();
-	return geom;
+	//geom->CreateBuffers();
+	//return geom;
 }
 
-
+//OLD CODE
 /// <summary>
 /// A jsPolygon is an array of linear rings where the first ring is the exterior ring and all following
 /// rings are interior rings (holes). A linear ring is an array of points, where a point is an array as follows:
@@ -185,7 +192,7 @@ Mesh2* GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
 /// </summary>
 /// <param name="geom">The mesh that this polygon is to be added to (could be part of a multi set)</param>
 /// <param name="jsPolygon">The javascript geojson data describing the points</param>
-void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
+/*void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 
 	//TODO: this should use the trianglator now
 	
@@ -218,7 +225,7 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 	}
 	//Clean outer and inner rings - the distance figure is really critical to the cleaning process as poly2tri fails if it's too low
 	//TODO: need to check poly2tri and Clipper epsilons, I suspect the cleaning issue is to do with colinear edges
-	ClipperLib::CleanPolygons(linearrings,8.0/*1.415*/); //1.415 is the default of root 2
+	ClipperLib::CleanPolygons(linearrings,8.0/ *1.415* /); //1.415 is the default of root 2
 	//add outer ring
 	clipper.AddPath(linearrings[0],ClipperLib::ptSubject,true);
 	//add inner holes
@@ -297,10 +304,33 @@ void GeoJSON::ParseJSONPolygon(Mesh2& geom, const Json::Value& jsPolygon) {
 	}
 
 	delete cdt; //and finally free the triangulator object
+}*/
+
+/// <summary>
+/// Parse a GeoJSON polygon into a 2D shape object which is then pushed on to the list of shape features
+/// </summary>
+void GeoJSON::ParseJSONPolygon2(const Json::Value& jsPolygon) {
+	PathShape shape;
+	int count=0;
+	for (Json::Value::iterator ringIT=jsPolygon.begin(); ringIT!=jsPolygon.end(); ++ringIT) {
+		const Json::Value& jsRing = *ringIT;
+		LinearRing ring;
+		int pcount=jsRing.size();
+		for (unsigned int p=0; p<pcount; p++) {
+			const Json::Value& jsPointTuple = jsRing[p];
+			const Json::Value& px = jsPointTuple[(unsigned int)0];
+			const Json::Value& py = jsPointTuple[(unsigned int)1];
+			ring.push_back(glm::dvec3(px.asDouble(),py.asDouble(),0)); //note shape uses (x,y) on zero z plane for clipping and triangulation
+		}
+		if (count==0) shape.outer=ring;
+		else shape.inner.push_back(ring);
+		++count;
+	}
+	_Features.push_back(shape);
 }
 
 //testing extrusion function
-void GeoJSON::ParseJSONPolygonExtrude(Mesh2& geom, const Json::Value& jsPolygon) {
+/*void GeoJSON::ParseJSONPolygonExtrude(Mesh2& geom, const Json::Value& jsPolygon) {
 	ExtrudeGeometry egeom;
 	PathShape shape;
 	int count=0;
@@ -320,4 +350,87 @@ void GeoJSON::ParseJSONPolygonExtrude(Mesh2& geom, const Json::Value& jsPolygon)
 	}
 	egeom.AddShape(shape);
 	egeom.ExtrudeMesh(geom,*_pellipsoid,100); //extrude shape (XY plane) into geom on the specified ellipsoid
+}
+*/
+
+/// <summary>
+/// Convert previously parsed data into a mesh. This generates each feature as a child mesh of this Object3D in the scene graph.
+/// </summary>
+/// <param name="e">The ellipsoid to create the mesh onto. Remember that the _Features shapes contain 2D geometry in WGS84</param>
+/// <returns>Returns a mesh object containing the previously parsed geojson which is now in the _Features vector as 2D path shapes</returns>
+void GeoJSON::ToMesh(Ellipsoid& e) {
+	//destroy all the child objects which might have been created from a previous call
+	for (vector<Object3D*>::iterator itChild=Children.begin(); itChild!=Children.end(); ++itChild )
+	{
+		delete *itChild;
+	}
+
+	glm::vec3 red(1.0,0.0,0.0); //build the mesh in red
+
+	for (vector<PathShape>::iterator it = _Features.begin(); it!=_Features.end(); ++it)
+	{
+		Triangulator tri;
+		Mesh2* geom = new Mesh2();
+
+		PathShape shape = *it;
+		tri.Clear();
+		tri.SetShape(shape);
+
+		//build top and triangulate (2D), lifting the shape when converting onto the ellipsoid
+		tri.Triangulate(); //triangulate data from tri.SetShape() into geom
+
+		//now read the triangles back and go through all the triangles to make the faces
+		
+		//can't get index from tri, so going to build face using points
+		vector<p2t::Triangle*> triangles = tri.GetTriangles();
+		for (vector<p2t::Triangle*>::iterator trIT = triangles.begin(); trIT!=triangles.end(); ++trIT ) {
+			p2t::Point* v1 = (*trIT)->GetPoint(0);
+			p2t::Point* v2 = (*trIT)->GetPoint(1);
+			p2t::Point* v3 = (*trIT)->GetPoint(2);
+			//you could allow people to pass in a height here - at the moment it's 0 metres above the ellipsoid
+			glm::vec3 P1 = e.toVector(glm::radians(v1->x),glm::radians(v1->y),0); //don't forget to convert to radians for the ellipse!
+			glm::vec3 P2 = e.toVector(glm::radians(v2->x),glm::radians(v2->y),0);
+			glm::vec3 P3 = e.toVector(glm::radians(v3->x),glm::radians(v3->y),0);
+			geom->AddFace(P1,P2,P3,red,red,red); //uses x-order uniqueness of point, so not best efficiency
+		}
+
+		geom->CreateBuffers();
+		Children.push_back(geom);
+	}
+}
+
+/// <summary>
+/// Like ToMesh, except that it extrudes the 2D GeoJSON geometry currently loaded upwards by HeightMetres above the ellipsoid.
+/// </summary>
+/// <param name="e">Ellipsoid</param>
+/// <param name="HeightMetres">The height to extrude above the epplisoid e</param>
+void GeoJSON::ExtrudeMesh(Ellipsoid& e,double HeightMetres) {
+	//You could actually do without this function, as you just need to create an extrude geometry object, push the shapes onto it and let
+	//it do all the hard work or triangulation and extrusion.
+	//All we do is to add the features as separate child meshes
+	
+	//this is a hack for generating random sized buildings
+	std::default_random_engine generator;
+	std::uniform_int_distribution<double> distribution(0,150);
+
+
+	//step 1: delete any existing children
+	for (vector<Object3D*>::iterator itChild=Children.begin(); itChild!=Children.end(); ++itChild )
+	{
+		delete *itChild;
+	}
+
+	for (vector<PathShape>::iterator it = _Features.begin(); it!=_Features.end(); ++it)
+	{
+		Mesh2* geom = new Mesh2();
+		ExtrudeGeometry egeom;
+		egeom.AddShape(*it);
+		//egeom.ExtrudeMesh(*geom,e,HeightMetres); //extrude shape (XY plane) into geom on the specified ellipsoid
+		//hack for generating random height buildings
+		int height = distribution(generator);
+
+		egeom.ExtrudeMesh(*geom,e,HeightMetres+height);
+		geom->CreateBuffers();
+		Children.push_back(geom);
+	}
 }

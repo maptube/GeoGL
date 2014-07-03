@@ -131,7 +131,8 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		if (test) {
 			//std::cout<<"Sphere intersect: "<<intersectionPosition.x<<","<<intersectionPosition.y<<","<<intersectionPosition.z<<std::endl;
 			//std::cout<<"Sphere intersect N: "<<intersectionNormal.x<<","<<intersectionNormal.y<<","<<intersectionNormal.z<<std::endl;
-			globe->debugPositionCube(2,intersectionPosition.x,intersectionPosition.y,intersectionPosition.z);
+			//debug
+			//globe->debugPositionCube(2,intersectionPosition.x,intersectionPosition.y,intersectionPosition.z);
 
 			P2=intersectionPosition; //we just worked this out
 			//take two normalised vectors from orbit centre to points P1 and P2 on sphere
@@ -187,7 +188,7 @@ void EllipsoidOrbitController::ScrollCallback(GLFWwindow *window, double xoffset
 	//float delta = -radius*yoffset*speed; //where speed is the percentage i.e. 1/100=0.01
 	//new code - diffferent radius (now height)
 	double h = _pEllipsoid->heightAboveSurfaceAtPoint(vCameraPos);
-	std::cout<<"h="<<h<<std::endl;
+	//std::cout<<"h="<<h<<std::endl;
 	double delta = -h*yoffset*scrollSpeed; //where speed is the percentage i.e. 1/100=0.01
 	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
@@ -239,8 +240,9 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 				return;
 			}
 			dragPoint = intersectionPosition;
-			std::cout<<"Intersect: "<<intersectionPosition.x<<" "<<intersectionPosition.y<<" "<<intersectionPosition.z<<std::endl;
-			globe->debugPositionCube(1,dragPoint.x,dragPoint.y,dragPoint.z);
+			//std::cout<<"Intersect: "<<intersectionPosition.x<<" "<<intersectionPosition.y<<" "<<intersectionPosition.z<<std::endl;
+			//debug
+			//globe->debugPositionCube(1,dragPoint.x,dragPoint.y,dragPoint.z);
 			//if test==false then dragging=false? i.e. you haven't clicked on the sphere
 
 			//std::cout<<"Drag Camera: "<<dragCameraMatrix[3][0]<<" "<<dragCameraMatrix[3][1]<<" "<<dragCameraMatrix[3][2]<<std::endl;

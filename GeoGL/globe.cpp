@@ -112,9 +112,10 @@ Globe::Globe(void)
 	//TODO: texture is going to go out of scope and not be freed!!!
 	SceneGraph.push_back(sphere);
 
-	Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
-	cuboid->AttachShader(shader,false);
-	SceneGraph.push_back(cuboid);
+	//this is the orientation cube which I put around the Earth
+	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
+	//cuboid->AttachShader(shader,false);
+	//SceneGraph.push_back(cuboid);
 
 	//setup debug object - this is a cube that we can position in the scene as a marker
 	//Cube1 is Red, Cube2 is Blue
@@ -231,12 +232,13 @@ GeoJSON* Globe::LoadLayerGeoJSON(std::string Filename)
 	//create a geojson object, load and add to scene graph
 	GeoJSON* geoj = new GeoJSON();
 	geoj->LoadFile(Filename);
-	//make it a random colour?
-	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	//geoj->ToMesh(ellipsoid);
+	geoj->ExtrudeMesh(ellipsoid,0); //hack - 0 is height
 	
 	//Take the first shader defined by the globe and attach to all the objects we've just created.
 	//Presumably we know that the first defined shader is suitable?
-	Shader* pShader = _Shaders[0];
+	//0=default shader, 1=diffuse shader
+	Shader* pShader = _Shaders[1]; //was 0
 	geoj->AttachShader(pShader,true);
 	SceneGraph.push_back(geoj);
 	return geoj;
