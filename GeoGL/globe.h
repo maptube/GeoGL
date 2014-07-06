@@ -79,6 +79,7 @@ public:
 	Cuboid* debugCube1;
 	Cuboid* debugCube2;
 	float _debugFPS; //frames per second - set to anything >0 to get it to display in RenderScene
+	std::string _debugMessage;
 
 	Globe(void);
 	~Globe(void);

@@ -662,6 +662,20 @@ void ModelTubeNetwork::Setup() {
 	//}
 	//end debug
 
+	//we don't know if this is actually generating statistics, but this is the only place we can write the csv header
+	cout<<"Animation time,S,B,D,"
+			<<"BS,B1,B0,Bat,Bmvel,Bpvel,Bzerovel,Bvsum,Bvmean,"
+			<<"CS,C1,C0,Cat,Cmvel,Cpvel,Czerovel,Cvsum,Cvmean,"
+			<<"DS,D1,D0,Dat,Dmvel,Dpvel,Dzerovel,Dvsum,Dvmean,"
+			<<"HS,H1,H0,Hat,Hmvel,Hpvel,Hzerovel,Hvsum,Hvmean,"
+			<<"JS,J1,J0,Jat,Jmvel,Jpvel,Jzerovel,Jvsum,Jvmean,"
+			<<"MS,M1,M0,Mat,Mmvel,Mpvel,Mzerovel,Mvsum,Mvmean,"
+			<<"NS,N1,N0,Nat,Nmvel,Npvel,Nzerovel,Nvsum,Nvmean,"
+			<<"PS,P1,P0,Pat,Pmvel,Ppvel,Pzerovel,Pvsum,Pvmean,"
+			<<"VS,V1,V0,Vat,Vmvel,Vpvel,Vzerovel,Vvsum,Vvmean,"
+			<<"WS,W1,W0,Wat,Wmvel,Wpvel,Wzerovel,Wvsum,Wvmean,"
+			<<"all_at,all_mvel,all_pvel,all_zerovel,all_vsum,all_vmean"
+			<<endl;
 }
 
 /// <summary>
@@ -1061,8 +1075,26 @@ void ModelTubeNetwork::DisplayStatistics()
 	std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
 	size_t DriverCount = drivers.size(); //this is the real number of agents, not _agents.NumAgents
 
-	cout<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<",";
-	cout<<"S,"<<DriverCount<<",B,"<<_agents.Birth<<",D,"<<_agents.Death;
+	//this is the header line that matches the data below
+	//string header_line="Animation time,S,B,D,"
+	//		+"BS,B1,B0,Bat,Bmvel,Bpvel,Bzerovel,Bvsum,Bvmean,"
+	//		+"CS,C1,C0,Cat,Cmvel,Cpvel,Czerovel,Cvsum,Cvmean,"
+	//		+"DS,D1,D0,Dat,Dmvel,Dpvel,Dzerovel,Dvsum,Dvmean,"
+	//		+"HS,H1,H0,Hat,Hmvel,Hpvel,Hzerovel,Hvsum,Hvmean,"
+	//		+"JS,J1,J0,Jat,Jmvel,Jpvel,Jzerovel,Jvsum,Jvmean,"
+	//		+"MS,M1,M0,Mat,Mmvel,Mpvel,Mzerovel,Mvsum,Mvmean,"
+	//		+"NS,N1,N0,Nat,Nmvel,Npvel,Nzerovel,Nvsum,Nvmean,"
+	//		+"PS,P1,P0,Pat,Pmvel,Ppvel,Pzerovel,Pvsum,Pvmean,"
+	//		+"VS,V1,V0,Vat,Vmvel,Vpvel,Vzerovel,Vvsum,Vvmean,"
+	//		+"WS,W1,W0,Wat,Wmvel,Wpvel,Wzerovel,Wvsum,Wvmean,"
+	//		+"all_at,all_mvel,all_pvel,all_zerovel,all_vsum,all_vmean";
+
+	//old
+	//cout<<"Animation time: "<<AgentTime::ToString(AnimationDT)<<",";
+	//cout<<"S,"<<DriverCount<<",B,"<<_agents.Birth<<",D,"<<_agents.Death;
+	//new
+	cout<<AgentTime::ToString(AnimationDT)<<",";
+	cout<<DriverCount<<","<<_agents.Birth<<","<<_agents.Death;
 	std::string lines[]={"B","C","D","H","J","M","N","P","V","W"};
 	size_t all_at=0;
 	size_t all_vdeltaplus=0;
@@ -1113,10 +1145,16 @@ void ModelTubeNetwork::DisplayStatistics()
 			vmean=vsum/(float)count;
 		}
 		all_vmean = all_vsum/(float)DriverCount;
-		cout<<","<<L<<"S,"<<count<<","<<L<<"1,"<<one<<","<<L<<"0,"<<zero<<","<<L<<"at,"<<at<<","<<L<<"mvel,"<<vdeltaminus<<","<<L<<"pvel,"<<vdeltaplus<<","<<L<<"zerovel,"<<vzero<<","<<L<<"vsum,"<<vsum<<","<<L<<"vmean,"<<vmean;
+		//old
+		//cout<<","<<L<<"S,"<<count<<","<<L<<"1,"<<one<<","<<L<<"0,"<<zero<<","<<L<<"at,"<<at<<","<<L<<"mvel,"<<vdeltaminus<<","<<L<<"pvel,"<<vdeltaplus<<","<<L<<"zerovel,"<<vzero<<","<<L<<"vsum,"<<vsum<<","<<L<<"vmean,"<<vmean;
+		//new
+		cout<<","<<count<<","<<one<<","<<zero<<","<<at<<","<<vdeltaminus<<","<<vdeltaplus<<","<<vzero<<","<<vsum<<","<<vmean;
 	}
 	//accumulated counts of all tubes at station, minus and plus velocities and zero velocity count
-	cout<<",all_at,"<<all_at<<",all_mvel,"<<all_vdeltaminus<<",all_pvel,"<<all_vdeltaplus<<",all_zerovel,"<<all_vzero<<",all_vsum,"<<all_vsum<<",all_vmean,"<<all_vmean;
+	//old
+	//cout<<",all_at,"<<all_at<<",all_mvel,"<<all_vdeltaminus<<",all_pvel,"<<all_vdeltaplus<<",all_zerovel,"<<all_vzero<<",all_vsum,"<<all_vsum<<",all_vmean,"<<all_vmean;
+	//new
+	cout<<","<<all_at<<","<<all_vdeltaminus<<","<<all_vdeltaplus<<","<<all_vzero<<","<<all_vsum<<","<<all_vmean;
 	cout<<endl;
 	//ideally I want to do an "agents.with" and include a complex expression containing the line code as well (multiple args or functor?)
 	//size_t oneV = _agents.With("direction",1);
@@ -1153,7 +1191,7 @@ void ColourAgentByVelocity(ABM::Agent* A) {
 void ModelTubeNetwork::StepAnimation(double Ticks)
 {
 	bool NewData = false; //TODO: check animation time and frames
-	float AnimSpeed = 1.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
+	float AnimSpeed = 50.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
 	//AnimationDT=AnimationDT+0.5
 	AnimationDT += AnimSpeed; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
 	if (AnimationDT>=FrameTimeN) {
@@ -1165,6 +1203,8 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 		//reset birth and death rates
 		_agents.Birth=0; _agents.Death=0;
 	}
+	//FAST STATISTICS!
+	DisplayStatistics();
 	//FrameN is always ahead of the agents in time, so it contains the next data needed to make a decision on
 	map<string,tube_anim_record> FrameN = tube_anim_frames[FrameTimeN];
 	float FrameNFutureSecs = FrameTimeN - AnimationDT._DT; //this is how many seconds in to the future the FrameN time is - needed for timing offset and velocity

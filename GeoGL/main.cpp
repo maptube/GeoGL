@@ -370,7 +370,9 @@ int main(int argc, char *argv[])
 		//Cap the frame rate? would need to call poll events here
 		double ticksNow = glfwGetTime();
 		double fps = 1/(ticksNow-startTicks);
-		globe._debugFPS=fps;
+		//globe._debugFPS=fps;
+		std::string strTime = AgentTime::ToString(tn->AnimationDT);
+		globe._debugMessage = strTime;
 	}
 
 	return 0;

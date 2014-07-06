@@ -43,6 +43,7 @@ using namespace gengine::events;
 Globe::Globe(void)
 {	
 	_debugFPS=0;
+	_debugMessage="";
 
 	ellipsoid = Ellipsoid(); //bit naughty, but the default is the WGS 84 definition
 
@@ -52,10 +53,8 @@ Globe::Globe(void)
 
 	//initialise font rendering
 	_FontFace = GC->LoadFont(
-			/*"fonts/FreeSans.ttf"*/
-			/*"C:\\richard\\GitHub\\GeoGL\\externals\\fonts\\FreeSans.ttf"*/
 			"../fonts/FreeSans.ttf",
-			48);
+			/*48*/32);
 
 	//start graphics context
 	//if (!openglContext.create30ContextGLFW()) { // Create a window and an OpenGL context to run in it
@@ -506,6 +505,12 @@ void Globe::RenderScene(void)
 		
 		GC->RenderText(_FontFace,glm::vec3(0,1.0,0),chFPS,-1.0+8.0*sx,1.0-50.0*sy,sx,sy); //why not (-1,-1) in device coordinates?
 
+		GC->_FontShader->unbind();
+	}
+	if (_debugMessage.length()>0) {
+		GC->_FontShader->bind();
+		float sx=2.0/512.0; float sy=2.0/512.0; //this is window size
+		GC->RenderText(_FontFace,glm::vec3(0,1.0,0),_debugMessage.c_str(),-1.0+8.0*sx,1.0-50.0*sy,sx,sy); //why not (-1,-1) in device coordinates?
 		GC->_FontShader->unbind();
 	}
 
