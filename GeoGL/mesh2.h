@@ -28,12 +28,41 @@ namespace gengine {
 	class Texture2D;
 }
 
+/////Vertex formats
+
 struct VertexColour {
 	glm::vec3 P; //vertex (point)
 	glm::vec3 RGB; //colour
 	int Index; //face index number (labels point uniquely)
 	bool operator < (const VertexColour &rhs) const { return P.x < rhs.P.x; } //x order sort
 };
+
+struct VertexColourTexture {
+	glm::vec3 P; //vertex
+	glm::vec3 RGB; //colour
+	glm::vec2 UV; //texture coordinates
+	int Index; //face index number (labels point uniquely)
+	bool operator < (const VertexColourTexture &rhs) const { return P.x < rhs.P.x; } //x order sort
+};
+
+struct VertexColourNormal {
+	glm::vec3 P; //vertex
+	glm::vec3 RGB; //colour
+	glm::vec3 N; //normal
+	int Index; //face index number (labels point uniquely)
+	bool operator < (const VertexColourNormal &rhs) const { return P.x < rhs.P.x; } //x order sort
+};
+
+struct VertexColourTextureNormal {
+	glm::vec3 P; //vertex
+	glm::vec3 RGB; //colour
+	glm::vec2 UV; //texture coordinates
+	glm::vec3 N; //normal
+	int Index; //face index number (labels point uniquely)
+	bool operator < (const VertexColourTextureNormal &rhs) const { return P.x < rhs.P.x; } //x order sort
+};
+
+/////////End of vertex formats
 
 class Mesh2 : public Object3D
 {
@@ -43,9 +72,26 @@ public:
 
 	Mesh2(void);
 	~Mesh2(void);
+	static float ManhattanDist(glm::vec2 V1, glm::vec2 V2);
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour);
-	void AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3, glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3);
+	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 Normal);
+	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 Normal);
+	void AddFace(
+			glm::vec3 P1, glm::vec3 P2, glm::vec3 P3,
+			glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3
+	);
+	void AddFace(
+			glm::vec3 P1, glm::vec3 P2, glm::vec3 P3,
+			glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3,
+			glm::vec3 N1, glm::vec3 N2, glm::vec3 N3
+	);
+	void AddFace(
+			glm::vec3 P1, glm::vec3 P2, glm::vec3 P3,
+			glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3,
+			glm::vec2 UV1, glm::vec2 UV2, glm::vec2 UV3,
+			glm::vec3 N1, glm::vec3 N2, glm::vec3 N3
+	);
 	void AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture);
 	void SetColour(glm::vec3 new_colour);
 	void ScaleVertices(double Sx,double Sy,double Sz);
@@ -58,20 +104,18 @@ public:
 	virtual const gengine::DrawObject& GetDrawObject();
 	//TODO: SetMatrix - VERY IMPORTANT!
 protected:
-	//an alternative way of doing this is to change the vertex format
-	//TODO: create a vertex buffer format e.g. vertex only, vertex+colour, vertex+texture?
-
-	//localised vb,vc,ib and stored in vertexData
-	//gengine::VertexBuffer* vb; //vertex buffer
-	//gengine::VertexBuffer* vc; //colour buffer
-	//gengine::IndexBuffer* ib; //index buffer
-	//gengine::Shader* shader;
 	gengine::VertexData* vertexData; //collection of vertex and index buffers
 	gengine::RenderState* renderState;
-	//gengine::TextureUnits* textureUnits; //collection of textures used for this object
 	gengine::DrawObject drawObject; //contains textures
 
-	std::vector<struct VertexColour> vertices;
+	int _NumVertices;
+
+	//only one of these formats gets used - ideally I would like to get rid of what is a nasty hack, but templates won't work and
+	//the obvious polymorphism looks overkill
+	std::vector<struct VertexColour> vertices_VC; //vertex colour format
+	std::vector<struct VertexColourTexture> vertices_VCT; //vertex colour texture format
+	std::vector<struct VertexColourNormal> vertices_VCN; //vertex colour normal format
+	std::vector<struct VertexColourTextureNormal> vertices_VCTN; //vertex colour texture normal format
 	std::vector<int> faces; //indexed into vertices
 	//void CreateBuffersFallback(); //UNNECESSARY??
 };

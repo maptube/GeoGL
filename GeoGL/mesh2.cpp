@@ -65,6 +65,7 @@ Mesh2::Mesh2(void)
 
 	//set default vertex format to have position and colour indices
 	_VertexFormat = PositionColour;
+	_NumVertices=0;
 
 	//vertices.reserve(1024);
 	//faces.reserve(1024);
@@ -99,6 +100,11 @@ Mesh2::~Mesh2(void)
 /// <returns>The Manhattan distance between vectors V1 and V2</returns>
 float Mesh2::ManhattanDist(glm::vec3 V1, glm::vec3 V2) {
 	return abs(V1.x-V2.x)+abs(V1.y-V2.y)+abs(V1.z-V2.z);
+}
+
+//overload for texture coords which are 2D
+float Mesh2::ManhattanDist(glm::vec2 V1, glm::vec2 V2) {
+	return abs(V1.x-V2.x)+abs(V1.y-V2.y);
 }
 
 /// <summary>
@@ -148,9 +154,9 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 	item.P=P;
 	item.P.x-=epsilon; //this is the lower bound on x
 	item.RGB=Colour;
-	vector<struct VertexColour>::iterator it = std::lower_bound(vertices.begin(), vertices.end(), item);
+	vector<struct VertexColour>::iterator it = std::lower_bound(vertices_VC.begin(), vertices_VC.end(), item);
 	vector<struct VertexColour>::iterator insertPoint = it;
-	while ((it!=vertices.end())&&((*it).P.x<=P.x+epsilon)) {
+	while ((it!=vertices_VC.end())&&((*it).P.x<=P.x+epsilon)) {
 		struct VertexColour VC=*it;
 		glm::vec3 P2=VC.P, C2=VC.RGB;
 		float d = ManhattanDist(P,P2) + ManhattanDist(Colour,C2); //Manhattan dist between vertex pos and colour (could separate?)
@@ -171,10 +177,11 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 	//NO - you need to go to x+epsilon as you can have x1=x2+e, y1=y2 and z1=z2 for a match.
 	//The problem then is that the x ordering is wrong! The solution is to use the insertPoint that we've set to the correct position while iterating earlier.
 	//InsertPoint holds last iteration of place while P.x>=P2.x holds, which is the correct insert point
-	item.Index=vertices.size(); //TODO: check how efficient count is
+	item.Index=_NumVertices; //vertices_VC.size(); //TODO: check how efficient count is
+	++_NumVertices;
 	item.P=P; //put x back to its real value
 	
-	vertices.insert(insertPoint,item);
+	vertices_VC.insert(insertPoint,item);
 	//int insertPos = std::distance(insertPoint,vertices.begin());
 	//DebugUtils::WriteString("Insert at: "); DebugUtils::WriteInt(insertPos); DebugUtils::WriteLine();
 	//printPoints(vertices,P);
@@ -202,6 +209,80 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 */
 }
 
+//copy of add vertex using only position, colour, normal
+int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 N) {
+	//assumes x sorted vertices list
+	VertexColourNormal item;
+	item.P=P;
+	item.P.x-=epsilon; //this is the lower bound on x
+	item.RGB=Colour;
+	item.N=N;
+	vector<struct VertexColourNormal>::iterator it = std::lower_bound(vertices_VCN.begin(), vertices_VCN.end(), item);
+	vector<struct VertexColourNormal>::iterator insertPoint = it;
+	while ((it!=vertices_VCN.end())&&((*it).P.x<=P.x+epsilon)) {
+		struct VertexColourNormal VCN=*it;
+		glm::vec3 P2=VCN.P, C2=VCN.RGB, N2=VCN.N;
+		float d = ManhattanDist(P,P2) + ManhattanDist(Colour,C2) +
+				ManhattanDist(N,N2); //Manhattan dist between vertex pos and colour (could separate?)
+		if (d<epsilon) {
+			return VCN.Index; //point at this position with this colour (<epsilon) is already in the list, so exit early
+		}
+		if (P.x>=P2.x) {
+			insertPoint=it; //keep track of where we might need to insert a new x value
+		}
+		++it;
+	}
+	//if we've got to this point, then we need to add a new point, and as we bailed out when *it.P.x>P.x, then *it is the position to insert
+	//NO - you need to go to x+epsilon as you can have x1=x2+e, y1=y2 and z1=z2 for a match.
+	//The problem then is that the x ordering is wrong! The solution is to use the insertPoint that we've set to the correct position while iterating earlier.
+	//InsertPoint holds last iteration of place while P.x>=P2.x holds, which is the correct insert point
+	item.Index=_NumVertices; //vertices_VCN.size(); //TODO: check how efficient count is
+	++_NumVertices;
+	item.P=P; //put x back to its real value
+
+	vertices_VCN.insert(insertPoint,item);
+	bounds.ExpandToIncludePoint(item.P);
+	return item.Index;
+}
+
+//copy of vertexcolour version but with addition of UV and N
+int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N) {
+	//assumes x sorted vertices list
+	VertexColourTextureNormal item;
+	item.P=P;
+	item.P.x-=epsilon; //this is the lower bound on x
+	item.RGB=Colour;
+	item.UV=UV;
+	item.N=N;
+	vector<struct VertexColourTextureNormal>::iterator it = std::lower_bound(vertices_VCTN.begin(), vertices_VCTN.end(), item);
+	vector<struct VertexColourTextureNormal>::iterator insertPoint = it;
+	while ((it!=vertices_VCTN.end())&&((*it).P.x<=P.x+epsilon)) {
+		struct VertexColourTextureNormal VCTN=*it;
+		glm::vec3 P2=VCTN.P, C2=VCTN.RGB, N2=VCTN.N;
+		glm::vec2 UV2=VCTN.UV;
+		float d = ManhattanDist(P,P2) + ManhattanDist(Colour,C2) +
+				ManhattanDist(UV,UV2) + ManhattanDist(N,N2); //Manhattan dist between vertex pos and colour (could separate?)
+		if (d<epsilon) {
+			return VCTN.Index; //point at this position with this colour (<epsilon) is already in the list, so exit early
+		}
+		if (P.x>=P2.x) {
+			insertPoint=it; //keep track of where we might need to insert a new x value
+		}
+		++it;
+	}
+	//if we've got to this point, then we need to add a new point, and as we bailed out when *it.P.x>P.x, then *it is the position to insert
+	//NO - you need to go to x+epsilon as you can have x1=x2+e, y1=y2 and z1=z2 for a match.
+	//The problem then is that the x ordering is wrong! The solution is to use the insertPoint that we've set to the correct position while iterating earlier.
+	//InsertPoint holds last iteration of place while P.x>=P2.x holds, which is the correct insert point
+	item.Index=_NumVertices; //vertices_VCTN.size(); //TODO: check how efficient count is
+	++_NumVertices;
+	item.P=P; //put x back to its real value
+
+	vertices_VCTN.insert(insertPoint,item);
+	bounds.ExpandToIncludePoint(item.P);
+	return item.Index;
+}
+
 /// <summary>
 /// Scale all vertices by a vector (Sx, Sy, Sz). Useful for objects which are created to unit size and need rescaling.
 /// </summary>
@@ -209,13 +290,47 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 /// <param name="Sy">Scale factor for Y axis</param>
 /// <param name="Sz">Scale factor for Z axis</param>
 void Mesh2::ScaleVertices(double Sx, double Sy, double Sz) {
-	vector<struct VertexColour>::iterator it;
-	for (it = vertices.begin(); it!=vertices.end(); ++it) {
-		//this is horrible, how about std::algorithms?
-		//also, the vertex buffers are floats because of the GPU limitation, while everywhere else they're doubles
-		(*it).P.x*=(float)Sx;
-		(*it).P.y*=(float)Sy;
-		(*it).P.z*=(float)Sz;
+	//An alternative way of doing this might be just to iterate over all four vectors in turn regardless of _VertexFormat.
+	//The unused ones are zero length after all.
+	vector<struct VertexColour>::iterator it_VC;
+	vector<struct VertexColourTexture>::iterator it_VCT;
+	vector<struct VertexColourNormal>::iterator it_VCN;
+	vector<struct VertexColourTextureNormal>::iterator it_VCTN;
+	switch (_VertexFormat) {
+	case PositionColour:
+	case InterleavedPositionColour:
+		for (it_VC = vertices_VC.begin(); it_VC!=vertices_VC.end(); ++it_VC) {
+			//this is horrible, how about std::algorithms?
+			//also, the vertex buffers are floats because of the GPU limitation, while everywhere else they're doubles
+			(*it_VC).P.x*=(float)Sx;
+			(*it_VC).P.y*=(float)Sy;
+			(*it_VC).P.z*=(float)Sz;
+		}
+		break;
+	case PositionColourTexture:
+	case InterleavedPositionColourTexture:
+		for (it_VCT = vertices_VCT.begin(); it_VCT!=vertices_VCT.end(); ++it_VCT) {
+			(*it_VCT).P.x*=(float)Sx;
+			(*it_VCT).P.y*=(float)Sy;
+			(*it_VCT).P.z*=(float)Sz;
+		}
+		break;
+	case PositionColourNormal:
+	case InterleavedPositionColourNormal:
+		for (it_VCN = vertices_VCN.begin(); it_VCN!=vertices_VCN.end(); ++it_VCN) {
+			(*it_VCN).P.x*=(float)Sx;
+			(*it_VCN).P.y*=(float)Sy;
+			(*it_VCN).P.z*=(float)Sz;
+		}
+		break;
+	case PositionColourTextureNormal:
+	case InterleavedPositionColourTextureNormal:
+		for (it_VCTN = vertices_VCTN.begin(); it_VCTN!=vertices_VCTN.end(); ++it_VCTN) {
+			(*it_VCTN).P.x*=(float)Sx;
+			(*it_VCTN).P.y*=(float)Sy;
+			(*it_VCTN).P.z*=(float)Sz;
+		}
+		break;
 	}
 }
 
@@ -265,6 +380,39 @@ void Mesh2::AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3, glm::vec3 Colour1,
 }
 
 /// <summary>
+/// overload for normals
+/// </summary>
+void Mesh2::AddFace(
+		glm::vec3 P1, glm::vec3 P2, glm::vec3 P3,
+		glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3,
+		glm::vec3 N1, glm::vec3 N2, glm::vec3 N3) {
+	//let AddVertex do all the work, it will either add a new vertex, or return an existing index
+	int i_P1 = AddVertex(P1,Colour1,N1);
+	int i_P2 = AddVertex(P2,Colour2,N2);
+	int i_P3 = AddVertex(P3,Colour3,N3);
+
+	//and create a face
+	faces.push_back(i_P1); faces.push_back(i_P2); faces.push_back(i_P3);
+}
+
+/// <summary>
+/// overload for textures and normals
+/// </summary>
+void Mesh2::AddFace(
+		glm::vec3 P1, glm::vec3 P2, glm::vec3 P3,
+		glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3,
+		glm::vec2 UV1, glm::vec2 UV2, glm::vec2 UV3,
+		glm::vec3 N1, glm::vec3 N2, glm::vec3 N3) {
+	//let AddVertex do all the work, it will either add a new vertex, or return an existing index
+	int i_P1 = AddVertex(P1,Colour1,UV1,N1);
+	int i_P2 = AddVertex(P2,Colour2,UV2,N2);
+	int i_P3 = AddVertex(P3,Colour3,UV3,N3);
+
+	//and create a face
+	faces.push_back(i_P1); faces.push_back(i_P2); faces.push_back(i_P3);
+}
+
+/// <summary>
 /// Change the vertex colour buffer data.
 /// This is a slightly heavyweight way of doing things - chuck all the buffers and re-create them - but then again changing the colour is going to mess a lot of things up.
 /// You could write a re-create buffers funtion which just applies new data to existing buffers without having to create them again, probably not much speedup though?
@@ -305,77 +453,158 @@ void Mesh2::CreateBuffers() {
 	//these should be constants? From the shader...
 	//string AttributeName("in_Position");
 
-	bool hasColourBuffer = (_VertexFormat&0x2); //this should be a separate colour buffer ONLY
+	//bool hasColourBuffer = (_VertexFormat&0x2); //this should be a separate colour buffer ONLY
+	bool isInterleaved = (_VertexFormat&0x10);
 
-	unsigned int NumVertices = vertices.size();
+	//unsigned int NumVertices = vertices.size();
 	unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
 
 	//graphics card buffer vertices, colours, indexes
 	
 	VertexBuffer* vb=nullptr;
 	VertexBuffer* vc=nullptr;
+	VertexBuffer* vt=nullptr; //textures
+	VertexBuffer* vn=nullptr; //normals
+	//create internal memory blocks in format suitable for copying to opengl vertex and index buffers
+	float* buf_vertices, *buf_colours, *buf_textures, *buf_normals; //internal memory blocks for copying data
 	//TODO: the sizes are really GL sizes, but we shouldn't be using GL types directly outside gengine - how to best do this?
-	vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
-	if (hasColourBuffer)
-		vc = OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,NumVertices*3*sizeof(float));
+	if (!isInterleaved) {
+		vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,_NumVertices*3*sizeof(float));
+		buf_vertices = new float[_NumVertices*3]; //technically it's a GLfloat
+		if (_VertexFormat&VertexFormatColourBit) {
+			vc = OGLDevice::CreateVertexBuffer("in_Color",ArrayBuffer,StaticDraw,_NumVertices*3*sizeof(float));
+			buf_colours = new float[_NumVertices*3]; //GLfloat
+		}
+		if (_VertexFormat&VertexFormatTextureBit) {
+			vt = OGLDevice::CreateVertexBuffer("in_Texture",ArrayBuffer,StaticDraw,_NumVertices*2*sizeof(float));
+			buf_textures = new float[_NumVertices*2]; //GLfloat
+		}
+		if (_VertexFormat&VertexFormatNormalBit) {
+			vn = OGLDevice::CreateVertexBuffer("in_Normal",ArrayBuffer,StaticDraw,_NumVertices*3*sizeof(float));
+			buf_normals = new float[_NumVertices*3]; //GLfloat
+		}
+	}
+	else {
+		//TODO:
+		//interleaved
+		//add up the size of all the components and create one buffer of that size times _NumVertices
+	}
 	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*sizeof(unsigned int)); //note that NumFaces is already *3 (see def above)
 
-	//create internal memory blocks in format suitable for copying to opengl vertex and index buffers
-	float* buf_vertices, *buf_colours;
-	buf_vertices = new float[NumVertices*3]; //technically it's a GLfloat
-	if (hasColourBuffer)
-		buf_colours = new float[NumVertices*3]; //GLfloat
 	unsigned int* buf_indices = new unsigned int[NumFaces*3]; //GLuint
 
 	//copy data from internal mesh vectors into array buffers for the graphics card
-	//int v=0, vc=0;
-	for (vector<VertexColour>::iterator vIT=vertices.begin(); vIT!=vertices.end(); ++vIT) {
-		//VertexColour VC=*vIT;
-		//buf_vertices[v++]=VC.P.x;
-		//buf_vertices[v++]=VC.P.y;
-		//buf_vertices[v++]=VC.P.z;
-		////colours
-		//buf_colours[vc++]=VC.RGB.r;
-		//buf_colours[vc++]=VC.RGB.g;
-		//buf_colours[vc++]=VC.RGB.b;
-
-		//new code taking into account x ordering of vertices
-		VertexColour VC=*vIT;
-		int v = VC.Index*3;
-		buf_vertices[v]=VC.P.x;
-		buf_vertices[v+1]=VC.P.y;
-		buf_vertices[v+2]=VC.P.z;
-		//colours
-		if (hasColourBuffer)
-		{
+	switch (_VertexFormat) {
+	case Position:
+		//for (vector<VertexColour>::iterator vIT=vertices.begin(); vIT!=vertices.end(); ++vIT) {
+		//}
+		break;
+	case PositionColour:
+		for (vector<VertexColour>::iterator vIT=vertices_VC.begin(); vIT!=vertices_VC.end(); ++vIT) {
+			VertexColour VC=*vIT;
+			int v = VC.Index*3;
+			buf_vertices[v]=VC.P.x;
+			buf_vertices[v+1]=VC.P.y;
+			buf_vertices[v+2]=VC.P.z;
 			buf_colours[v]=VC.RGB.r;
 			buf_colours[v+1]=VC.RGB.g;
 			buf_colours[v+2]=VC.RGB.b;
 		}
+		break;
+	case PositionColourTexture:
+		for (vector<VertexColourTexture>::iterator vIT=vertices_VCT.begin(); vIT!=vertices_VCT.end(); ++vIT) {
+			VertexColourTexture VCT=*vIT;
+			int v = VCT.Index*3;
+			buf_vertices[v]=VCT.P.x;
+			buf_vertices[v+1]=VCT.P.y;
+			buf_vertices[v+2]=VCT.P.z;
+			buf_colours[v]=VCT.RGB.r;
+			buf_colours[v+1]=VCT.RGB.g;
+			buf_colours[v+2]=VCT.RGB.b;
+			buf_textures[VCT.Index*2]=VCT.UV.x;
+			buf_textures[VCT.Index*2+1]=VCT.UV.y;
+		}
+		break;
+	case PositionColourTextureNormal:
+		for (vector<VertexColourTextureNormal>::iterator vIT=vertices_VCTN.begin(); vIT!=vertices_VCTN.end(); ++vIT) {
+			VertexColourTextureNormal VCTN=*vIT;
+			int v = VCTN.Index*3;
+			buf_vertices[v]=VCTN.P.x;
+			buf_vertices[v+1]=VCTN.P.y;
+			buf_vertices[v+2]=VCTN.P.z;
+			buf_colours[v]=VCTN.RGB.r;
+			buf_colours[v+1]=VCTN.RGB.g;
+			buf_colours[v+2]=VCTN.RGB.b;
+			buf_textures[VCTN.Index*2]=VCTN.UV.x;
+			buf_textures[VCTN.Index*2+1]=VCTN.UV.y;
+			buf_normals[v]=VCTN.N.x;
+			buf_normals[v+1]=VCTN.N.y;
+			buf_normals[v+2]=VCTN.N.z;
+		}
+		break;
+	case PositionColourNormal:
+		for (vector<VertexColourNormal>::iterator vIT=vertices_VCN.begin(); vIT!=vertices_VCN.end(); ++vIT) {
+			VertexColourNormal VCN=*vIT;
+			int v = VCN.Index*3;
+			buf_vertices[v]=VCN.P.x;
+			buf_vertices[v+1]=VCN.P.y;
+			buf_vertices[v+2]=VCN.P.z;
+			buf_colours[v]=VCN.RGB.r;
+			buf_colours[v+1]=VCN.RGB.g;
+			buf_colours[v+2]=VCN.RGB.b;
+			buf_normals[v]=VCN.N.x;
+			buf_normals[v+1]=VCN.N.y;
+			buf_normals[v+2]=VCN.N.z;
+		}
+		break;
+	case InterleavedPositionColour:
+		//TODO:
+		break;
+	case InterleavedPositionColourTexture:
+		//TODO:
+		break;
+	case InterleavedPositionColourNormal:
+		//TODO:
+		break;
+	case InterleavedPositionColourTextureNormal:
+		//TODO:
+		break;
 	}
+
+	//now the faces, which are the same for any vertex format
 	int fc=0;
 	for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
 		buf_indices[fc++]=*fIT;
 	}
 
-	//now copy the vertex, colour and index data to the buffers
-	vb->CopyFromMemory(buf_vertices);
-	if (hasColourBuffer)
-		vc->CopyFromMemory(buf_colours);
-	ib->CopyFromMemory(buf_indices);
+	//create a vertex data object that holds our buffer definitions which we create in the next block
+	vertexData = new VertexData();
 
-	//free the in-memory buffers as we don't need them any more
+	//now copy the vertex, colour, texture, normal (as appropriate) and index data to the buffers
+	//then free the in-memory buffers as we don't need them any more
+	vb->CopyFromMemory(buf_vertices);
 	delete [] buf_vertices;
-	if (hasColourBuffer)
+	vertexData->_vb.push_back(vb); //push the vertex buffer
+	if (_VertexFormat&VertexFormatColourBit) {
+		vc->CopyFromMemory(buf_colours);
 		delete [] buf_colours;
+		vertexData->_vb.push_back(vc); //push the colour buffer
+	}
+	if (_VertexFormat&VertexFormatTextureBit) {
+		vt->CopyFromMemory(buf_textures);
+		delete [] buf_textures;
+		vertexData->_vb.push_back(vt); //push the texture buffer
+	}
+	if (_VertexFormat&VertexFormatNormalBit) {
+		vn->CopyFromMemory(buf_normals);
+		delete [] buf_normals;
+		vertexData->_vb.push_back(vn); //push the normal buffer
+	}
+	ib->CopyFromMemory(buf_indices);
 	delete [] buf_indices;
 	//todo: could clear vertices and faces as well to save memory as our original data still exists
 
-	//create a vertex data object that holds our buffer definitions
-	vertexData = new VertexData();
-	vertexData->_vb.push_back(vb); //push the vertex buffer
-	if (hasColourBuffer)
-		vertexData->_vb.push_back(vc); //push the colour buffer
+	//now finish off the vertexData initialisation
 	vertexData->_ib=ib; //set the index buffer
 	vertexData->_NumElements=NumFaces; //*3;
 	drawObject._vertexData = vertexData; //attach the vertex data to the draw object so we know what buffers are needed for drawing
