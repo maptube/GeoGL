@@ -181,10 +181,9 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 //  // Not found.
 //}
 
-//guard case for a different vertex format to this one (higher level objects create with all vertex data present and this converts down)
-if (_VertexFormat==Position) {
-	return AddVertex(P);
-}
+	//guard case for a different vertex format to this one (higher level objects create with all vertex data present and this converts down)
+	if (_VertexFormat==Position) return AddVertex(P);
+	//otherwise it MUST be Position information only
 
 
 //assumes x sorted vertices list
@@ -250,6 +249,11 @@ if (_VertexFormat==Position) {
 //copy of add vertex using only position, colour, normal
 int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 N) {
 	//TODO: need guard cases here
+	//guard case for a different vertex format to this one (higher level objects create with all vertex data present and this converts down)
+	if (_VertexFormat==Position) return AddVertex(P);
+	else if (_VertexFormat==PositionColour) return AddVertex(P,Colour);
+	//otherwise it MUST be PositionColourNormal
+
 
 	//assumes x sorted vertices list
 	VertexColourNormal item;
@@ -288,6 +292,11 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 N) {
 //copy of vertexcolour version but with addition of UV and N
 int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N) {
 	//TODO: need guard cases here
+	//guard case for a different vertex format to this one (higher level objects create with all vertex data present and this converts down)
+	if (_VertexFormat==Position) return AddVertex(P);
+	else if (_VertexFormat==PositionColour) return AddVertex(P,Colour);
+	else if (_VertexFormat==PositionColourNormal) return AddVertex(P,Colour,N);
+	//otherwise it MUST be PositionColourTextureNormal
 
 	//assumes x sorted vertices list
 	VertexColourTextureNormal item;
@@ -747,16 +756,9 @@ void Mesh2::CreateBuffers() {
 void Mesh2::FreeBuffers() {
 	//cout<<"Mesh2::FreeBuffers"<<endl;
 	//this is easy, everything is taken care of in gengine
-	
-	//localised these and stored in vertexData
-	//delete vb;
-	//delete vc;
-	//delete ib;
-	//vb=NULL; vc=NULL; ib=NULL;
 
 	delete vertexData; //as all the buffers are now invalid anyway
 	vertexData=NULL;
-
 }
 
 /// <summary>
@@ -814,29 +816,3 @@ void Mesh2::AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Textu
 	cout<<"Num textures = "<<drawObject._textures.size()<<endl;
 }
 
-
-//void TestMesh2() {
-//	//Creates a mesh object directly for testing purposes
-//	//test2 - the mesh2 object
-//	Mesh2* mesh2 = new Mesh2();
-//	glm::vec3 mesh_v[] = {
-//		glm::vec3(-1, -1, 0),
-//		glm::vec3(1, -1, 0),
-//		glm::vec3(1, 1, 0),
-//		glm::vec3(-1, 1, 0)
-//	};
-//	glm::vec3 mesh_c[] = {
-//		glm::vec3(1,0,0),
-//		glm::vec3(0,1,0),
-//		glm::vec3(0,0,1),
-//		glm::vec3(1,0,1)
-//	};
-//	mesh2->AddFace(mesh_v[0],mesh_v[1],mesh_v[2], mesh_c[0],mesh_c[1],mesh_c[2]);
-//	mesh2->AddFace(mesh_v[0],mesh_v[2],mesh_v[3], mesh_c[0],mesh_c[2],mesh_c[3]);
-//	mesh2->AttachShader(shader); //attach the same shader as the triangle
-//	mesh2->CreateBuffers();
-//	//position the mesh
-//	glm::mat4 mesh_mm=glm::translate(glm::mat4(1.0f),glm::vec3(0,0,-2));
-//	mesh2->drawObject._ModelMatrix = mm;
-//	//OK, that's a mesh set up - need to delete it later though!
-//}

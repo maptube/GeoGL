@@ -483,7 +483,7 @@ void Globe::RenderScene(void)
 				const DrawObject& dobj = o3d->GetDrawObject();
 				glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
 				//OK, this is a box test, which is better, this, sqrt or a d^2 comparison with VERY large numbers? AND we might draw twice.
-				if (((abs(P.x)>=nearClip)&&(abs(P.x)<=nearClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
+				if (((abs(P.x)>=nearClip)&&(abs(P.x)<=farClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
 					GC->Render(dobj,*_sdo);
 			}
 			RenderChildren(o3d, nearClip, farClip);

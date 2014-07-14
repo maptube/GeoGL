@@ -50,12 +50,14 @@ void ExtrudeGeometry::ExtrudeSidesFromRing(Mesh2& geom,Ellipsoid& e,bool isClock
 			glm::vec3 P3 = e.toVector(glm::radians(SP0.x),glm::radians(SP0.y),HeightMetres);
 			if (isClockwise)
 			{
-				geom.AddFace(P1,P0,P3,green,green,green);
-				geom.AddFace(P1,P3,P2,green,green,green);
+				glm::vec3 N = glm::cross(P1-P0,P3-P0);
+				geom.AddFace(P1,P0,P3,green,green,green,N,N,N);
+				geom.AddFace(P1,P3,P2,green,green,green,N,N,N);
 			}
 			else {
-				geom.AddFace(P3,P0,P1,green,green,green);
-				geom.AddFace(P2,P3,P1,green,green,green);
+				glm::vec3 N = glm::cross(P3-P0,P1-P0);
+				geom.AddFace(P3,P0,P1,green,green,green,N,N,N);
+				geom.AddFace(P2,P3,P1,green,green,green,N,N,N);
 			}
 		}
 		SP0=SP1;
@@ -104,11 +106,11 @@ void ExtrudeGeometry::ExtrudeMesh(Mesh2& geom, Ellipsoid& e, float HeightMetres)
 			p2t::Point* v1 = (*trIT)->GetPoint(0);
 			p2t::Point* v2 = (*trIT)->GetPoint(1);
 			p2t::Point* v3 = (*trIT)->GetPoint(2);
-			//todo: the height goes in here!
 			glm::vec3 P1 = e.toVector(glm::radians(v1->x),glm::radians(v1->y),HeightMetres); //don't forget to convert to radians for the ellipse!
 			glm::vec3 P2 = e.toVector(glm::radians(v2->x),glm::radians(v2->y),HeightMetres);
 			glm::vec3 P3 = e.toVector(glm::radians(v3->x),glm::radians(v3->y),HeightMetres);
-			geom.AddFace(P1,P2,P3,red,red,red); //uses x-order uniqueness of point, so not best efficiency
+			glm::vec3 N = glm::cross(P1-P2,P3-P2);
+			geom.AddFace(P1,P2,P3,red,red,red,N,N,N); //uses x-order uniqueness of point, so not best efficiency
 		}
 
 	}

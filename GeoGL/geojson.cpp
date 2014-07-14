@@ -11,6 +11,7 @@
 #include "json/reader.h"
 
 #include "mesh2.h"
+#include "gengine/vertexformat.h"
 #include "ellipsoid.h"
 #include "triangulator.h"
 #include "extrudegeometry.h"
@@ -423,6 +424,7 @@ void GeoJSON::ExtrudeMesh(Ellipsoid& e,double HeightMetres) {
 	for (vector<PathShape>::iterator it = _Features.begin(); it!=_Features.end(); ++it)
 	{
 		Mesh2* geom = new Mesh2();
+		//geom->_VertexFormat=gengine::PositionColourNormal; //eventually, but you need a shader for it!
 		ExtrudeGeometry egeom;
 		egeom.AddShape(*it);
 		//egeom.ExtrudeMesh(*geom,e,HeightMetres); //extrude shape (XY plane) into geom on the specified ellipsoid
