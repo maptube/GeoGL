@@ -30,6 +30,12 @@ namespace gengine {
 
 /////Vertex formats
 
+struct VertexOnly { //could do with a better name for this (Vertex=graph)
+	glm::vec3 P; //vertex (point)
+	int Index; //face index number (labels point uniquely)
+	bool operator < (const VertexOnly &rhs) const { return P.x < rhs.P.x; } //x order sort
+};
+
 struct VertexColour {
 	glm::vec3 P; //vertex (point)
 	glm::vec3 RGB; //colour
@@ -74,9 +80,13 @@ public:
 	~Mesh2(void);
 	static float ManhattanDist(glm::vec2 V1, glm::vec2 V2);
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);
+	int AddVertex(glm::vec3 P);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 Normal);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 Normal);
+	void AddFace(
+		glm::vec3 P1, glm::vec3 P2, glm::vec3 P3
+	);
 	void AddFace(
 			glm::vec3 P1, glm::vec3 P2, glm::vec3 P3,
 			glm::vec3 Colour1, glm::vec3 Colour2, glm::vec3 Colour3
@@ -112,6 +122,7 @@ protected:
 
 	//only one of these formats gets used - ideally I would like to get rid of what is a nasty hack, but templates won't work and
 	//the obvious polymorphism looks overkill
+	std::vector<struct VertexOnly> vertices_V; //vertex only i.e. no colour, texture or normal
 	std::vector<struct VertexColour> vertices_VC; //vertex colour format
 	std::vector<struct VertexColourTexture> vertices_VCT; //vertex colour texture format
 	std::vector<struct VertexColourNormal> vertices_VCN; //vertex colour normal format

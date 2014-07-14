@@ -128,6 +128,39 @@ BBox Mesh2::GetGeometryBounds() {
 	return box;
 }
 
+//copy of add vertex using only position
+int Mesh2::AddVertex(glm::vec3 P) {
+	//assumes x sorted vertices list
+	VertexOnly item;
+	item.P=P;
+	item.P.x-=epsilon; //this is the lower bound on x
+	vector<struct VertexOnly>::iterator it = std::lower_bound(vertices_V.begin(), vertices_V.end(), item);
+	vector<struct VertexOnly>::iterator insertPoint = it;
+	while ((it!=vertices_V.end())&&((*it).P.x<=P.x+epsilon)) {
+		struct VertexOnly V=*it;
+		glm::vec3 P2=V.P;
+		float d = ManhattanDist(P,P2); //Manhattan dist between vertex pos
+		if (d<epsilon) {
+			return V.Index; //point at this position with this colour (<epsilon) is already in the list, so exit early
+		}
+		if (P.x>=P2.x) {
+			insertPoint=it; //keep track of where we might need to insert a new x value
+		}
+		++it;
+	}
+	//if we've got to this point, then we need to add a new point, and as we bailed out when *it.P.x>P.x, then *it is the position to insert
+	//NO - you need to go to x+epsilon as you can have x1=x2+e, y1=y2 and z1=z2 for a match.
+	//The problem then is that the x ordering is wrong! The solution is to use the insertPoint that we've set to the correct position while iterating earlier.
+	//InsertPoint holds last iteration of place while P.x>=P2.x holds, which is the correct insert point
+	item.Index=_NumVertices; //vertices_V.size(); //TODO: check how efficient count is
+	++_NumVertices;
+	item.P=P; //put x back to its real value
+
+	vertices_V.insert(insertPoint,item);
+	bounds.ExpandToIncludePoint(item.P);
+	return item.Index;
+}
+
 /// <summary>
 /// Add a vertex with a colour to the list of vertices, but only if it doesn't already exist.
 /// Returns index of the point added or existing
@@ -147,6 +180,11 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 //{
 //  // Not found.
 //}
+
+//guard case for a different vertex format to this one (higher level objects create with all vertex data present and this converts down)
+if (_VertexFormat==Position) {
+	return AddVertex(P);
+}
 
 
 //assumes x sorted vertices list
@@ -211,6 +249,8 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour) {
 
 //copy of add vertex using only position, colour, normal
 int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 N) {
+	//TODO: need guard cases here
+
 	//assumes x sorted vertices list
 	VertexColourNormal item;
 	item.P=P;
@@ -247,6 +287,8 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 N) {
 
 //copy of vertexcolour version but with addition of UV and N
 int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N) {
+	//TODO: need guard cases here
+
 	//assumes x sorted vertices list
 	VertexColourTextureNormal item;
 	item.P=P;
@@ -292,11 +334,19 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N) {
 void Mesh2::ScaleVertices(double Sx, double Sy, double Sz) {
 	//An alternative way of doing this might be just to iterate over all four vectors in turn regardless of _VertexFormat.
 	//The unused ones are zero length after all.
+	vector<struct VertexOnly>::iterator it_V;
 	vector<struct VertexColour>::iterator it_VC;
 	vector<struct VertexColourTexture>::iterator it_VCT;
 	vector<struct VertexColourNormal>::iterator it_VCN;
 	vector<struct VertexColourTextureNormal>::iterator it_VCTN;
 	switch (_VertexFormat) {
+	case Position:
+		for (it_V = vertices_V.begin(); it_V!=vertices_V.end(); ++it_V) {
+			(*it_V).P.x*=(float)Sx;
+			(*it_V).P.y*=(float)Sy;
+			(*it_V).P.z*=(float)Sz;
+		}
+		break;
 	case PositionColour:
 	case InterleavedPositionColour:
 		for (it_VC = vertices_VC.begin(); it_VC!=vertices_VC.end(); ++it_VC) {
@@ -332,6 +382,19 @@ void Mesh2::ScaleVertices(double Sx, double Sy, double Sz) {
 		}
 		break;
 	}
+}
+
+/// <summary>
+/// overload for vertex position only
+/// </summary>
+void Mesh2::AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3) {
+	//let AddVertex do all the work, it will either add a new vertex, or return an existing index
+	int i_P1 = AddVertex(P1);
+	int i_P2 = AddVertex(P2);
+	int i_P3 = AddVertex(P3);
+
+	//and create a face
+	faces.push_back(i_P1); faces.push_back(i_P2); faces.push_back(i_P3);
 }
 
 /// <summary>
@@ -496,8 +559,13 @@ void Mesh2::CreateBuffers() {
 	//copy data from internal mesh vectors into array buffers for the graphics card
 	switch (_VertexFormat) {
 	case Position:
-		//for (vector<VertexColour>::iterator vIT=vertices.begin(); vIT!=vertices.end(); ++vIT) {
-		//}
+		for (vector<VertexOnly>::iterator vIT=vertices_V.begin(); vIT!=vertices_V.end(); ++vIT) {
+			VertexOnly V=*vIT;
+			int v = V.Index*3;
+			buf_vertices[v]=V.P.x;
+			buf_vertices[v+1]=V.P.y;
+			buf_vertices[v+2]=V.P.z;
+		}
 		break;
 	case PositionColour:
 		for (vector<VertexColour>::iterator vIT=vertices_VC.begin(); vIT!=vertices_VC.end(); ++vIT) {

@@ -84,6 +84,9 @@ void Sphere::init2(double A, double B, double C, int WidthSegments, int HeightSe
 			Pb.x=sinlon[ilon2];		Pb.y=coslon[ilon2]*sinlat[ilat];		Pb.z=coslon[ilon2]*coslat[ilat];
 			Pc.x=sinlon[ilon2];		Pc.y=coslon[ilon2]*sinlat[ilat2];		Pc.z=coslon[ilon2]*coslat[ilat2];
 			Pd.x=sinlon[ilon];		Pd.y=coslon[ilon]*sinlat[ilat2];		Pd.z=coslon[ilon]*coslat[ilat2];
+			//TODO: could do with texture and normals being calculated here
+			//NOTE: the mesh AddVertex code takes care of the VertexFormat if we're not using all the vertex data (i.e. colour/texture/normal absent)
+			
 			//Pa,Pb,Pc,Pd are clockwise, so add in reverse
 			AddFace(Pa,Pd,Pc,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0));
 			AddFace(Pa,Pc,Pb,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0));
