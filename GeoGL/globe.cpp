@@ -64,21 +64,20 @@ Globe::Globe(void)
 	//openglContext.setupScene(); // Setup our OpenGL scene
 	
 	//Shader* shader = new Shader("shader.vert", "shader.frag"); //--no! use the device
+	//this is shader 0
 	Shader* shader = OGLDevice::CreateShaderProgram(
-			/*"shaders/shader.vert", "shaders/shader.frag"*/
-			/*"..\\shaders\\shader.vert", "..\\shaders\\shader.frag"*/
 			"../shaders/shader.vert","../shaders/shader.frag"
 	);
 	_Shaders.push_back(shader);
 
+	//this is shader 1
 	Shader* diffuse = OGLDevice::CreateShaderProgram(
-			/*"shaders/diffuse.vert", "shaders/diffuse.frag"*/
-			/*"..\\shaders\\diffuse.vert", "..\\shaders\\diffuse.frag"*/
 			"../shaders/diffuse.vert", "../shaders/diffuse.frag"
 	);
 	_Shaders.push_back(diffuse);
 
 	//create globe texture shader
+	//This is shader 2
 	Shader* texshader = OGLDevice::CreateShaderProgram(
 			"../shaders/texshader.vert","../shaders/texshader.frag");
 	_Shaders.push_back(texshader);
@@ -110,6 +109,12 @@ Globe::Globe(void)
 	sphere->AttachTexture(0,texture);
 	//TODO: texture is going to go out of scope and not be freed!!!
 	SceneGraph.push_back(sphere);
+
+	//create shader for diffuse lighting with normals passed in - used for buildings
+	//This is shader 3
+	Shader* normalshader = OGLDevice::CreateShaderProgram(
+		"../shaders/diffusenormals.vert","../shaders/diffusenormals.frag");
+	_Shaders.push_back(normalshader);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
@@ -236,8 +241,8 @@ GeoJSON* Globe::LoadLayerGeoJSON(std::string Filename)
 	
 	//Take the first shader defined by the globe and attach to all the objects we've just created.
 	//Presumably we know that the first defined shader is suitable?
-	//0=default shader, 1=diffuse shader
-	Shader* pShader = _Shaders[1]; //was 0
+	//0=default shader, 1=diffuse shader, 2=globe shader, 3=diffuse normal shader
+	Shader* pShader = _Shaders[3]; //was 0, then 1
 	geoj->AttachShader(pShader,true);
 	SceneGraph.push_back(geoj);
 	return geoj;

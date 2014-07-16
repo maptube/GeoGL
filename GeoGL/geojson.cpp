@@ -372,6 +372,7 @@ void GeoJSON::ToMesh(Ellipsoid& e) {
 	{
 		Triangulator tri;
 		Mesh2* geom = new Mesh2();
+		//geom->_VertexFormat=gengine::PositionColourNormal;
 
 		PathShape shape = *it;
 		tri.Clear();
@@ -424,7 +425,7 @@ void GeoJSON::ExtrudeMesh(Ellipsoid& e,double HeightMetres) {
 	for (vector<PathShape>::iterator it = _Features.begin(); it!=_Features.end(); ++it)
 	{
 		Mesh2* geom = new Mesh2();
-		//geom->_VertexFormat=gengine::PositionColourNormal; //eventually, but you need a shader for it!
+		geom->_VertexFormat=gengine::PositionColourNormal;
 		ExtrudeGeometry egeom;
 		egeom.AddShape(*it);
 		//egeom.ExtrudeMesh(*geom,e,HeightMetres); //extrude shape (XY plane) into geom on the specified ellipsoid

@@ -290,7 +290,8 @@ int main(int argc, char *argv[])
 
 	//Buildings in WGS84
 	GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");
-	buildings->SetColour(glm::vec3(0.5f,0.5f,0.5f));
+	//buildings->SetColour(glm::vec3(0.5f,0.5f,0.5f));
+	buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 
 	//London outline in WGS84
 	//GeoJSON* london = new GeoJSON();
