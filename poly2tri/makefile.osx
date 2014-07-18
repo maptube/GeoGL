@@ -1,0 +1,36 @@
+#Nested makefile for poly2tri
+# $@ is file name of target rule
+# $< name of first prerequisite
+
+#For C++11 you need -std=c++11 or -std=gnu++11 as it's experimental
+
+#CC=gcc
+#CXX=g++
+CC=clang
+CXX=clang++
+#all errors and warnings
+#CFLAGS=-c -Wall
+#fatal errors only
+#mac needs -stdlib=libc++ rather an the alternate -stdlib=libstdc++ (and in -l option)
+CFLAGS=-c -w -fPIC -stdlib=libc++
+#CPPFLAGS=-g -std=c++11 -stdlib=libc++
+LDFLAGS=-lc++ -lm -shared
+LDLIBS=
+INCLUDEDIRS=-I common -I sweep
+SOURCES=common/shapes.cc sweep/advancing_front.cc sweep/cdt.cc sweep/sweep_context.cc sweep/sweep.cc
+OBJECTS=$(SOURCES:.cc=.o)
+TARGET=libpoly2tri.so
+
+MAKE=make
+
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cc.o:
+	$(CC) $(CFLAGS) $(INCLUDEDIRS) $< -o $@
+
+clean:
+	rm -f $(EXECUTABLE) $(OBJECTS)

@@ -1,0 +1,65 @@
+#Top Level Makefile for GeoGL
+# $@ is file name of target rule
+# $< name of first prerequisite
+
+#For C++11 you need -std=c++11 or -std=gnu++11 as it's experimental
+
+#Required Library Directories
+#JSONCPP_HOME=/home/richard/projects/jsoncpp-src-0.5.0
+#mac
+#JSONCPP_HOME=/usr/local
+#also mac
+JSONCPP_HOME=/Users/richard/projects/jsoncpp-master
+#installed glfw in /usr/local/lib, so don't need this anymore
+#GLFW_HOME=externals/glfw-3.0.4
+#GLFW_HOME=/home/richard/projects/glfw-3.0.4
+#LEAPSDK_HOME=/home/richard/projects/LeapDeveloperKit/LeapSDK
+#mac
+LEAPSDK_HOME=/users/richard/projects/LeapDeveloperKit_2.0.3+17004_mac/LeapSDK
+POLY2TRI_HOME=poly2tri
+#LIBJPEG_HOME=externals/jpeg-9a
+#mac
+LIBJPEG_HOME=/usr/local/libjpeg-9a
+#FREETYPE_INCLUDE=/usr/include/freetype2
+#mac
+FREETYPE_INCLUDE=/usr/local/include/freetype2
+
+#CC=gcc
+#CXX=g++
+CC=clang
+CXX=clang++
+#all errors and warnings
+#CFLAGS=-c -Wall
+#fatal errors only
+CFLAGS=-c
+#had -std=c++11 for language and -stdlib=libc++ for link library
+CPPFLAGS=-g -std=c++11 -stdlib=libc++ -DLINUX
+#note json cpp coming from projects folder i.e. not installed
+
+#LDFLAGS=-Wall -lstdc++ -lm -framework OpenGL -lGLU -framework GLUT -lGLEW -lglfw -ljson_linux-gcc-4.8.2_libmt\
+#-lLeap -lpoly2tri -lfreetype -ljpeg
+LDFLAGS=-Weverything -lstdc++ -lm -lglfw3 -framework Cocoa -framework OpenGL -framework IOKit \
+-framework CoreVideo -framework GLUT -lGLEW -ljsoncpp -lLeap -lpoly2tri -lfreetype -ljpeg
+
+#LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY2TRI_HOME) -L$(LIBJPEG_HOME)
+#mac /usr/local/lib
+LDLIBS=-L$(LEAPSDK_HOME)/lib/libc++ -L$(POLY2TRI_HOME) -L$(LIBJPEG_HOME)/lib -L$(JSONCPP_HOME)/build/lib_json
+INCLUDEDIRS=-IGeoGL -Iexternals -I$(JSONCPP_HOME)/include -I$(LEAPSDK_HOME)/include -I$(POLY2TRI_HOME) -I$(FREETYPE_INCLUDE) -I$(LIBJPEG_HOME)/include
+SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/image/*.cpp) \
+$(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/clipper/*.cpp)
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=bin/GeoGLProgram
+
+MAKE=make
+
+
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) -v -std=c++11 -stdlib=libc++ $(LDFLAGS) $(LDLIBS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) $(INCLUDEDIRS) $< -o $@
+
+clean:
+	rm -f $(EXECUTABLE) $(OBJECTS)
