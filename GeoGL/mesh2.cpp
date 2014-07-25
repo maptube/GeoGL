@@ -394,6 +394,15 @@ void Mesh2::ScaleVertices(double Sx, double Sy, double Sz) {
 }
 
 /// <summary>
+/// Raw version of add face where we push the index numbers directly
+/// <summary>
+void Mesh2::AddFace(int Va, int Vb, int Vc) {
+	faces.push_back(Va);
+	faces.push_back(Vb);
+	faces.push_back(Vc);
+}
+
+/// <summary>
 /// overload for vertex position only
 /// </summary>
 void Mesh2::AddFace(glm::vec3 P1, glm::vec3 P2, glm::vec3 P3) {

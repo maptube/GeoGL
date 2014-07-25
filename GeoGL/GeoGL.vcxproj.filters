@@ -257,6 +257,12 @@
     <ClInclude Include="pathshapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tiledearth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -426,6 +432,12 @@
     </ClCompile>
     <ClCompile Include="gengine\image\image2d.cpp">
       <Filter>Source Files\gengine\image</Filter>
+    </ClCompile>
+    <ClCompile Include="lod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tiledearth.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

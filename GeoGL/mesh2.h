@@ -84,6 +84,7 @@ public:
 	int AddVertex(glm::vec3 P, glm::vec3 Colour);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 Normal);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 Normal);
+	void AddFace(int Va, int Vb, int Vc);
 	void AddFace(
 		glm::vec3 P1, glm::vec3 P2, glm::vec3 P3
 	);

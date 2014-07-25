@@ -187,6 +187,7 @@
     <ClInclude Include="LeapController.h" />
     <ClInclude Include="Link.h" />
     <ClInclude Include="Links.h" />
+    <ClInclude Include="lod.h" />
     <ClInclude Include="LogoVariantOwns.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mesh.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="gengine\texture2d.h" />
     <ClInclude Include="gengine\textureunits.h" />
+    <ClInclude Include="tiledearth.h" />
     <ClInclude Include="trefoilknot.h" />
     <ClInclude Include="triangulator.h" />
     <ClInclude Include="tubegeometry.h" />
@@ -249,6 +251,7 @@
     <ClCompile Include="LeapController.cpp" />
     <ClCompile Include="Link.cpp" />
     <ClCompile Include="Links.cpp" />
+    <ClCompile Include="lod.cpp" />
     <ClCompile Include="LogoVariantOwns.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
@@ -279,6 +282,7 @@
     </ClCompile>
     <ClCompile Include="gengine\texture2d.cpp" />
     <ClCompile Include="gengine\textureunits.cpp" />
+    <ClCompile Include="tiledearth.cpp" />
     <ClCompile Include="trefoilknot.cpp" />
     <ClCompile Include="triangulator.cpp" />
     <ClCompile Include="tubegeometry.cpp" />

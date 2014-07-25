@@ -1191,7 +1191,7 @@ void ColourAgentByVelocity(ABM::Agent* A) {
 void ModelTubeNetwork::StepAnimation(double Ticks)
 {
 	bool NewData = false; //TODO: check animation time and frames
-	float AnimSpeed = 50.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
+	float AnimSpeed = 2.0f*Ticks; //Amount of time elapsed since last animtion frame //was 0.5
 	//AnimationDT=AnimationDT+0.5
 	AnimationDT += AnimSpeed; // Ticks; ///10; //this is the time now, which is the last update time plus the ticks delta since then
 	if (AnimationDT>=FrameTimeN) {
@@ -1204,7 +1204,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 		_agents.Birth=0; _agents.Death=0;
 	}
 	//FAST STATISTICS!
-	DisplayStatistics();
+	//DisplayStatistics();
 	//FrameN is always ahead of the agents in time, so it contains the next data needed to make a decision on
 	map<string,tube_anim_record> FrameN = tube_anim_frames[FrameTimeN];
 	float FrameNFutureSecs = FrameTimeN - AnimationDT._DT; //this is how many seconds in to the future the FrameN time is - needed for timing offset and velocity
