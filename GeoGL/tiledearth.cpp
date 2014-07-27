@@ -5,27 +5,42 @@
 #include "object3d.h"
 #include "gengine/vertexformat.h"
 #include "gengine/Camera.h"
+#include "gengine/drawobject.h"
+#include "gengine/scenedataobject.h"
+#include "gengine/graphicscontext.h"
 
 using namespace std;
+using namespace gengine;
 
 //these constants define the resolution of the data at each LOD level and the number of levels created
-const int TiledEarth::LODDepth=4;
-const int TiledEarth::LODWidthSegments=20;
-const int TiledEarth::LODHeightSegments=20;
+const int TiledEarth::LODDepth=1; //4;
+const int TiledEarth::LODWidthSegments=40;
+const int TiledEarth::LODHeightSegments=40;
 
 TiledEarth::TiledEarth(void)
 {
 	_ellipsoid = Ellipsoid();
+	_Tau=1.0; //This is the screen error tolerance which has to be acceptable to draw an LOD chunk, otherwise the child chunks are considered instead
+	_MeshCount=0; //count how many meshes we create
 
 	//this is the part where we build the Earth's chunked LODs
 	//the returned mesh is the root node, width and height segments define how many points are on each LOD Chunk (they're all the same). Depth is the depth to create the oct tree to.
-	_root = TiledEarth::BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, -glm::pi<double>(), 0, glm::pi<double>(), 2.0*glm::pi<double>()); //(lat=-pi..+pi, lon=0..2pi)
+	_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, -glm::pi<double>(), 0, glm::pi<double>(), 2.0*glm::pi<double>()); //(lat=-pi..+pi, lon=0..2pi)
+	//_root is the top of the progressive mesh tree. Can't use Children of this object as the standard scene render would
+	//try to draw all of them!
+	//bounds=_root->bounds;
+	cout<<"TiledEarth Mesh Count="<<_MeshCount<<endl;
 }
 
 
 TiledEarth::~TiledEarth(void)
 {
 	delete _root;
+}
+
+void TiledEarth::AttachShader(gengine::Shader* pShader, bool Recursive)
+{
+	_root->AttachShader(pShader,Recursive); //apply shader bind to root
 }
 
 /// <summary>
@@ -39,16 +54,18 @@ TiledEarth::~TiledEarth(void)
 /// <param name="MaxLon">maximum longitude of box in radians</param>
 /// <returns>the mesh object</returns>
 Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon) {
+	//cout<<"MakePatch "<<MinLat<<" "<<MinLon<<" "<<MaxLat<<" "<<MaxLon<<endl;
 	double A = _ellipsoid.A();
 	double B = _ellipsoid.B();
 	double C = _ellipsoid.C();
 
 	Mesh2* mesh = new Mesh2();
+	++_MeshCount;
 	mesh->_VertexFormat=gengine::Position;
 
 	//work out cartesian coordinates on a patch based on WidthSegments and HeightSegments for the lat/lon bounds
-	double dlat=(MaxLat-MinLat)/HeightSegments;
-	double dlon=(MaxLon-MaxLat)/WidthSegments;
+	double dlat=(MaxLat-MinLat)/(double)HeightSegments;
+	double dlon=(MaxLon-MinLon)/(double)WidthSegments;
 	//int i=0;
 	for (double lat=MinLat; lat<=MaxLat; lat+=dlat) {
 		for (double lon=MinLon; lon<=MaxLon; lon+=dlon) {
@@ -57,7 +74,7 @@ Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLa
 			double y = B * coslon * glm::sin(lat);
 			double z = C * coslon * glm::cos(lat);
 			//push xyz
-			mesh->AddVertex(glm::vec3(x,y,z)); //could do with add unique vertex here?
+			mesh->AddVertexRaw(glm::vec3(x,y,z)); //could do with add unique vertex here?
 		}
 	}
 
@@ -75,62 +92,9 @@ Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLa
 		}
 	}
 
+	mesh->CreateBuffers();
+
 	return mesh;
-
-	//this is the code it was based on from sphere init2
-	//work out and store the sin and cos of the positions around one of the horizontal slices as it gets used going up the sphere
-	//and also the heights of the slices
-	//float* sinlon = new float[WidthSegments];
-	//float* coslon = new float[WidthSegments];
-	//float* sinlat = new float[HeightSegments];
-	//float* coslat = new float[HeightSegments];
-
-	//float anglon=2*glm::pi<float>()/(float)WidthSegments; //segment angle step around lon
-	//float anglat=2*glm::pi<float>()/(float)HeightSegments; //segment angle step around lat
-	//int i=0;
-	//for (float lon=0; lon<2*glm::pi<float>(); lon+=anglon) {
-	//	sinlon[i]=glm::sin(lon); //sin(lon);
-	//	coslon[i]=glm::cos(lon); //cos(lon);
-	//	++i;
-	//}
-	////now store the height slices
-	//i=0;
-	//for (float lat=-glm::pi<float>(); lat<glm::pi<float>(); lat+=anglat) {
-	//	sinlat[i]=glm::sin(lat); //sin(lat);
-	//	coslat[i]=glm::cos(lat); //cos(lat);
-	//	++i;
-	//}
-
-	////OK, that's enough pre-calculation, wire up the points into faces
-	//for (int ilat=0; ilat<HeightSegments; ++ilat) {
-	//	for (int ilon=0; ilon<WidthSegments; ++ilon) {
-	//		int ilat2=(ilat+1)%HeightSegments; int ilon2=(ilon+1)%WidthSegments;
-	//		//work out four patch coordinates based on current lat/lon angles +- each combination of next lat/lon coord
-	//		glm::vec3 Pa,Pb,Pc,Pd;
-	//		//TODO: you might want to check the orientation of the point
-	//		Pa.x=sinlon[ilon];		Pa.y=coslon[ilon]*sinlat[ilat];			Pa.z=coslon[ilon]*coslat[ilat];
-	//		Pb.x=sinlon[ilon2];		Pb.y=coslon[ilon2]*sinlat[ilat];		Pb.z=coslon[ilon2]*coslat[ilat];
-	//		Pc.x=sinlon[ilon2];		Pc.y=coslon[ilon2]*sinlat[ilat2];		Pc.z=coslon[ilon2]*coslat[ilat2];
-	//		Pd.x=sinlon[ilon];		Pd.y=coslon[ilon]*sinlat[ilat2];		Pd.z=coslon[ilon]*coslat[ilat2];
-	//		//TODO: could do with texture and normals being calculated here
-	//		//NOTE: the mesh AddVertex code takes care of the VertexFormat if we're not using all the vertex data (i.e. colour/texture/normal absent)
-	//		
-	//		//Pa,Pb,Pc,Pd are clockwise, so add in reverse
-	//		AddFace(Pa,Pd,Pc,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0));
-	//		AddFace(Pa,Pc,Pb,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0));
-	//	}
-	//}
-
-	////now scale up (or down) to the correct radius
-	//ScaleVertices(A,B,C);
-
-	////and finally build the graphics
-	//CreateBuffers();
-
-	//delete [] sinlon;
-	//delete [] coslon;
-	//delete [] sinlat;
-	//delete [] coslat;
 }
 
 
@@ -148,6 +112,7 @@ Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLa
 /// <returns>The root node of the chunked LOD hierarchy</returns>
 Mesh2* TiledEarth::BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon)
 {
+	//cout<<"TiledEarth BuildChumkedLOD Depth="<<Depth<<endl;
 	//create a mesh at this level 
 	Mesh2* mesh = MakePatch(WidthSegments,HeightSegments,MinLat,MinLon,MaxLat,MaxLon);
 
@@ -181,23 +146,20 @@ Mesh2* TiledEarth::BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegme
 }
 
 //delta halves each recursion
-void RenderLOD(Mesh2* mesh,gengine::Camera* camera,float K,float Tau,float Delta)
+void TiledEarth::RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo,Mesh2* mesh,float K,float Delta)
 {
 	//calculate distance from camera to mesh
-	float D = glm::distance(camera->GetCameraPos(),mesh->bounds.Centre()); //OK, this is distance to object centre, not nearest point to camera
+	//Real formula from globe book is: d=(c-viewer).v - r  (v=view dir vector, c=centre of object, r=radius of object bounds)
+	float D = glm::distance(sdo._camera->GetCameraPos(),mesh->bounds.Centre()); //OK, this is distance to object centre, not nearest point to camera
 	float Rho=Delta/D*K;
-	if (Rho<=Tau) {
-		//draw - this is borrowed from the globe render
+	if (Rho<=_Tau) {
 		const DrawObject& dobj = mesh->GetDrawObject();
-		glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
-		//OK, this is a box test, which is better, this, sqrt or a d^2 comparison with VERY large numbers? AND we might draw twice.
-		if (((abs(P.x)>=nearClip)&&(abs(P.x)<=farClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
-			GC->Render(dobj,*_sdo);
+		GC->Render(dobj,sdo);
 	}
 	else {
 		//recursion
-		for (vector<Object3D*>::iterator childIT=mesh->BeginChild(); childIT!=mesh->EndChild(); ++childIT) {
-			RenderLOD((Mesh2*)*childIT,camera,K,Tau,Delta/2.0);
+		for (vector<Object3D*>::const_iterator childIT=mesh->BeginChild(); childIT!=mesh->EndChild(); ++childIT) {
+			RenderLOD(GC,sdo,(Mesh2*)*childIT,K,Delta/2.0);
 		}
 	}
 }
@@ -206,22 +168,17 @@ void RenderLOD(Mesh2* mesh,gengine::Camera* camera,float K,float Tau,float Delta
 /// </summary>
 /// <param name="Tau">This is the screen error tolerance which has to be acceptable to draw an LOD chunk, otherwise the child chunks are considered instead</param>
 /// <param name="camera">Camera object which contains the viewpoint to calculate screen error for candidate chunks</param>
-void TiledEarth::Render(float Tau,gengine::Camera* camera)
+void TiledEarth::Render(gengine::GraphicsContext* GC, const gengine::SceneDataObject& sdo)
 {
-	float K = camera->_width/(2*glm::tan(camera->_fov/2.0)); //perspective distance constant based on projection
+	float K = sdo._camera->_width/(2*glm::tan(sdo._camera->_fov/2.0)); //perspective distance constant based on projection
+
 
 	//kick off Chunked LOD rendering - use initial delta of 1.0, which halves with each split
-	RenderLOD(_root,camera,K,Tau,1.0f);
+	//error factor (delta) for top mesh is worked out as the distance between two straight line points between vertices and the
+	//real distance if the line was actually a curve. This is worked out as delta=R(1-cos(Theta/2)) where Theta is the angle
+	//calculated as Theta=2PI/WidthSegments (or height?) and R is the radius i.e. semi-major axis
+	double Theta = 2*glm::pi<double>()/(double)LODWidthSegments;
+	double Delta = _ellipsoid.A()*(1-glm::cos(Theta/2));
+	RenderLOD(GC,sdo,_root,K,(float)Delta);
 }
 
-//go through current objects and test pixel projection size if too big then split, if too small then drop and go back a level
-//void TiledEarth::UpdateView(gengine::Camera* cam)
-//{
-	//TODO: could keep the last view and only update meshes if it has changed significantly?
-
-	//here's the method:
-	//for every child mesh
-	//  project bounding box and check size
-	//  if too big for screen then split into smaller
-	//  if too detailed for screen then dump and replace with higher level (how? there are multiple)
-//}

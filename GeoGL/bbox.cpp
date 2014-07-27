@@ -4,6 +4,7 @@
 BBox::BBox(void)
 {
 	IsValid=false;
+	radius=0;
 }
 
 
@@ -19,6 +20,12 @@ glm::dvec3 BBox::Centre()
 	glm::dvec3 C = min+max;
 	C.x/=2; C.y/=2; C.z/=2;
 	return C;
+}
+
+//return radius from centre
+double BBox::Radius()
+{
+	return 0;
 }
 
 /// <summary>
@@ -64,4 +71,5 @@ void BBox::Union(BBox& box)
 {
 	ExpandToIncludePoint(box.min);
 	ExpandToIncludePoint(box.max);
+	//TODO: how do you calculate the new radius?
 }

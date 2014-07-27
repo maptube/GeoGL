@@ -26,6 +26,7 @@
 //#include "opengl4.h"
 #include "object3d.h"
 #include "sphere.h"
+#include "tiledearth.h"
 #include "gengine/events/EventManager.h"
 #include "OrbitController.h"
 #include "EllipsoidOrbitController.h"
@@ -108,7 +109,14 @@ Globe::Globe(void)
 
 	sphere->AttachTexture(0,texture);
 	//TODO: texture is going to go out of scope and not be freed!!!
-	SceneGraph.push_back(sphere);
+	//SceneGraph.push_back(sphere);
+
+	/////////NEW! Tiled Earth
+	TiledEarth* te = new TiledEarth();
+	//attribute in_Color=red?
+	te->AttachShader(shader,true);
+	//te->AttachShader(texshader,true); //strangely enough, this works!
+	SceneGraph.push_back(te);
 
 	//create shader for diffuse lighting with normals passed in - used for buildings
 	//This is shader 3
@@ -489,7 +497,8 @@ void Globe::RenderScene(void)
 				glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
 				//OK, this is a box test, which is better, this, sqrt or a d^2 comparison with VERY large numbers? AND we might draw twice.
 				if (((abs(P.x)>=nearClip)&&(abs(P.x)<=farClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
-					GC->Render(dobj,*_sdo);
+					//GC->Render(dobj,*_sdo);
+					o3d->Render(GC,*_sdo);
 			}
 			RenderChildren(o3d, nearClip, farClip);
 		}

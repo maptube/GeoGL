@@ -5,6 +5,8 @@
 #include <iterator>
 #include "DebugUtils.h"
 
+#include "gengine/graphicscontext.h"
+#include "gengine/scenedataobject.h"
 #include "gengine/ogldevice.h"
 #include "gengine/glbuffertypes.h"
 #include "gengine/vertexbuffer.h"
@@ -126,6 +128,20 @@ BBox Mesh2::GetGeometryBounds() {
 		box.Union(childBox); //this should return the bounds for the object and all its children
 	}
 	return box;
+}
+
+/// <summary>
+/// Add a new point, but don't worry about duplicates, just push it onto the list
+/// <summary>
+/// <returns>The index of the point just added. This will always be in sequence i.e. 0,1,2...</returns>
+int Mesh2::AddVertexRaw(glm::vec3 P) {
+	VertexOnly item;
+	item.P=P;
+	item.Index=_NumVertices;
+	++_NumVertices;
+	vertices_V.push_back(item);
+	bounds.ExpandToIncludePoint(item.P);
+	return item.Index;
 }
 
 //copy of add vertex using only position
@@ -699,7 +715,7 @@ void Mesh2::CreateBuffers() {
 	//do nothing for now, just use default
 
 	//OK, that's the buffers and render state done, now set up the draw object needed to do the drawing
-	drawObject._PrimType=ptTriangles;
+	drawObject._PrimType=ptLines; //ptTriangles;
 	//shader program set via attach shader
 
 	drawObject._rs->_DepthTest._Enabled=true;
@@ -805,6 +821,16 @@ void Mesh2::AttachShader(gengine::Shader* pShader, bool Recursive) {
 //		(*childIT)->Render(mm);
 //	}
 //}
+
+/// <summary>
+/// Render mesh. The main point of this is to allow specialised objects to take control of the drawing and do something
+/// special, for example, the globe chunked LOD rendering.
+/// NOTE: this does not render any children.
+/// </summary>
+void Mesh2::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo) {
+	const DrawObject& dobj=GetDrawObject();
+	GC->Render(dobj,sdo);
+}
 
 /// <summary>
 /// Return the draw object, which is needed by the graphics context to draw this object. Contains all opengl state, buffers and matrix.

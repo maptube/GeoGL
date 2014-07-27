@@ -165,6 +165,14 @@ void Object3D::ComputeBounds() {
 //	}
 //}
 
+/// <summary>
+/// Render the object to the graphics context. In this class, it does nothing as there is nothing to render.
+/// NOTE: child objects don't get rendered, only the parent.
+/// </summary>
+void Object3D::Render(gengine::GraphicsContext* GC, const gengine::SceneDataObject& sdo) {
+	//DO NOTHING
+}
+
 const gengine::DrawObject& Object3D::GetDrawObject() {
 	//this is also a nasty NullDrawObject kludge that I would like to get rid of
 	return (gengine::DrawObject &)drawObject; //this returns a reference to a null one

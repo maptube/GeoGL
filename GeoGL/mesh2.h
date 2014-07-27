@@ -22,6 +22,8 @@
 
 //forward declarations
 namespace gengine {
+	class GraphicsContext;
+	class SceneDataObject;
 	class VertexBuffer;
 	class IndexBuffer;
 	class Shader;
@@ -80,6 +82,7 @@ public:
 	~Mesh2(void);
 	static float ManhattanDist(glm::vec2 V1, glm::vec2 V2);
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);
+	int AddVertexRaw(glm::vec3 P);
 	int AddVertex(glm::vec3 P);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 Normal);
@@ -111,6 +114,7 @@ public:
 	virtual void AttachShader(gengine::Shader* pShader, bool Recursive);
 	virtual BBox GetGeometryBounds();
 	//virtual void Render(glm::mat4 ParentMat);
+	virtual void Render(gengine::GraphicsContext* GC, const gengine::SceneDataObject& sdo);
 	virtual bool HasGeometry() { return true; } //yes, this object has geometry associated with it and can be rendered
 	virtual const gengine::DrawObject& GetDrawObject();
 	//TODO: SetMatrix - VERY IMPORTANT!
