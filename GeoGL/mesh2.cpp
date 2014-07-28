@@ -715,7 +715,7 @@ void Mesh2::CreateBuffers() {
 	//do nothing for now, just use default
 
 	//OK, that's the buffers and render state done, now set up the draw object needed to do the drawing
-	drawObject._PrimType=ptLines; //ptTriangles;
+	drawObject._PrimType=ptLines; //ptTriangles; ptLines;
 	//shader program set via attach shader
 
 	drawObject._rs->_DepthTest._Enabled=true;

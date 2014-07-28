@@ -14,8 +14,8 @@ using namespace gengine;
 
 //these constants define the resolution of the data at each LOD level and the number of levels created
 const int TiledEarth::LODDepth=1; //4;
-const int TiledEarth::LODWidthSegments=40;
-const int TiledEarth::LODHeightSegments=40;
+const int TiledEarth::LODWidthSegments=40; //40
+const int TiledEarth::LODHeightSegments=40; //40
 
 TiledEarth::TiledEarth(void)
 {
@@ -25,7 +25,8 @@ TiledEarth::TiledEarth(void)
 
 	//this is the part where we build the Earth's chunked LODs
 	//the returned mesh is the root node, width and height segments define how many points are on each LOD Chunk (they're all the same). Depth is the depth to create the oct tree to.
-	_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, -glm::pi<double>(), 0, glm::pi<double>(), 2.0*glm::pi<double>()); //(lat=-pi..+pi, lon=0..2pi)
+	//_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, -glm::pi<double>(), 0, glm::pi<double>(), 2.0*glm::pi<double>()); //(lat=-pi..+pi, lon=0..2pi)
+	_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, -glm::half_pi<double>(), 0, glm::half_pi<double>(), 2.0*glm::pi<double>()); //(lat=-pi/2..+pi/2, lon=0..2pi)
 	//_root is the top of the progressive mesh tree. Can't use Children of this object as the standard scene render would
 	//try to draw all of them!
 	//bounds=_root->bounds;
@@ -54,7 +55,7 @@ void TiledEarth::AttachShader(gengine::Shader* pShader, bool Recursive)
 /// <param name="MaxLon">maximum longitude of box in radians</param>
 /// <returns>the mesh object</returns>
 Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon) {
-	//cout<<"MakePatch "<<MinLat<<" "<<MinLon<<" "<<MaxLat<<" "<<MaxLon<<endl;
+	cout<<"MakePatch "<<MinLat<<" "<<MinLon<<" "<<MaxLat<<" "<<MaxLon<<endl;
 	double A = _ellipsoid.A();
 	double B = _ellipsoid.B();
 	double C = _ellipsoid.C();
@@ -67,14 +68,20 @@ Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLa
 	double dlat=(MaxLat-MinLat)/(double)HeightSegments;
 	double dlon=(MaxLon-MinLon)/(double)WidthSegments;
 	//int i=0;
+	int lastPointI=-1;
 	for (double lat=MinLat; lat<=MaxLat; lat+=dlat) {
 		for (double lon=MinLon; lon<=MaxLon; lon+=dlon) {
-			double x = A * glm::sin(lon);
-			double coslon = glm::cos(lon);
-			double y = B * coslon * glm::sin(lat);
-			double z = C * coslon * glm::cos(lat);
+			//original formula - lat lon the wrong way around
+			//double x = A * glm::sin(lon);
+			//double coslon = glm::cos(lon);
+			//double y = B * coslon * glm::sin(lat);
+			//double z = C * coslon * glm::cos(lat);
+			double x = A * glm::sin(lat);
+			double coslon = glm::cos(lat);
+			double y = B * coslon * glm::sin(lon);
+			double z = C * coslon * glm::cos(lon);
 			//push xyz
-			mesh->AddVertexRaw(glm::vec3(x,y,z)); //could do with add unique vertex here?
+			lastPointI=mesh->AddVertexRaw(glm::vec3(x,y,z)); //could do with add unique vertex here?
 		}
 	}
 
@@ -91,6 +98,7 @@ Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLa
 			mesh->AddFace(Pa,Pc,Pb);
 		}
 	}
+	cout<<"MakPatch vertex count ="<<lastPointI<<endl;
 
 	mesh->CreateBuffers();
 
@@ -112,35 +120,35 @@ Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLa
 /// <returns>The root node of the chunked LOD hierarchy</returns>
 Mesh2* TiledEarth::BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon)
 {
-	//cout<<"TiledEarth BuildChumkedLOD Depth="<<Depth<<endl;
+	//cout<<"TiledEarth BuildChunkedLOD Depth="<<Depth<<endl;
 	//create a mesh at this level 
 	Mesh2* mesh = MakePatch(WidthSegments,HeightSegments,MinLat,MinLon,MaxLat,MaxLon);
 
 	if (Depth==0) return mesh; //guard case, we're at the limit of recursion, so don't create any children
 	//quadtree recurse
-	//double LatSplit = (MinLat+MaxLat)/2;
-	//double LonSplit = (MinLon+MaxLon)/2;
-	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   MinLon,   LatSplit, LonSplit) ); //sw
-	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, MinLon,   MaxLat,   LonSplit) ); //nw
-	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit, MaxLat,   MaxLon) ); //ne
-	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit, LatSplit, MaxLon) ); //se
+	double LatSplit = (MinLat+MaxLat)/2;
+	double LonSplit = (MinLon+MaxLon)/2;
+	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   MinLon,   LatSplit, LonSplit) ); //sw
+	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, MinLon,   MaxLat,   LonSplit) ); //nw
+	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit, MaxLat,   MaxLon) ); //ne
+	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit, LatSplit, MaxLon) ); //se
 
 	//octtree recurse - this splits the longitude into four chunks along the axes
-	double LatSplit = (MinLat+MaxLat)/2;
-	double LonSplit1 = (MinLon+MaxLon)/2; //centre
-	double LonSplit0 = (MinLon+LonSplit1)/2; //left quarter (west)
-	double LonSplit2 = (LonSplit1+MaxLon)/2; //right quarter (east), so lon split goes 012 west to east
+	//double LatSplit = (MinLat+MaxLat)/2;
+	//double LonSplit1 = (MinLon+MaxLon)/2; //centre
+	//double LonSplit0 = (MinLon+LonSplit1)/2; //left quarter (west)
+	//double LonSplit2 = (LonSplit1+MaxLon)/2; //right quarter (east), so lon split goes 012 west to east
 	//8 BuildChunkedLOD - it doesn't matter what order you do this in
 	//top top (north)
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, MinLon,    MaxLat,   LonSplit0 ) );
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit0, MaxLat,   LonSplit1 ) );
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit1, MaxLat,   LonSplit2 ) );
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit2, MaxLat,   MaxLon    ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, MinLon,    MaxLat,   LonSplit0 ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit0, MaxLat,   LonSplit1 ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit1, MaxLat,   LonSplit2 ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, LatSplit, LonSplit2, MaxLat,   MaxLon    ) );
 	//bottom row (south)
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   MinLon,    LatSplit, LonSplit0 ) );
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit0, LatSplit, LonSplit1 ) );
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit1, LatSplit, LonSplit2 ) );
-	mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit2, LatSplit, MaxLon    ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   MinLon,    LatSplit, LonSplit0 ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit0, LatSplit, LonSplit1 ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit1, LatSplit, LonSplit2 ) );
+	//mesh->AddChild( BuildChunkedLOD(Depth-1, WidthSegments, HeightSegments, MinLat,   LonSplit2, LatSplit, MaxLon    ) );
 
 	return mesh;
 }
