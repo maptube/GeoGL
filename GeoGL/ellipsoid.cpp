@@ -80,7 +80,7 @@ double Ellipsoid::heightAboveSurfaceAtPoint(glm::dvec3 P)
 {
 	//If the eye vector (P) is a ray from the origin to P, then the ray is Lambda * P and we need to find Lambda by putting (L.Px, L.Py, L.Pz) into X^2/a^2+Y^2/b^2+Z^2/c^2 = 1
 	//Having got Lambda, put it back into S=Lambda * P to calculate the surface point intersection with the ray from the eye through the origin. Then simply subtract h= |P| - |S|
-	//to calcualte the height as the distance from eye to origin minus surface point to origin.
+	//to calculate the height as the distance from eye to origin minus surface point to origin.
 	glm::dvec3 k(P.x*P.x/a2,P.y*P.y/b2,P.z*P.z/c2);
 	double Lambda2 = 1/(k.x+k.y+k.z);
 	double Lambda = sqrt(Lambda2);

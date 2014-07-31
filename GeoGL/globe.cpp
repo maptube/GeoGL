@@ -114,8 +114,9 @@ Globe::Globe(void)
 	/////////NEW! Tiled Earth
 	TiledEarth* te = new TiledEarth();
 	//attribute in_Color=red?
-	te->AttachShader(shader,true);
-	//te->AttachShader(texshader,true); //strangely enough, this works!
+	//te->AttachShader(shader,true);
+	te->AttachTexture(0,texture);
+	te->AttachShader(texshader,true); //strangely enough, this works!
 	SceneGraph.push_back(te);
 
 	//create shader for diffuse lighting with normals passed in - used for buildings

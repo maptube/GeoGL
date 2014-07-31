@@ -77,6 +77,7 @@ class Mesh2 : public Object3D
 public:
 	float epsilon;
 	enum gengine::VertexFormat _VertexFormat; //Format of buffers used e.g. separate or interleaved, position, colour, texture, normal
+	bool _HasIndexBuffer; //if false, then don't create the index buffer in CreateBuffers
 
 	Mesh2(void);
 	~Mesh2(void);

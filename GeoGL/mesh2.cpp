@@ -67,6 +67,7 @@ Mesh2::Mesh2(void)
 
 	//set default vertex format to have position and colour indices
 	_VertexFormat = PositionColour;
+	_HasIndexBuffer = true; //default is to create an index buffer unless set to false (maybe tri-stripping or tiled earth?)
 	_NumVertices=0;
 
 	//vertices.reserve(1024);
@@ -558,8 +559,8 @@ void Mesh2::CreateBuffers() {
 
 	//graphics card buffer vertices, colours, indexes
 	
-	VertexBuffer* vb=nullptr;
-	VertexBuffer* vc=nullptr;
+	VertexBuffer* vb=nullptr; //vertices
+	VertexBuffer* vc=nullptr; //colours
 	VertexBuffer* vt=nullptr; //textures
 	VertexBuffer* vn=nullptr; //normals
 	//create internal memory blocks in format suitable for copying to opengl vertex and index buffers
@@ -586,9 +587,13 @@ void Mesh2::CreateBuffers() {
 		//interleaved
 		//add up the size of all the components and create one buffer of that size times _NumVertices
 	}
-	IndexBuffer* ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*sizeof(unsigned int)); //note that NumFaces is already *3 (see def above)
 
-	unsigned int* buf_indices = new unsigned int[NumFaces*3]; //GLuint
+	IndexBuffer* ib;
+	unsigned int* buf_indices;
+	if (_HasIndexBuffer) {
+		ib=OGLDevice::CreateIndexBuffer(ElementArrayBuffer,StaticDraw,NumFaces*sizeof(unsigned int)); //note that NumFaces is already *3 (see def above)
+		buf_indices = new unsigned int[NumFaces*3]; //GLuint
+	}
 
 	//copy data from internal mesh vectors into array buffers for the graphics card
 	switch (_VertexFormat) {
@@ -674,9 +679,12 @@ void Mesh2::CreateBuffers() {
 	}
 
 	//now the faces, which are the same for any vertex format
-	int fc=0;
-	for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
-		buf_indices[fc++]=*fIT;
+	if (_HasIndexBuffer)
+	{
+		int fc=0;
+		for (vector<int>::iterator fIT=faces.begin(); fIT!=faces.end(); ++fIT) {
+			buf_indices[fc++]=*fIT;
+		}
 	}
 
 	//create a vertex data object that holds our buffer definitions which we create in the next block
@@ -702,20 +710,27 @@ void Mesh2::CreateBuffers() {
 		delete [] buf_normals;
 		vertexData->_vb.push_back(vn); //push the normal buffer
 	}
-	ib->CopyFromMemory(buf_indices);
-	delete [] buf_indices;
+	if (_HasIndexBuffer) {
+		ib->CopyFromMemory(buf_indices);
+		delete [] buf_indices;
+	}
 	//todo: could clear vertices and faces as well to save memory as our original data still exists
 
 	//now finish off the vertexData initialisation
-	vertexData->_ib=ib; //set the index buffer
-	vertexData->_NumElements=NumFaces; //*3;
+	if (_HasIndexBuffer) {
+		vertexData->_ib=ib; //set the index buffer
+		vertexData->_NumElements=NumFaces; //*3;
+	}
+	else {
+		vertexData->_NumElements=0;
+	}
 	drawObject._vertexData = vertexData; //attach the vertex data to the draw object so we know what buffers are needed for drawing
 
 	//set render state object for this mesh e.g. front face culling, CCW?
 	//do nothing for now, just use default
 
 	//OK, that's the buffers and render state done, now set up the draw object needed to do the drawing
-	drawObject._PrimType=ptLines; //ptTriangles; ptLines;
+	drawObject._PrimType=ptTriangles; //ptTriangles; //ptTriangles; ptLines;
 	//shader program set via attach shader
 
 	drawObject._rs->_DepthTest._Enabled=true;

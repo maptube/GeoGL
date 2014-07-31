@@ -14,6 +14,7 @@ namespace gengine {
 	class SceneDataObject;
 	class GraphicsContext;
 	class Shader;
+	class IndexBuffer;
 }
 
 class Mesh2;
@@ -25,7 +26,11 @@ protected:
 	static const int LODWidthSegments;
 	static const int LODHeightSegments;
 	int _MeshCount;
+	float _MinDelta; //this is the delta value at the maximum level of detail
 	Mesh2* _root;
+	int _NumElements; //number of face elements used for rendering
+	gengine::IndexBuffer* _ib; //index buffer shared by all meshes
+	gengine::IndexBuffer* CreateIndexBuffer(const int WidthSegments,const int HeightSegments);
 	void RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo,Mesh2* mesh,float K,float Delta);
 public:
 	Ellipsoid _ellipsoid;
@@ -37,6 +42,7 @@ public:
 	virtual void Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo);
 	virtual bool HasGeometry() { return true; } //yes, this object has geometry associated with it and can be rendered
 	virtual void AttachShader(gengine::Shader* pShader, bool Recursive); //apply shader bind to root
+	void AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture);
 
 	Mesh2* MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
 	Mesh2* BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);

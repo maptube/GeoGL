@@ -1,5 +1,10 @@
 #include "sphere.h"
 
+//TODO
+//TODO
+//You might want to check the coordinates as lat=[-pi..pi] and lon=[0..2pi] so the point and face creation is tracing out more than
+//the whole sphere!!!!!!
+
 //todo: allow user to pass in a list of vertex colours
 /// <summary>Create a sphere with a single radius (i.e. not a spheroid)</summary>
 Sphere::Sphere(double Radius,int WidthSegments,int HeightSegments) {
