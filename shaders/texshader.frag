@@ -12,6 +12,9 @@ uniform vec3 u_globeOneOverRadiiSquared;
 uniform float u_oneOverPi;
 uniform float u_oneOverTwoPi;
 
+uniform vec2 u_texOffset;
+unfiorm vec2 u_texScale;
+
 vec3 GeodeticSurfaceNormal(vec3 positionOnEllipsoid, vec3 oneOverEllipsoidRadiiSquared)
 {
 	return normalize(positionOnEllipsoid*oneOverEllipsoidRadiiSquared);
@@ -22,7 +25,8 @@ vec2 ComputeTextureCoordinates(vec3 normal)
 	return vec2(
 		atan(normal.y, normal.x)*u_oneOverTwoPi + 0.5,
 		asin(normal.z)*u_oneOverPi + 0.5);
-	//new formula with poles in the right place
+	
+	//new formula with texture coordinate offsets and scale
 	//return vec2(
 	//	atan(normal.x, normal.z)*u_oneOverTwoPi + 0.5,
 	//	asin(normal.y)*u_oneOverPi + 0.5);

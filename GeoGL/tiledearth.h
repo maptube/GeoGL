@@ -35,6 +35,7 @@ protected:
 public:
 	Ellipsoid _ellipsoid;
 	double _Tau; //error tolerance factor for rendering
+	std::string _TextureBaseName; //the base name for the texture that we replace the XYZ in e.g. land_ocean_ice_QUAD_{Z}_{X}_{Y}.jpg
 
 	TiledEarth(void);
 	~TiledEarth(void);
@@ -45,6 +46,6 @@ public:
 	void AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture);
 
 	Mesh2* MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
-	Mesh2* BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
+	Mesh2* BuildChunkedLOD(int Depth, int TileZ, int TileX, int TileY, int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
 };
 
