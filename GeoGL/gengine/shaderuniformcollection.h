@@ -29,6 +29,7 @@ namespace gengine {
 		//SetInt, SetFloat etc? we're generally going to be using mat4s though.
 		void SetUniform1i(const std::string& Name, const int i);
 		void SetUniform1f(const std::string& Name, const float f);
+		void SetUniform2fv(const std::string& Name, const glm::vec2& v);
 		void SetUniform3fv(const std::string& Name, const glm::vec3& v);
 		void SetUniform4fv(const std::string& Name, const glm::vec4& v);
 		void SetUniform3dv(const std::string& Name, const glm::dvec3& v);

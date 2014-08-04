@@ -13,7 +13,7 @@ uniform float u_oneOverPi;
 uniform float u_oneOverTwoPi;
 
 uniform vec2 u_texOffset;
-unfiorm vec2 u_texScale;
+uniform vec2 u_texScale;
 
 vec3 GeodeticSurfaceNormal(vec3 positionOnEllipsoid, vec3 oneOverEllipsoidRadiiSquared)
 {
@@ -36,5 +36,7 @@ void main()
 {
 	vec3 normal = GeodeticSurfaceNormal(worldPosition, u_globeOneOverRadiiSquared);
 	vec2 textureCoordinate = ComputeTextureCoordinates(normal);
+	textureCoordinate.x=(textureCoordinate.x-u_texOffset.x)*u_texScale.x;
+	textureCoordinate.y=(textureCoordinate.y-u_texOffset.y)*u_texScale.y;
 	fragmentColor = vec4(texture(u_texture0, textureCoordinate).rgb,1.0);
 }

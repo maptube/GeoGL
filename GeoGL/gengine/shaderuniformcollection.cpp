@@ -64,7 +64,10 @@ namespace gengine {
 				u = new ShaderUniformFloat(shader_id,std::string(name),type,location);
 				_uniforms.push_back(u);
 				break;
-			//GL_FLOAT_VEC2
+			case GL_FLOAT_VEC2 :
+				u = new ShaderUniformVec2(shader_id,std::string(name),type,location);
+				_uniforms.push_back(u);
+				break;
 			case GL_FLOAT_VEC3 :
 				u = new ShaderUniformVec3(shader_id,std::string(name),type,location);
 				_uniforms.push_back(u);
@@ -185,6 +188,15 @@ namespace gengine {
 		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
 		else {
 			glUniform1f(Location, f);
+		}
+	}
+
+	void ShaderUniformCollection::SetUniform2fv(const std::string& Name, const glm::vec2& v)
+	{
+		int Location = FindLocationIndex(Name);
+		if (Location==-1) cerr<<"Error: shader uniform \""<<Name<<"\" not found"<<endl;
+		else {
+			glUniform2fv(Location, 1, &v[0]);
 		}
 	}
 

@@ -2,6 +2,7 @@
 #include "tiledearth.h"
 
 #include <sstream>
+#include <string>
 
 #include "mesh2.h"
 #include "object3d.h"
@@ -14,6 +15,9 @@
 #include "gengine/indexbuffer.h"
 #include "gengine/ogldevice.h"
 #include "gengine/texture2d.h"
+#include "gengine/shader.h"
+#include "gengine/shaderuniformcollection.h"
+#include "gengine/shaderuniform.h"
 
 using namespace std;
 using namespace gengine;
@@ -312,6 +316,10 @@ void TiledEarth::RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneData
 	float Rho=Delta/D*K;
 	if ((Delta<=_MinDelta)||(Rho<=_Tau)) { //Delta<MinDelta at limit of recursion, or current error is<Tau
 		const DrawObject& dobj = mesh->GetDrawObject();
+		ShaderUniformCollection* uniforms=dobj._ShaderProgram->_shaderUniforms;
+//TODO: you need to set these uniforms to scale the texture
+		(*uniforms)["u_texOffset"]=glm::vec2(0,0);
+		(*uniforms)["u_texScale"]=glm::vec2(1,1);
 		GC->Render(dobj,sdo);
 	}
 	else {

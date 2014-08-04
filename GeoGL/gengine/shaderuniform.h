@@ -35,6 +35,7 @@ namespace gengine {
 		//make = operator virtual for each type and then override later
 		virtual void operator=(const int& i) {};
 		virtual void operator=(const float& f) {};
+		virtual void operator=(const glm::vec2& v) {};
 		virtual void operator=(const glm::vec3& v) {};
 		virtual void operator=(const glm::vec4& v) {};
 		virtual void operator=(const glm::dvec3& d) {};
@@ -61,6 +62,15 @@ namespace gengine {
 		void operator=(const float& v) { _Value=v; };
 		virtual void Bind(void) { glUniform1f(_Location,_Value); };
 	};
+
+	class ShaderUniformVec2 : public ShaderUniform
+		{
+		public:
+			ShaderUniformVec2(int ShaderID, std::string Name, GLenum Type, unsigned int Location) : ShaderUniform(ShaderID, Name, Type, Location) { };
+			glm::vec2 _Value;
+			void operator=(const glm::vec2& v) { _Value=v; };
+			virtual void Bind(void) { glUniform2fv(_Location, 1, &_Value[0]); };
+		};
 
 	class ShaderUniformVec3 : public ShaderUniform
 	{
