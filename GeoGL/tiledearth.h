@@ -1,7 +1,7 @@
 #pragma once
 
 #include "object3d.h"
-//#include "mesh2.h"
+#include "mesh2.h"
 #include "ellipsoid.h"
 
 //Earth model for geometry and texture data based on tiling the Earth to a threshold level of detail for a view volume
@@ -19,6 +19,19 @@ namespace gengine {
 
 class Mesh2;
 
+//TiledEarthNode is a wrapper for a Mesh2 child object containing a renderable patch. Min/Max and scaling coords have been added for rendering.
+class TiledEarthNode : public Mesh2
+{
+public:
+	//double MinLat, MaxLat, MinLon, MaxLon;
+	//double ScaleLat, ScaleLon;
+	//texture offset and scale in texture coordinates
+	glm::vec2 TextureOffset;
+	glm::vec2 TextureScale;
+	//TODO: could add the delta value here as well
+	//ALSO, add the tile XYZ here
+};
+
 class TiledEarth : public Object3D
 {
 protected:
@@ -27,11 +40,12 @@ protected:
 	static const int LODHeightSegments;
 	int _MeshCount;
 	float _MinDelta; //this is the delta value at the maximum level of detail
-	Mesh2* _root;
+	TiledEarthNode* _root; //this is a wrapper for a Mesh2
 	int _NumElements; //number of face elements used for rendering
 	gengine::IndexBuffer* _ib; //index buffer shared by all meshes
 	gengine::IndexBuffer* CreateIndexBuffer(const int WidthSegments,const int HeightSegments);
-	void RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo,Mesh2* mesh,float K,float Delta);
+	glm::vec2 TiledEarth::ComputeTextureCoordinate(glm::vec3 P);
+	void RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo,TiledEarthNode* mesh,float K,float Delta);
 public:
 	Ellipsoid _ellipsoid;
 	double _Tau; //error tolerance factor for rendering
@@ -45,7 +59,7 @@ public:
 	virtual void AttachShader(gengine::Shader* pShader, bool Recursive); //apply shader bind to root
 	void AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture);
 
-	Mesh2* MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
-	Mesh2* BuildChunkedLOD(int Depth, int TileZ, int TileX, int TileY, int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
+	TiledEarthNode* MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
+	TiledEarthNode* BuildChunkedLOD(int Depth, int TileZ, int TileX, int TileY, int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon);
 };
 

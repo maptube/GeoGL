@@ -23,7 +23,7 @@ using namespace std;
 using namespace gengine;
 
 //these constants define the resolution of the data at each LOD level and the number of levels created
-const int TiledEarth::LODDepth=2; //4;
+const int TiledEarth::LODDepth=3; //4;
 const int TiledEarth::LODWidthSegments=40; //40
 const int TiledEarth::LODHeightSegments=40; //40
 
@@ -43,7 +43,8 @@ TiledEarth::TiledEarth(void)
 	_ib = CreateIndexBuffer(LODWidthSegments,LODHeightSegments);
 	//the returned mesh is the root node, width and height segments define how many points are on each LOD Chunk (they're all the same). Depth is the depth to create the oct tree to.
 	//_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, -glm::pi<double>(), 0, glm::pi<double>(), 2.0*glm::pi<double>()); //(lat=-pi..+pi, lon=0..2pi)
-	_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, 0, 0, 0, -glm::half_pi<double>(), 0, glm::half_pi<double>(), 2*glm::pi<double>()); //(lat=-pi/2..+pi/2, lon=0..2pi)
+	//_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, 0, 0, 0, -glm::half_pi<double>(), 0, glm::half_pi<double>(), 2*glm::pi<double>()); //(lat=-pi/2..+pi/2, lon=0..2pi)
+	_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, 0, 0, 0, -glm::half_pi<double>(), -glm::pi<double>(), glm::half_pi<double>(), glm::pi<double>()); //(lat=-pi/2..+pi/2, lon=-pi..pi)
 	//_root is the top of the progressive mesh tree. Can't use Children of this object as the standard scene render would
 	//try to draw all of them!
 	//bounds=_root->bounds;
@@ -112,6 +113,15 @@ gengine::IndexBuffer* TiledEarth::CreateIndexBuffer(const int WidthSegments,cons
 	return ib;
 }
 
+//takes a cartesian coord and returns a globe texture coordinate
+glm::vec2 TiledEarth::ComputeTextureCoordinate(glm::vec3 P)
+{
+	glm::vec3 normal = glm::normalize(P*_ellipsoid.OneOverRadiiSquared());
+	return glm::vec2(
+		glm::atan(normal.y, normal.x)*(1/(2*glm::pi<double>())) + 0.5,
+		glm::asin(normal.z)*glm::one_over_pi<double>() + 0.5);
+}
+
 /// <summary>
 /// Make a section of the Earth mesh which fits inside the min/max lat/lon coords box
 /// </summary>
@@ -122,14 +132,19 @@ gengine::IndexBuffer* TiledEarth::CreateIndexBuffer(const int WidthSegments,cons
 /// <param name="MaxLat">maximum latitude of box in radians</param>
 /// <param name="MaxLon">maximum longitude of box in radians</param>
 /// <returns>the mesh object</returns>
-Mesh2* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon) {
+TiledEarthNode* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon) {
 	cout<<"MakePatch "<<MinLat<<" "<<MinLon<<" "<<MaxLat<<" "<<MaxLon<<endl;
 	double A = _ellipsoid.A();
 	double B = _ellipsoid.B();
 	double C = _ellipsoid.C();
 
-	Mesh2* mesh = new Mesh2();
+	TiledEarthNode* mesh = new TiledEarthNode();
 	++_MeshCount;
+	//set offset and scale for this texture which is needed in the shader as it's only using the lat/lon on the globe to get the normals
+	glm::vec2 TexBoxMin = ComputeTextureCoordinate(_ellipsoid.toVector(MinLon,MinLat,0));
+	glm::vec2 TexBoxMax = ComputeTextureCoordinate(_ellipsoid.toVector(MaxLon,MaxLat,0));
+	mesh->TextureOffset = TexBoxMin; //glm::vec2(0,0);
+	mesh->TextureScale = glm::vec2(1.0/(TexBoxMax.x-TexBoxMin.x),1.0/(TexBoxMax.y-TexBoxMin.y)); //glm::vec2(1,1);
 	mesh->_VertexFormat=gengine::Position;
 
 	//work out cartesian coordinates on a patch based on WidthSegments and HeightSegments for the lat/lon bounds
@@ -242,11 +257,11 @@ std::string MakeTextureTileString(int Z,int X,int Y,const std::string& base)
 /// <param name="MaxLat">maximum latitude of box in radians</param>
 /// <param name="MaxLon">maximum longitude of box in radians</param>
 /// <returns>The root node of the chunked LOD hierarchy</returns>
-Mesh2* TiledEarth::BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegments, int TileZ, int TileX, int TileY, double MinLat, double MinLon, double MaxLat, double MaxLon)
+TiledEarthNode* TiledEarth::BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegments, int TileZ, int TileX, int TileY, double MinLat, double MinLon, double MaxLat, double MaxLon)
 {
 	//cout<<"TiledEarth BuildChunkedLOD Depth="<<Depth<<endl;
 	//create a mesh at this level 
-	Mesh2* mesh = MakePatch(WidthSegments,HeightSegments,MinLat,MinLon,MaxLat,MaxLon);
+	TiledEarthNode* mesh = MakePatch(WidthSegments,HeightSegments,MinLat,MinLon,MaxLat,MaxLon);
 	//Texture2D* texture = OGLDevice::CreateTexture2DFromFile("../textures/test-blue.jpg");
 	Texture2D* texture = OGLDevice::CreateTexture2DFromFile(MakeTextureTileString(TileZ,TileX,TileY,"")); //bit of a hack, but it gets the texture right!!
 	texture->SetWrapS(TexClampToEdge);
@@ -294,7 +309,7 @@ Mesh2* TiledEarth::BuildChunkedLOD(int Depth, int WidthSegments, int HeightSegme
 /// <param name="mesh">The mesh root to render from now, or recurse if we need a finer mesh</param>
 /// <param name="K">The projection constant used to calculate the screen space error from the mesh density</param>
 /// <param name="Delta">The mesh density at this level of detail</param>
-void TiledEarth::RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo,Mesh2* mesh,float K,float Delta)
+void TiledEarth::RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo,TiledEarthNode* mesh,float K,float Delta)
 {
 	//calculate distance from camera to mesh
 	//Real formula from globe book is: d=(c-viewer).v - r  (v=view dir vector, c=centre of object, r=radius of object bounds)
@@ -318,14 +333,14 @@ void TiledEarth::RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneData
 		const DrawObject& dobj = mesh->GetDrawObject();
 		ShaderUniformCollection* uniforms=dobj._ShaderProgram->_shaderUniforms;
 //TODO: you need to set these uniforms to scale the texture
-		(*uniforms)["u_texOffset"]=glm::vec2(0,0);
-		(*uniforms)["u_texScale"]=glm::vec2(1,1);
+		(*uniforms)["u_texOffset"]=mesh->TextureOffset; // glm::vec2(0,0);
+		(*uniforms)["u_texScale"]=mesh->TextureScale; // glm::vec2(1,1);
 		GC->Render(dobj,sdo);
 	}
 	else {
 		//recursion
 		for (vector<Object3D*>::const_iterator childIT=mesh->BeginChild(); childIT!=mesh->EndChild(); ++childIT) {
-			RenderLOD(GC,sdo,(Mesh2*)*childIT,K,Delta/2.0);
+			RenderLOD(GC,sdo,(TiledEarthNode*)*childIT,K,Delta/2.0);
 		}
 	}
 }
