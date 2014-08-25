@@ -31,6 +31,7 @@ TiledEarth::TiledEarth(void)
 {
 	_ellipsoid = Ellipsoid();
 	_Tau=1.0; //~1.0-2.0? This is the screen error tolerance which has to be acceptable to draw an LOD chunk, otherwise the child chunks are considered instead
+	//_Tau=10.0; //for mars
 	_MeshCount=0; //count how many meshes we create
 	//_MinDelta=std::numeric_limits<float>::max();
 	//calculate delta at the maximum LOD based on the initial delta from spheroid radius and width segments, then recursively divide by two for LODDepth levels
@@ -234,11 +235,13 @@ TiledEarthNode* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, dou
 	return mesh;
 }
 
+//TODO: HACK! need to make this configurable
 //replace XYZ in the base string
 std::string MakeTextureTileString(int Z,int X,int Y,const std::string& base)
 {
 	std::stringstream ss;
-	ss<<"../data/BlueMarble/land_ocean_ice_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	//ss<<"../data/BlueMarble/land_ocean_ice_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	ss<<"../data/BlueMarble/bluemarble_jan04/world_topo_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
 	return ss.str();
 }
 

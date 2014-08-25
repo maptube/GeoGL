@@ -91,7 +91,10 @@ Globe::Globe(void)
 	//sphere->AttachShader(diffuse,false);
 	sphere->AttachShader(texshader,false);
 	//Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
+	//This is the real one vvvvv
 	Texture2D* texture=OGLDevice::CreateTexture2DFromFile("../textures/land_ocean_ice_2048_I.jpg" /*"../textures/land_ocean_ice_350_I.jpg"*/ /*"../textures/test-blue.jpg"*/);
+	//This is the Mars one! vvvvv
+	//Texture2D* texture=OGLDevice::CreateTexture2DFromFile("../textures/mars/marsmap2k_I.jpg");
 	texture->SetWrapS(TexClampToEdge);
 	texture->SetWrapT(TexClampToEdge);
 	texture->SetMinFilter(TexMinFilterLinear);
@@ -475,7 +478,8 @@ void Globe::RenderScene(void)
 	//fallback?
 
 	//TODO: need to get this gl reference out!!!
-	glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
+	//glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
+	glClearColor(0,0,0,0); //space is black
 	GC->Clear();
 
 	glm::dvec3 vCam = camera.GetCameraPos();

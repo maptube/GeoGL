@@ -44,7 +44,7 @@ protected:
 	int _NumElements; //number of face elements used for rendering
 	gengine::IndexBuffer* _ib; //index buffer shared by all meshes
 	gengine::IndexBuffer* CreateIndexBuffer(const int WidthSegments,const int HeightSegments);
-	glm::vec2 TiledEarth::ComputeTextureCoordinate(glm::vec3 P);
+	glm::vec2 ComputeTextureCoordinate(glm::vec3 P);
 	void RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo,TiledEarthNode* mesh,float K,float Delta);
 public:
 	Ellipsoid _ellipsoid;
