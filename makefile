@@ -27,7 +27,7 @@ LDFLAGS=-Wall -lstdc++ -lm -lGL -lGLU -lglut -lGLEW -lglfw -ljson_linux-gcc-4.8.
 LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY2TRI_HOME) -L$(LIBJPEG_HOME)
 INCLUDEDIRS=-IGeoGL -I$(JSONCPP_HOME)/include -I$(LEAPSDK_HOME)/include -I$(POLY2TRI_HOME) -I$(FREETYPE_INCLUDE) -I$(LIBJPEG_HOME)
 SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/image/*.cpp) \
-$(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/clipper/*.cpp)
+$(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/cache/*.cpp) $(wildcard GeoGL/clipper/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=bin/GeoGLProgram
 

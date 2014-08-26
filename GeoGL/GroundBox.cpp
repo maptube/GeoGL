@@ -9,10 +9,12 @@
 
 #include <string>
 #include <sstream>
+#include <set>
 
 #include "ellipsoid.h"
 #include "mesh2.h"
 #include "object3d.h"
+#include "geojson.h"
 #include "gengine/Camera.h"
 #include "gengine/drawobject.h"
 #include "gengine/scenedataobject.h"
@@ -59,11 +61,16 @@ std::string GetGeoJSONFilename(const int TileZ, const int TileX,const int TileY)
 }
 
 /// <summary>
-/// Given the tile coords of the new centre box, shuffle the existing ground boxes around to make the centre correct
+/// Given the tile coords of the new centre box, shuffle the existing ground boxes around to make the centre correct. The aim
+/// is to reuse any existing meshes as it's likely to be a scroll in one direction. New meshes have their details entered, but
+/// are not loaded at this stage. Any meshes no longer being used are freed along with their buffers.
 /// 0 1 2
 /// 3 4 5
 /// 6 7 8
 /// </summary>
+/// <param name="TileZ">Z coord of centre box tile</param>
+/// <param name="TileX">X coord of centre box tile</param>
+/// <param name="TileY">Y coord of centre box tile</param>
 void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) {
 	//If the centre box already has the correct tile xyz coords, then exit early. Although it is possible that the viewpoint
 	//could spin, leaving the centre correct and the others changes, we don't bother with direction so it makes no difference.
@@ -73,6 +80,7 @@ void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) 
 	int dx=_gndboxes[4].TileX-TileX, dy=_gndboxes[4].TileY-TileY;
 	BoxContent B[9];
 	int i=0;
+	std::set<void*> currentMeshes; //nullptr?
 	for (int y=TileY-1; y<=TileY+1; y++) {
 		for (int x=TileX-1; x<=TileX+1; x++) {
 			B[i].TileX=x;
@@ -83,14 +91,28 @@ void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) 
 			int y2=y+dy;
 			if ((x2>=0)&&(x2<=2)&&(y2>=0)&&(y2<=2)) {
 				B[i].mesh=_gndboxes[y2*3+x].mesh;
+				currentMeshes.insert(B[i].mesh);
 				B[i].IsEmpty=false;
 			}
-			//else, where do we have to free meshes?
+			else B[i].mesh=nullptr;
 			++i;
 		}
 	}
-
-
+	//now assign the local copy to the live copy and free any meshes that aren't being used
+	for (i=0; i<9; i++) {
+		if (!_gndboxes[i].IsEmpty) {
+			if (currentMeshes.find(_gndboxes[i].mesh)==currentMeshes.end()) {
+				//mesh no longer being used so get rid of it
+				delete _gndboxes[i].mesh;
+			}
+		}
+		//now assignment
+		_gndboxes[i].TileX=B[i].TileX;
+		_gndboxes[i].TileY=B[i].TileY;
+		_gndboxes[i].TileZ=B[i].TileZ;
+		_gndboxes[i].mesh=B[i].mesh;
+		_gndboxes[i].IsEmpty=B[i].IsEmpty;
+	}
 }
 
 void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo) {
@@ -128,10 +150,22 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 		//convert lon,lat into tile numbers
 		int TileX,TileY;
 		LonLatToTileXY(geodetic3D,TileX,TileY);
-		std::string TileFilename = GetGeoJSONFilename(12,TileX,TileY); //shouldn't this be a URL?
-		if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
-			std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
-			//load geojson mesh and extrude - this should be in a thread
+		ShuffleBoxes(12,TileX,TileY); //shuffle current data around centre box as it's unlikely to have moved much
+		//now initiate a load and cache check for any ground box meshes set as IsEmpty
+		for (int i=0; i<9; i++) {
+			if (_gndboxes[i].IsEmpty) {
+				std::string TileFilename = GetGeoJSONFilename(_gndboxes[i].TileZ,_gndboxes[i].TileX,_gndboxes[i].TileY); //shouldn't this be a URL?
+				if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
+					std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
+					//load geojson mesh and extrude - this should be in a thread
+					GeoJSON* geoj = new GeoJSON();
+					geoj->LoadFile(LocalFilename);
+					//geoj->ToMesh(e);
+					geoj->ExtrudeMesh(e,0); //hack - 0 is height
+					_gndboxes[i].mesh=geoj;
+					_gndboxes[i].IsEmpty=false; //don't forget to set the flag
+				}
+			}
 		}
 	}
 

@@ -85,6 +85,7 @@ namespace geogl {
 			//todo:
 			//look in local cache first
 			//for a cache miss, load from the URI
+			//also, need to handle files that fail to load - blacklist them?
 			return (_FileIndex.find(URI)!=_FileIndex.end());
 		}
 

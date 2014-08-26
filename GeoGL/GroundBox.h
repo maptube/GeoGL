@@ -17,7 +17,7 @@ struct BoxContent {
 	bool IsEmpty;
 	int TileX,TileY,TileZ;
 	Mesh2* mesh;
-	BoxContent() { IsEmpty=true; };
+	BoxContent() { TileX=0; TileY=0; TileZ=0; mesh=nullptr; IsEmpty=true; };
 };
 
 class GroundBox : public Object3D {
