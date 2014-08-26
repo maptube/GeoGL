@@ -7,6 +7,9 @@
 
 #include "GroundBox.h"
 
+#include <string>
+#include <sstream>
+
 #include "ellipsoid.h"
 #include "mesh2.h"
 #include "object3d.h"
@@ -16,12 +19,14 @@
 #include "gengine/graphicscontext.h"
 #include "cache/DataCache.h"
 
+using namespace geogl;
+using namespace geogl::cache;
+
 GroundBox::GroundBox() {
 	// TODO Auto-generated constructor stub
-	_Tau=1.0;
+	//_Tau=1.0;
 	//need min distance before boxes visible
 	//need min and max depth that there is data for
-
 }
 
 GroundBox::~GroundBox() {
@@ -45,6 +50,49 @@ void GroundBox::LonLatToTileXY(glm::dvec3 RadGeodetic3D,int& TileX,int& TileY) {
 	TileY=(int)glm::floor(2.0f*glm::pi<float>()/N*RadGeodetic3D.y);
 }
 
+//return the filename of a tile identified by its x and y location - basically a hack for tile filename conversion
+//TODO: need to remove the hard coding i.e. dir, filename and zoom level 12 only
+std::string GetGeoJSONFilename(const int TileZ, const int TileX,const int TileY) {
+	std::stringstream ss;
+	ss<<"../data/vectortiles/"<<TileZ<<"_"<<"_"<<TileX<<"_"<<TileY<<".geojson";
+	return ss.str();
+}
+
+/// <summary>
+/// Given the tile coords of the new centre box, shuffle the existing ground boxes around to make the centre correct
+/// 0 1 2
+/// 3 4 5
+/// 6 7 8
+/// </summary>
+void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) {
+	//If the centre box already has the correct tile xyz coords, then exit early. Although it is possible that the viewpoint
+	//could spin, leaving the centre correct and the others changes, we don't bother with direction so it makes no difference.
+	if ((_gndboxes[4].TileX==TileX)&&(_gndboxes[4].TileY==TileY)&&(_gndboxes[4].TileZ==TileZ)) return;
+
+	//OK, it's moved, so we are going to have to do some work
+	int dx=_gndboxes[4].TileX-TileX, dy=_gndboxes[4].TileY-TileY;
+	BoxContent B[9];
+	int i=0;
+	for (int y=TileY-1; y<=TileY+1; y++) {
+		for (int x=TileX-1; x<=TileX+1; x++) {
+			B[i].TileX=x;
+			B[i].TileY=y;
+			B[i].TileZ=TileZ;
+			//look at previous position of this mesh to see whether we can reuse it
+			int x2=x+dx;
+			int y2=y+dy;
+			if ((x2>=0)&&(x2<=2)&&(y2>=0)&&(y2<=2)) {
+				B[i].mesh=_gndboxes[y2*3+x].mesh;
+				B[i].IsEmpty=false;
+			}
+			//else, where do we have to free meshes?
+			++i;
+		}
+	}
+
+
+}
+
 void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo) {
 	//work out closest point to ground and exit early if >min distance
 	//we know the earth is covered with patches (and the min zoom)
@@ -65,7 +113,7 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 	//Patch method
 	//cheat and create an ellipsoid!!
 	Ellipsoid e;
-	//TODO: Check distance from view to ellipsoid - exit early if too far
+	//TODO: Check distance from view to ellipsoid - exit early if too far - could do a sphere check for speed
 	//Calculate patches in the view pyramid
 	glm::dvec3 vView = sdo._camera->GetCameraPos();
 	//find ground point that camera position is over
@@ -76,12 +124,14 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 		//double lon = glm::degrees(geodetic3D.x);
 		//double lat = glm::degrees(geodetic3D.y);
 		//you've got 9 boxes to fill, so put the surrounding geometry into them
-		DataCache* dc = DataCache::GetInstance();
+		DataCache* dc = DataCache::Instance();
 		//convert lon,lat into tile numbers
 		int TileX,TileY;
 		LonLatToTileXY(geodetic3D,TileX,TileY);
-		if (dc->GetRemoteFile("")) { //kick off async loading, if the file arrives while still in frame then it gets drawn
-			std::string text = GetCacheFile(""); //file is available
+		std::string TileFilename = GetGeoJSONFilename(12,TileX,TileY); //shouldn't this be a URL?
+		if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
+			std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
+			//load geojson mesh and extrude - this should be in a thread
 		}
 	}
 

@@ -38,6 +38,9 @@
     <Filter Include="Source Files\gengine\image">
       <UniqueIdentifier>{fa85230b-79a8-4974-b65d-c0a99b86b021}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\cache">
+      <UniqueIdentifier>{ece9b7a5-d473-4834-bcc1-a22e251ef27d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -263,6 +266,12 @@
     <ClInclude Include="tiledearth.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cache\DataCache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroundBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -437,6 +446,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tiledearth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cache\DataCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GroundBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

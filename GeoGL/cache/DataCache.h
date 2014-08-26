@@ -30,7 +30,7 @@ namespace geogl {
 
 
 			bool GetRemoteFile(const std::string& URI);
-			std::string GetCacheFile(const std::string& URI);
+			std::string GetLocalCacheFilename(const std::string& URI);
 		};
 
 	} // namespace cache

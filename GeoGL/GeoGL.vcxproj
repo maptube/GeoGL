@@ -163,6 +163,7 @@
     <ClInclude Include="Agents.h" />
     <ClInclude Include="agenttime.h" />
     <ClInclude Include="BBox.h" />
+    <ClInclude Include="cache\DataCache.h" />
     <ClInclude Include="clipper\clipper.hpp" />
     <ClInclude Include="cuboid.h" />
     <ClInclude Include="cylinder.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="gengine\indexbuffer.h" />
     <ClInclude Include="gengine\image\jpeg.h" />
     <ClInclude Include="gengine\image\image2d.h" />
+    <ClInclude Include="GroundBox.h" />
     <ClInclude Include="LeapController.h" />
     <ClInclude Include="Link.h" />
     <ClInclude Include="Links.h" />
@@ -232,6 +234,7 @@
     <ClCompile Include="Agents.cpp" />
     <ClCompile Include="agenttime.cpp" />
     <ClCompile Include="BBox.cpp" />
+    <ClCompile Include="cache\DataCache.cpp" />
     <ClCompile Include="clipper\clipper.cpp" />
     <ClCompile Include="cuboid.cpp" />
     <ClCompile Include="cylinder.cpp" />
@@ -248,6 +251,7 @@
     <ClCompile Include="gengine\indexbuffer.cpp" />
     <ClCompile Include="gengine\image\jpeg.cpp" />
     <ClCompile Include="gengine\image\image2d.cpp" />
+    <ClCompile Include="GroundBox.cpp" />
     <ClCompile Include="LeapController.cpp" />
     <ClCompile Include="Link.cpp" />
     <ClCompile Include="Links.cpp" />

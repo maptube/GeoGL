@@ -1,6 +1,7 @@
 #pragma once
 
-//this is basically a copy of the TiledEarth class, except that it builds a quadtree hierarchy that sits on the ground
+//this builds and maintains a set of lat lon based boxes of geojson content that contain the buildings
+//it follows the clipmap terrain idea of moving around the geometry that the viewpoint is over
 
 #include "object3d.h"
 #include "mesh2.h"
@@ -12,10 +13,18 @@ namespace gengine {
 	class GraphicsContext;
 }
 
+struct BoxContent {
+	bool IsEmpty;
+	int TileX,TileY,TileZ;
+	Mesh2* mesh;
+	BoxContent() { IsEmpty=true; };
+};
+
 class GroundBox : public Object3D {
 private:
-	Mesh2* _meshes[9];
+	BoxContent _gndboxes[9];
 protected:
+	void ShuffleBoxes(const int TileZ, const int TileX, const int TileY);
 public:
 	GroundBox();
 	virtual ~GroundBox();

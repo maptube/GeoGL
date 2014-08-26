@@ -91,7 +91,7 @@ namespace geogl {
 		/// <summary>
 		/// Turns a URI into the filename of a file in the local cache that can now be loaded directly
 		/// </summary>
-		std::string DataCache::GetCacheFile(const std::string& URI) {
+		std::string DataCache::GetLocalCacheFilename(const std::string& URI) {
 			return URI; //OK, this doesn't do anything yet, but everything is going to be stored under uri names like MapTubeD does
 		}
 
