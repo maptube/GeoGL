@@ -94,7 +94,8 @@ namespace geogl {
 			ofstream out(dst, ios::out | ios::binary);
 			out.write(&data[0],pos);
 
-			//update file map here!!!
+			//update file map with the new file we've just added
+			_FileIndex.insert(dst);
 
 			return true;
 
@@ -124,7 +125,7 @@ namespace geogl {
 			std::string::size_type idx;
 			idx = Path.rfind('/'); //assumes URI type of separators
 			if (idx!=std::string::npos)
-				return Path.substr(idx,Path.length()-idx+1);
+				return Path.substr(idx+1,Path.length()-idx+1);
 			else
 				return Path;
 		}
@@ -150,15 +151,18 @@ namespace geogl {
 			//kick off a thread to copy the file into the local cache
 			//assuming the URI is actually a local file... (and no thread!)
 			std::string Filename = ExtractFilename(URI); //strip the filename off and move the file into the cache
-			CopyLocalFile(URI,_BaseDir+Filename);
-			cout<<"Moving "<<URI<<" into "<<(_BaseDir+Filename)<<endl;
+			//cout<<"Moving "<<URI<<" into "<<(_BaseDir+Filename)<<endl;
+			bool success = CopyLocalFile(URI,_BaseDir+Filename);
+			return success;
 		}
 
 		/// <summary>
 		/// Turns a URI into the filename of a file in the local cache that can now be loaded directly
 		/// </summary>
 		std::string DataCache::GetLocalCacheFilename(const std::string& URI) {
-			return URI; //OK, this doesn't do anything yet, but everything is going to be stored under uri names like MapTubeD does
+			//return URI; //OK, this doesn't do anything yet, but everything is going to be stored under uri names like MapTubeD does
+			std::string Filename = ExtractFilename(URI);
+			return _BaseDir+Filename;
 		}
 
 	} // namespace cache

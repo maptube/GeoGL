@@ -24,6 +24,8 @@
 
 using namespace std;
 
+using namespace gengine;
+
 using namespace geogl;
 using namespace geogl::cache;
 
@@ -36,6 +38,7 @@ GroundBox::GroundBox() {
 
 GroundBox::~GroundBox() {
 	// TODO Auto-generated destructor stub
+	//TODO: free the meshes in the _gndboxes
 }
 
 //get rid of this...
@@ -53,6 +56,9 @@ void GroundBox::LonLatToTileXY(glm::dvec3 RadGeodetic3D,int& TileX,int& TileY) {
 	float N = glm::pow(2.0f,Z); //number of tiles in X and Y directions
 	TileX=(int)glm::floor((RadGeodetic3D.x+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
 	TileY=(int)glm::floor((RadGeodetic3D.y+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
+	//2046 2635
+	//HACK! Always use the same tile for testing
+	TileX=2046; TileY=2635;
 	//debug
 	//cout<<"lon="<<glm::degrees(RadGeodetic3D.x)<<" lat="<<glm::degrees(RadGeodetic3D.y)<<" TileX="<<TileX<<" TileY="<<TileY<<endl;
 }
@@ -120,7 +126,7 @@ void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) 
 	}
 }
 
-void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo) {
+void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 	//work out closest point to ground and exit early if >min distance
 	//we know the earth is covered with patches (and the min zoom)
 	//recursively compute patch contribution to scene
@@ -166,13 +172,25 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 					GeoJSON* geoj = new GeoJSON();
 					geoj->LoadFile(LocalFilename);
 					//geoj->ToMesh(e);
-					geoj->ExtrudeMesh(e,0); //hack - 0 is height
+					geoj->ExtrudeMesh(e,1000); //hack - 0 is height
+					geoj->AttachShader(_Shader,true);
 					_gndboxes[i].mesh=geoj;
 					_gndboxes[i].IsEmpty=false; //don't forget to set the flag
 				}
 			}
 		}
 	}
+}
 
+void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo) {
+	UpdateData(sdo);
+	for (int i=0; i<9; i++) {
+		if (!_gndboxes[i].IsEmpty) {
+			//RENDER!!!!!
+			cout<<"Render GroundBoxes"<<endl;
+			const DrawObject& dobj = _gndboxes[i].mesh->GetDrawObject();
+			GC->Render(dobj,sdo);
+		}
+	}
 }
 

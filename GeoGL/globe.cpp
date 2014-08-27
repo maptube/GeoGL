@@ -27,6 +27,7 @@
 #include "object3d.h"
 #include "sphere.h"
 #include "tiledearth.h"
+#include "GroundBox.h"
 #include "gengine/events/EventManager.h"
 #include "OrbitController.h"
 #include "EllipsoidOrbitController.h"
@@ -127,6 +128,11 @@ Globe::Globe(void)
 	Shader* normalshader = OGLDevice::CreateShaderProgram(
 		"../shaders/diffusenormals.vert","../shaders/diffusenormals.frag");
 	_Shaders.push_back(normalshader);
+
+	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
+	GroundBox* buildings = new GroundBox();
+	buildings->_Shader=shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);

@@ -11,6 +11,7 @@ namespace gengine {
 	class Camera;
 	class SceneDataObject;
 	class GraphicsContext;
+	class Shader;
 }
 
 struct BoxContent {
@@ -25,7 +26,9 @@ private:
 	BoxContent _gndboxes[9];
 protected:
 	void ShuffleBoxes(const int TileZ, const int TileX, const int TileY);
+	void UpdateData(const gengine::SceneDataObject& sdo);
 public:
+	gengine::Shader* _Shader; //shader used for rendering
 	GroundBox();
 	virtual ~GroundBox();
 
