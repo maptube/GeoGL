@@ -11,6 +11,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <vector>
 
 #include <dirent.h>
 //#include <unistd.h>
@@ -21,12 +22,11 @@ using namespace std;
 
 namespace geogl {
 	namespace cache {
+		const std::string DataCache::_BaseDir = "../cache/"; //location where cache files will be stored
 
 		DataCache* DataCache::_Instance = 0;
 
 		DataCache::DataCache() {
-			//TODO: fix this...
-			_BaseDir="../cache/";
 			BuildFileIndex();
 		}
 
@@ -76,6 +76,60 @@ namespace geogl {
 		}
 
 		/// <summary>
+		/// Copy a local file from src to dst.
+		/// TODO: do you need a dst as it's always going to go into the cache?
+		/// TODO: how is this for efficiency? Could let the OS do the copy?
+		/// </summary>
+		bool DataCache::CopyLocalFile(const std::string& src, const std::string& dst) {
+			//TODO: should probably copy to a temporary file and rename?
+			ifstream in(src.c_str(),ios::in|ios::binary|ios::ate); //use binary flag as we might be handling textures etc.
+			if (!in.is_open()) return false; //fail
+			ifstream::pos_type pos=in.tellg();
+
+			std::vector<char> data(pos);
+			in.seekg(0,ios::beg);
+			in.read(&data[0],pos); //read all data into memory - don't like this much, but then all the files are designed to be small
+
+			//now write it out to the new file
+			ofstream out(dst, ios::out | ios::binary);
+			out.write(&data[0],pos);
+
+			//update file map here!!!
+
+			return true;
+
+			//this is quite neat as well
+			//ifstream f1 ("C:\\me.txt",fstream::binary);
+			//ofstream f2 ("C:\\me2.doc",fstream::trunc|fstream::binary);
+			//f2<<f1.rdbuf();
+		}
+
+		/*static std::vector<char> ReadAllBytes(char const* filename)
+		{
+			ifstream ifs(filename, ios::binary|ios::ate);
+			ifstream::pos_type pos = ifs.tellg();
+			
+			std::vector<char>  result(pos);
+			
+			ifs.seekg(0, ios::beg);
+			ifs.read(&result[0], pos);
+			
+			return result;
+		}*/
+
+		/// <summary>
+		/// Extract just the filename from a full path
+		/// </summary>
+		std::string DataCache::ExtractFilename(const std::string& Path) {
+			std::string::size_type idx;
+			idx = Path.rfind('/'); //assumes URI type of separators
+			if (idx!=std::string::npos)
+				return Path.substr(idx,Path.length()-idx+1);
+			else
+				return Path;
+		}
+
+		/// <summary>
 		/// Calling GetRemoteFile signals a desire to load the file in the future. If it is already in the cache, then
 		/// the method returns true immediately. The intention is that the rendering loop will continually call this method
 		/// until it returns true, then use GetCacheFile to load it.
@@ -86,7 +140,18 @@ namespace geogl {
 			//look in local cache first
 			//for a cache miss, load from the URI
 			//also, need to handle files that fail to load - blacklist them?
-			return (_FileIndex.find(URI)!=_FileIndex.end());
+			
+			//old code!!!!
+			//return (_FileIndex.find(URI)!=_FileIndex.end());
+
+			bool hit=(_FileIndex.find(URI)!=_FileIndex.end());
+			if (hit) return true; //already there, so nothing to do
+
+			//kick off a thread to copy the file into the local cache
+			//assuming the URI is actually a local file... (and no thread!)
+			std::string Filename = ExtractFilename(URI); //strip the filename off and move the file into the cache
+			CopyLocalFile(URI,_BaseDir+Filename);
+			cout<<"Moving "<<URI<<" into "<<(_BaseDir+Filename)<<endl;
 		}
 
 		/// <summary>

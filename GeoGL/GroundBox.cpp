@@ -7,6 +7,7 @@
 
 #include "GroundBox.h"
 
+#include <istream>
 #include <string>
 #include <sstream>
 #include <set>
@@ -20,6 +21,8 @@
 #include "gengine/scenedataobject.h"
 #include "gengine/graphicscontext.h"
 #include "cache/DataCache.h"
+
+using namespace std;
 
 using namespace geogl;
 using namespace geogl::cache;
@@ -48,15 +51,17 @@ void GroundBox::LonLatToTileXY(glm::dvec3 RadGeodetic3D,int& TileX,int& TileY) {
 	//TODO: the zoom level shouldn't be hard coded!
 	const float Z = 12; //we've only got tiles for zoom level 12
 	float N = glm::pow(2.0f,Z); //number of tiles in X and Y directions
-	TileX=(int)glm::floor(2.0f*glm::pi<float>()/N*RadGeodetic3D.x);
-	TileY=(int)glm::floor(2.0f*glm::pi<float>()/N*RadGeodetic3D.y);
+	TileX=(int)glm::floor((RadGeodetic3D.x+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
+	TileY=(int)glm::floor((RadGeodetic3D.y+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
+	//debug
+	//cout<<"lon="<<glm::degrees(RadGeodetic3D.x)<<" lat="<<glm::degrees(RadGeodetic3D.y)<<" TileX="<<TileX<<" TileY="<<TileY<<endl;
 }
 
 //return the filename of a tile identified by its x and y location - basically a hack for tile filename conversion
 //TODO: need to remove the hard coding i.e. dir, filename and zoom level 12 only
 std::string GetGeoJSONFilename(const int TileZ, const int TileX,const int TileY) {
 	std::stringstream ss;
-	ss<<"../data/vectortiles/"<<TileZ<<"_"<<"_"<<TileX<<"_"<<TileY<<".geojson";
+	ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".geojson";
 	return ss.str();
 }
 
@@ -77,7 +82,7 @@ void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) 
 	if ((_gndboxes[4].TileX==TileX)&&(_gndboxes[4].TileY==TileY)&&(_gndboxes[4].TileZ==TileZ)) return;
 
 	//OK, it's moved, so we are going to have to do some work
-	int dx=_gndboxes[4].TileX-TileX, dy=_gndboxes[4].TileY-TileY;
+	int oldx=_gndboxes[0].TileX, oldy=_gndboxes[0].TileY; //store old min box to check for reuse
 	BoxContent B[9];
 	int i=0;
 	std::set<void*> currentMeshes; //nullptr?
@@ -87,8 +92,8 @@ void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) 
 			B[i].TileY=y;
 			B[i].TileZ=TileZ;
 			//look at previous position of this mesh to see whether we can reuse it
-			int x2=x+dx;
-			int y2=y+dy;
+			int x2=x-oldx;
+			int y2=y-oldy;
 			if ((x2>=0)&&(x2<=2)&&(y2>=0)&&(y2<=2)) {
 				B[i].mesh=_gndboxes[y2*3+x].mesh;
 				currentMeshes.insert(B[i].mesh);
@@ -142,7 +147,7 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 	//TODO: could do a quick height check first rather than the full 3D point
 	glm::dvec3 geodetic3D = e.ToGeodetic3D(vView);
 	//then draw some tiles around this centre point using the geometry clip mapping trick
-	if (geodetic3D.z<1000) { //HEIGHT CHECK
+	if (geodetic3D.z<10000) { //HEIGHT CHECK
 		//double lon = glm::degrees(geodetic3D.x);
 		//double lat = glm::degrees(geodetic3D.y);
 		//you've got 9 boxes to fill, so put the surrounding geometry into them

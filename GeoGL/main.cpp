@@ -16,6 +16,7 @@
 #include "model_tubenetwork.h"
 #include "netgraphgeometry.h"
 #include "geojson.h"
+#include "GroundBox.h"
 #include "gengine/events/EventManager.h"
 #include "OrbitController.h"
 #include "FlyController.h"
@@ -298,6 +299,10 @@ int main(int argc, char *argv[])
 	//london->LoadFile("..\\GeoGL\\data\\London_dt_2001_area_WGS84.geojson");
 	//openglContext.SceneGraph.push_back(london);
 	//GeoJSON* london = globe.LoadLayerGeoJSON("..\\data\\London_dt_2001_area_WGS84.geojson");
+
+	//Add OS TQ Buildings Layer as a ground box
+	GroundBox* buildings = new GroundBox();
+	globe.GetSceneGraph()->push_back(buildings);
 
 	//globe.FitViewToLayers(); //now all the data has been loaded, initialise the camera to its default position and zoom
 

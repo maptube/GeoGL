@@ -16,7 +16,7 @@ namespace gengine {
 struct BoxContent {
 	bool IsEmpty;
 	int TileX,TileY,TileZ;
-	Mesh2* mesh;
+	Object3D* mesh;
 	BoxContent() { TileX=0; TileY=0; TileZ=0; mesh=nullptr; IsEmpty=true; };
 };
 
