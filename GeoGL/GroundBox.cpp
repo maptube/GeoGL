@@ -16,6 +16,7 @@
 #include "mesh2.h"
 #include "object3d.h"
 #include "geojson.h"
+#include "gengine/vertexformat.h"
 #include "gengine/Camera.h"
 #include "gengine/drawobject.h"
 #include "gengine/scenedataobject.h"
@@ -76,12 +77,37 @@ Mesh2* GroundBox::DebugMesh(glm::dvec3 RadGeodetic3D) {
 	float N = glm::pow(2.0f,Z); //number of tiles in X and Y directions
 	TileX=glm::floor((RadGeodetic3D.x+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
 	TileY=glm::floor((RadGeodetic3D.y+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
-	double minLon=TileX*2.0f*glm::pi<float>()/N;
-	double minLat=TileY*2.0f*glm::pi<float>()/N;
-	double maxLon=(TileX+1)*2.0f*glm::pi<float>()/N;
-	double maxLat=(TileY+1)*2.0f*glm::pi<float>()/N;
+	double minLon=TileX*2.0f*glm::pi<float>()/N-glm::pi<float>();
+	double minLat=TileY*2.0f*glm::pi<float>()/N-glm::pi<float>();
+	double maxLon=(TileX+1)*2.0f*glm::pi<float>()/N-glm::pi<float>();
+	double maxLat=(TileY+1)*2.0f*glm::pi<float>()/N-glm::pi<float>();
 
+	Ellipsoid e;
 	Mesh2* mesh = new Mesh2();
+	mesh->_VertexFormat=gengine::PositionColourNormal;
+	glm::vec3 P0 = e.toVector(minLon,minLat,100);
+	glm::vec3 P1 = e.toVector(maxLon,minLat,100);
+	glm::vec3 P2 = e.toVector(maxLon,maxLat,100);
+	glm::vec3 P3 = e.toVector(minLon,maxLat,100);
+	glm::vec3 vN = glm::cross(P3-P0,P1-P0);
+	if ((((int)TileX)%2==0)^(((int)TileY)%2!=0)) {
+		glm::vec3 red(1.0,0.0,0.0);
+		glm::vec3 blue(0.0,0.0,1.0);
+		mesh->AddFace(P0,P1,P2,red,red,red,vN,vN,vN);
+		mesh->AddFace(P0,P2,P3,blue,blue,blue,vN,vN,vN);
+		//back face (check normal?)
+		mesh->AddFace(P2,P1,P0,red,red,red,vN,vN,vN);
+		mesh->AddFace(P3,P2,P0,red,red,red,vN,vN,vN);
+	}
+	else {
+		glm::vec3 blue(0.0,0.0,1.0);
+		mesh->AddFace(P0,P1,P2,blue,blue,blue,vN,vN,vN);
+		mesh->AddFace(P0,P2,P3,blue,blue,blue,vN,vN,vN);
+		//back face (check normal?)
+		mesh->AddFace(P2,P1,P0,blue,blue,blue,vN,vN,vN);
+		mesh->AddFace(P3,P2,P0,blue,blue,blue,vN,vN,vN);
+	}
+	mesh->CreateBuffers();
 
 	return mesh;
 }
@@ -188,19 +214,23 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 		//now initiate a load and cache check for any ground box meshes set as IsEmpty
 		for (int i=0; i<9; i++) {
 			if (_gndboxes[i].IsEmpty) {
-				std::string TileFilename = GetGeoJSONFilename(_gndboxes[i].TileZ,_gndboxes[i].TileX,_gndboxes[i].TileY); //shouldn't this be a URL?
-				if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
-					std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
+				//std::string TileFilename = GetGeoJSONFilename(_gndboxes[i].TileZ,_gndboxes[i].TileX,_gndboxes[i].TileY); //shouldn't this be a URL?
+				//if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
+				//	std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
 					//load geojson mesh and extrude - this should be in a thread
 					GeoJSON* geoj = new GeoJSON();
-					geoj->LoadFile(LocalFilename);
-					//geoj->ToMesh(e);
-					geoj->ExtrudeMesh(e,0); //hack - 0 is height
-					geoj->AttachShader(_Shader,true); //NOTE: this only attaches to the geoj child objects, NOT the parent which is an O3D
-					geoj->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+					//geoj->LoadFile(LocalFilename);
+					////geoj->ToMesh(e);
+					//geoj->ExtrudeMesh(e,0); //hack - 0 is height
+					//geoj->AttachShader(_Shader,true); //NOTE: this only attaches to the geoj child objects, NOT the parent which is an O3D
+					//geoj->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 					_gndboxes[i].mesh=geoj;
+					//DEBUG - push a coloured ground square to show the grid
+					geoj->AddChild(DebugMesh(geodetic3D));
+					geoj->AttachShader(_Shader,true);
+					//END DEBUG
 					_gndboxes[i].IsEmpty=false; //don't forget to set the flag
-				}
+				//}
 			}
 		}
 	}

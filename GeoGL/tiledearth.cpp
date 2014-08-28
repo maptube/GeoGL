@@ -240,8 +240,8 @@ TiledEarthNode* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, dou
 std::string MakeTextureTileString(int Z,int X,int Y,const std::string& base)
 {
 	std::stringstream ss;
-	ss<<"../data/BlueMarble/land_ocean_ice_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
-	//ss<<"../data/BlueMarble/bluemarble_jan04/world_topo_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	//ss<<"../data/BlueMarble/land_ocean_ice_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	ss<<"../data/BlueMarble/bluemarble_jan04/world_topo_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
 	return ss.str();
 }
 

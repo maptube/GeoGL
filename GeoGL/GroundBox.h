@@ -12,7 +12,6 @@ namespace gengine {
 	class SceneDataObject;
 	class GraphicsContext;
 	class Shader;
-	class Mesh2;
 }
 
 struct BoxContent {
@@ -25,7 +24,7 @@ struct BoxContent {
 class GroundBox : public Object3D {
 private:
 	BoxContent _gndboxes[9];
-	Mesh2* GroundBox::DebugMesh(glm::dvec3 RadGeodetic3D);
+	Mesh2* DebugMesh(glm::dvec3 RadGeodetic3D);
 protected:
 	void ShuffleBoxes(const int TileZ, const int TileX, const int TileY);
 	void UpdateData(const gengine::SceneDataObject& sdo);
