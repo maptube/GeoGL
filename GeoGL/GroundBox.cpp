@@ -20,6 +20,9 @@
 #include "gengine/drawobject.h"
 #include "gengine/scenedataobject.h"
 #include "gengine/graphicscontext.h"
+//#include "gengine/shader.h"
+//#include "gengine/shaderuniformcollection.h"
+//#include "gengine/shaderuniform.h"
 #include "cache/DataCache.h"
 
 using namespace std;
@@ -58,9 +61,29 @@ void GroundBox::LonLatToTileXY(glm::dvec3 RadGeodetic3D,int& TileX,int& TileY) {
 	TileY=(int)glm::floor((RadGeodetic3D.y+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
 	//2046 2635
 	//HACK! Always use the same tile for testing
-	TileX=2046; TileY=2635;
+	//TileX=2048; TileY=2629;
 	//debug
 	//cout<<"lon="<<glm::degrees(RadGeodetic3D.x)<<" lat="<<glm::degrees(RadGeodetic3D.y)<<" TileX="<<TileX<<" TileY="<<TileY<<endl;
+}
+
+/// <summary>
+/// Build a box that fits the bounds of the tile and return the mesh.
+/// Used for debugging.
+/// </summary>
+Mesh2* GroundBox::DebugMesh(glm::dvec3 RadGeodetic3D) {
+	float TileX,TileY;
+	const float Z = 12; //we've only got tiles for zoom level 12
+	float N = glm::pow(2.0f,Z); //number of tiles in X and Y directions
+	TileX=glm::floor((RadGeodetic3D.x+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
+	TileY=glm::floor((RadGeodetic3D.y+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
+	double minLon=TileX*2.0f*glm::pi<float>()/N;
+	double minLat=TileY*2.0f*glm::pi<float>()/N;
+	double maxLon=(TileX+1)*2.0f*glm::pi<float>()/N;
+	double maxLat=(TileY+1)*2.0f*glm::pi<float>()/N;
+
+	Mesh2* mesh = new Mesh2();
+
+	return mesh;
 }
 
 //return the filename of a tile identified by its x and y location - basically a hack for tile filename conversion
@@ -172,8 +195,9 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 					GeoJSON* geoj = new GeoJSON();
 					geoj->LoadFile(LocalFilename);
 					//geoj->ToMesh(e);
-					geoj->ExtrudeMesh(e,1000); //hack - 0 is height
-					geoj->AttachShader(_Shader,true);
+					geoj->ExtrudeMesh(e,0); //hack - 0 is height
+					geoj->AttachShader(_Shader,true); //NOTE: this only attaches to the geoj child objects, NOT the parent which is an O3D
+					geoj->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 					_gndboxes[i].mesh=geoj;
 					_gndboxes[i].IsEmpty=false; //don't forget to set the flag
 				}
@@ -187,9 +211,13 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 	for (int i=0; i<9; i++) {
 		if (!_gndboxes[i].IsEmpty) {
 			//RENDER!!!!!
-			cout<<"Render GroundBoxes"<<endl;
-			const DrawObject& dobj = _gndboxes[i].mesh->GetDrawObject();
-			GC->Render(dobj,sdo);
+			//cout<<"Render GroundBoxes"<<endl;
+			//NOTE: the geojson object is an object3d container which is not renderable, so you have to draw the children
+			for (vector<Object3D*>::const_iterator it=_gndboxes[i].mesh->BeginChild(); it!=_gndboxes[i].mesh->EndChild(); ++it) {
+				const DrawObject& dobj = (*it)->GetDrawObject();
+				//ShaderUniformCollection* uniforms=dobj._ShaderProgram->_shaderUniforms; //might want to set one of these?
+				GC->Render(dobj,sdo);
+			}
 		}
 	}
 }

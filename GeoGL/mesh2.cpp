@@ -65,6 +65,8 @@ Mesh2::Mesh2(void)
 {
 	epsilon = 0.0000001f;
 
+	vertexData = nullptr;
+
 	//set default vertex format to have position and colour indices
 	_VertexFormat = PositionColour;
 	_HasIndexBuffer = true; //default is to create an index buffer unless set to false (maybe tri-stripping or tiled earth?)
@@ -349,6 +351,52 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N) {
 	vertices_VCTN.insert(insertPoint,item);
 	bounds.ExpandToIncludePoint(item.P);
 	return item.Index;
+}
+
+/// <summary>
+/// Append meshB to this mesh without doing any complicated merging of duplicate points. In other words, just stick the two meshes together (concatenate?).
+/// BOTH MESHES MUST HAVE THE SAME VERTEX FORMAT!
+/// TODO: need to write the code for vertex formats other than VCN
+/// </summary>
+/// <param name="meshB">The mesh to add to this one</param>
+void Mesh2::AppendMesh(const Mesh2& meshB) {
+	if (this->_VertexFormat!=meshB._VertexFormat) return; //ERROR! Both must have the same vertx format
+
+	int baseF=_NumVertices;
+	vector<struct VertexOnly>::const_iterator it_V;
+	vector<struct VertexColour>::const_iterator it_VC;
+	vector<struct VertexColourTexture>::const_iterator it_VCT;
+	vector<struct VertexColourNormal>::const_iterator it_VCN;
+	vector<struct VertexColourTextureNormal>::const_iterator it_VCTN;
+	switch (_VertexFormat) {
+		case Position: break;
+		case PositionColour:
+		case InterleavedPositionColour: break;
+		case PositionColourTexture:
+		case InterleavedPositionColourTexture: break;
+		case PositionColourNormal:
+		case InterleavedPositionColourNormal:
+			for (it_VCN = meshB.vertices_VCN.begin(); it_VCN!=meshB.vertices_VCN.end(); ++it_VCN) {
+				VertexColourNormal VCN;
+				VertexColourNormal VCNB = *it_VCN;
+				VCN.P=VCNB.P;
+				VCN.RGB=VCNB.RGB;
+				VCN.N=VCNB.N;
+				VCN.Index=VCNB.Index+baseF; //NOT _NumVertices as the index changes as the points get shuffled around and it needs to link to "faces"
+				++_NumVertices;
+				vertices_VCN.push_back(VCN);
+				bounds.ExpandToIncludePoint(VCN.P);
+			}
+			break;
+		case PositionColourTextureNormal:
+		case InterleavedPositionColourTextureNormal: break;
+	}
+
+	//now the faces which are the same for any vertex format
+	//baseF is added to the meshB faces as this is where the new points were added in this mesh
+	for (vector<int>::const_iterator it_F=meshB.faces.begin(); it_F!=meshB.faces.end(); ++it_F) {
+		faces.push_back((*it_F)+baseF);
+	}
 }
 
 /// <summary>
@@ -797,8 +845,9 @@ void Mesh2::FreeBuffers() {
 	//cout<<"Mesh2::FreeBuffers"<<endl;
 	//this is easy, everything is taken care of in gengine
 
-	delete vertexData; //as all the buffers are now invalid anyway
-	vertexData=NULL;
+	if (vertexData!=nullptr)
+		delete vertexData; //as all the buffers are now invalid anyway
+	vertexData=nullptr;
 }
 
 /// <summary>

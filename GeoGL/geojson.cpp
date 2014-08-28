@@ -422,18 +422,40 @@ void GeoJSON::ExtrudeMesh(Ellipsoid& e,double HeightMetres) {
 		delete *itChild;
 	}
 
+	//one child mesh for every feature (bad)
+	//for (vector<PathShape>::iterator it = _Features.begin(); it!=_Features.end(); ++it)
+	//{
+	//	Mesh2* geom = new Mesh2();
+	//	geom->_VertexFormat=gengine::PositionColourNormal;
+	//	ExtrudeGeometry egeom;
+	//	egeom.AddShape(*it);
+	//	//egeom.ExtrudeMesh(*geom,e,HeightMetres); //extrude shape (XY plane) into geom on the specified ellipsoid
+	//	//hack for generating random height buildings
+	//	int height = distribution(generator);
+	//
+	//	egeom.ExtrudeMesh(*geom,e,HeightMetres+height);
+	//	geom->CreateBuffers();
+	//	Children.push_back(geom);
+	//}
+
+	//Everything as a single mesh - this has to be done by building the extrude geometry a feature at a time, then appending it to the master geometry.
+	//If you don't do it like this you end up trying to triangulate a massive mesh and time is proportional to number of points (roughly)
+	Mesh2* geom = new Mesh2();
+	geom->_VertexFormat=gengine::PositionColourNormal;
 	for (vector<PathShape>::iterator it = _Features.begin(); it!=_Features.end(); ++it)
 	{
-		Mesh2* geom = new Mesh2();
-		geom->_VertexFormat=gengine::PositionColourNormal;
+		Mesh2* tmpGeom = new Mesh2();
+		tmpGeom->_VertexFormat = geom->_VertexFormat;
 		ExtrudeGeometry egeom;
 		egeom.AddShape(*it);
 		//egeom.ExtrudeMesh(*geom,e,HeightMetres); //extrude shape (XY plane) into geom on the specified ellipsoid
 		//hack for generating random height buildings
 		int height = distribution(generator);
-
-		egeom.ExtrudeMesh(*geom,e,HeightMetres+height);
-		geom->CreateBuffers();
-		Children.push_back(geom);
+	
+		egeom.ExtrudeMesh(*tmpGeom,e,HeightMetres+height);
+		geom->AppendMesh(*tmpGeom);
+		delete tmpGeom;
 	}
+	geom->CreateBuffers();
+	Children.push_back(geom);
 }

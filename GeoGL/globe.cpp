@@ -131,7 +131,7 @@ Globe::Globe(void)
 
 	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
 	GroundBox* buildings = new GroundBox();
-	buildings->_Shader=shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+	buildings->_Shader=normalshader; //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
 	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth

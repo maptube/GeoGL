@@ -107,6 +107,7 @@ public:
 			glm::vec2 UV1, glm::vec2 UV2, glm::vec2 UV3,
 			glm::vec3 N1, glm::vec3 N2, glm::vec3 N3
 	);
+	void AppendMesh(const Mesh2& meshB);
 	void AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture);
 	void SetColour(glm::vec3 new_colour);
 	void ScaleVertices(double Sx,double Sy,double Sz);
