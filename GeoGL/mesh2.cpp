@@ -3,6 +3,8 @@
 #include <math.h>
 #include <algorithm>
 #include <iterator>
+#include <iostream>
+#include <fstream>
 #include "DebugUtils.h"
 
 #include "gengine/graphicscontext.h"
@@ -133,6 +135,9 @@ BBox Mesh2::GetGeometryBounds() {
 	return box;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /// <summary>
 /// Add a new point, but don't worry about duplicates, just push it onto the list
 /// <summary>
@@ -146,6 +151,60 @@ int Mesh2::AddVertexRaw(glm::vec3 P) {
 	bounds.ExpandToIncludePoint(item.P);
 	return item.Index;
 }
+
+/// <summary>
+/// Add raw point with position and colour
+/// </summary>
+int Mesh2::AddVertexRaw(glm::vec3 P, glm::vec3 Colour) {
+	if (_VertexFormat==Position) return AddVertexRaw(P); //guard for vertex format
+	VertexColour item;
+	item.P=P;
+	item.RGB=Colour;
+	item.Index=_NumVertices;
+	++_NumVertices;
+	vertices_VC.push_back(item);
+	bounds.ExpandToIncludePoint(item.P);
+	return item.Index;
+}
+
+/// <summary>
+/// Add raw point with position, colour and normal
+/// </summary>
+int Mesh2::AddVertexRaw(glm::vec3 P, glm::vec3 Colour, glm::vec3 N) {
+	if (_VertexFormat==Position) return AddVertexRaw(P); //guard for vertex format
+	else if (_VertexFormat==PositionColour) return AddVertexRaw(P,Colour); //guard for vertex format
+	VertexColourNormal item;
+	item.P=P;
+	item.RGB=Colour;
+	item.N=N;
+	item.Index=_NumVertices;
+	++_NumVertices;
+	vertices_VCN.push_back(item);
+	bounds.ExpandToIncludePoint(item.P);
+	return item.Index;
+}
+
+/// <summary>
+/// Add raw point with position, colour, texture and normal
+/// </summary>
+int Mesh2::AddVertexRaw(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N) {
+	if (_VertexFormat==Position) return AddVertexRaw(P); //guard for vertex format
+	else if (_VertexFormat==PositionColour) return AddVertexRaw(P,Colour); //guard for vertex format
+	else if (_VertexFormat==PositionColourNormal) return AddVertexRaw(P,Colour,N); //guard for vertex format
+	VertexColourTextureNormal item;
+	item.P=P;
+	item.RGB=Colour;
+	item.UV=UV;
+	item.N=N;
+	item.Index=_NumVertices;
+	++_NumVertices;
+	vertices_VCTN.push_back(item);
+	bounds.ExpandToIncludePoint(item.P);
+	return item.Index;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //copy of add vertex using only position
 int Mesh2::AddVertex(glm::vec3 P) {
@@ -360,7 +419,7 @@ int Mesh2::AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N) {
 /// </summary>
 /// <param name="meshB">The mesh to add to this one</param>
 void Mesh2::AppendMesh(const Mesh2& meshB) {
-	if (this->_VertexFormat!=meshB._VertexFormat) return; //ERROR! Both must have the same vertx format
+	if (this->_VertexFormat!=meshB._VertexFormat) return; //ERROR! Both must have the same vertex format
 
 	int baseF=_NumVertices;
 	vector<struct VertexOnly>::const_iterator it_V;
@@ -369,11 +428,44 @@ void Mesh2::AppendMesh(const Mesh2& meshB) {
 	vector<struct VertexColourNormal>::const_iterator it_VCN;
 	vector<struct VertexColourTextureNormal>::const_iterator it_VCTN;
 	switch (_VertexFormat) {
-		case Position: break;
+		case Position:
+			for (it_V = meshB.vertices_V.begin(); it_V!=meshB.vertices_V.end(); ++it_V) {
+				VertexOnly V;
+				VertexOnly VB = *it_V;
+				V.P=VB.P;
+				V.Index=VB.Index+baseF; //NOT _NumVertices as the index changes as the points get shuffled around and it needs to link to "faces"
+				++_NumVertices;
+				vertices_V.push_back(V);
+				bounds.ExpandToIncludePoint(V.P);
+			}
+			break;
 		case PositionColour:
-		case InterleavedPositionColour: break;
+		case InterleavedPositionColour:
+			for (it_VC = meshB.vertices_VC.begin(); it_VC!=meshB.vertices_VC.end(); ++it_VC) {
+				VertexColour VC;
+				VertexColour VCB = *it_VC;
+				VC.P=VCB.P;
+				VC.RGB=VCB.RGB;
+				VC.Index=VCB.Index+baseF; //NOT _NumVertices as the index changes as the points get shuffled around and it needs to link to "faces"
+				++_NumVertices;
+				vertices_VC.push_back(VC);
+				bounds.ExpandToIncludePoint(VC.P);
+			}
+			break;
 		case PositionColourTexture:
-		case InterleavedPositionColourTexture: break;
+		case InterleavedPositionColourTexture:
+			for (it_VCT = meshB.vertices_VCT.begin(); it_VCT!=meshB.vertices_VCT.end(); ++it_VCT) {
+				VertexColourTexture VCT;
+				VertexColourTexture VCTB = *it_VCT;
+				VCT.P=VCTB.P;
+				VCT.RGB=VCTB.RGB;
+				VCT.UV=VCTB.UV;
+				VCT.Index=VCTB.Index+baseF; //NOT _NumVertices as the index changes as the points get shuffled around and it needs to link to "faces"
+				++_NumVertices;
+				vertices_VCT.push_back(VCT);
+				bounds.ExpandToIncludePoint(VCT.P);
+			}
+			break;
 		case PositionColourNormal:
 		case InterleavedPositionColourNormal:
 			for (it_VCN = meshB.vertices_VCN.begin(); it_VCN!=meshB.vertices_VCN.end(); ++it_VCN) {
@@ -389,7 +481,20 @@ void Mesh2::AppendMesh(const Mesh2& meshB) {
 			}
 			break;
 		case PositionColourTextureNormal:
-		case InterleavedPositionColourTextureNormal: break;
+		case InterleavedPositionColourTextureNormal:
+			for (it_VCTN = meshB.vertices_VCTN.begin(); it_VCTN!=meshB.vertices_VCTN.end(); ++it_VCTN) {
+				VertexColourTextureNormal VCTN;
+				VertexColourTextureNormal VCTNB = *it_VCTN;
+				VCTN.P=VCTNB.P;
+				VCTN.RGB=VCTNB.RGB;
+				VCTN.UV=VCTNB.UV;
+				VCTN.N=VCTNB.N;
+				VCTN.Index=VCTNB.Index+baseF; //NOT _NumVertices as the index changes as the points get shuffled around and it needs to link to "faces"
+				++_NumVertices;
+				vertices_VCTN.push_back(VCTN);
+				bounds.ExpandToIncludePoint(VCTN.P);
+			}
+			break;
 	}
 
 	//now the faces which are the same for any vertex format
@@ -915,3 +1020,60 @@ void Mesh2::AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Textu
 	cout<<"Num textures = "<<drawObject._textures.size()<<endl;
 }
 
+/// <summary>
+/// Load a mesh from an obj file. Really should be static and return a mesh2?
+/// Set the vertex format before calling this method.
+/// </summary>
+/// <param Filename="Name of file to load OBJ from"></param>
+void Mesh2::FromOBJ(const std::string& Filename) {
+	string line;
+	ifstream objfile(Filename);
+	if (objfile.is_open())
+	{
+		stringstream ss;
+		float x,y,z,nx,ny,nz,u,v;
+		int f0,f1,f2;
+		int idx=0;
+		char current='?';
+		while (getline(objfile,line))
+		{
+			//mtllib
+			//usemtl
+			char ch = line[0]; //maybe the first non-white
+			if (ch=='#') continue;
+			ss.clear(); ss<<line;
+			if (ch!=current) idx=0; //index counter for v, vt and vn lines
+			switch (ch) {
+			case 'o': //object
+				break;
+			case 'g': //group
+				break;
+			case 'v': //vertex - this always comes first, so create a vertex entry which the textures and normals can modify later
+				//sscanf(line.c_str(),"%f %f %f",&x,&y,&z); //if the stl version is no good, try this
+				ss>>x>>y>>z;
+				AddVertexRaw(glm::vec3(x,y,z),glm::vec3(0,0,0),glm::vec2(0,0),glm::vec3(0,0,0)); //VCTN
+				break;
+			case 'vt': //texture coord
+				ss>>u>>v;
+				if (_VertexFormat==PositionColourTexture)
+					vertices_VCT.at(idx).UV=glm::vec2(u,v);
+				else if (_VertexFormat==PositionColourTextureNormal)
+					vertices_VCTN.at(idx).UV=glm::vec2(u,v);
+				++idx;
+				break;
+			case 'vn': //normal
+				ss>>nx>>ny>>nz;
+				if (_VertexFormat==PositionColourNormal)
+					vertices_VCN.at(idx).N=glm::vec3(nx,ny,nz);
+				else if (_VertexFormat==PositionColourTextureNormal)
+					vertices_VCTN.at(idx).N=glm::vec3(nx,ny,nz);
+				++idx;
+				break;
+			case 'f': //face (1 based)
+				ss>>f0>>f1>>f2; //only allowing 3 vertex faces
+				AddFace(f0-1,f1-1,f2-1); //preserving vertex numbers
+			}
+		}
+		objfile.close();
+	}
+}

@@ -33,6 +33,8 @@ using namespace gengine;
 using namespace geogl;
 using namespace geogl::cache;
 
+const int GroundBox::BoxZoomLevel = 14; // zoom level used for all ground boxes to make it easy to switch
+
 GroundBox::GroundBox() {
 	// TODO Auto-generated constructor stub
 	//_Tau=1.0;
@@ -56,7 +58,7 @@ GroundBox::~GroundBox() {
 /// </summary>
 void GroundBox::LonLatToTileXY(glm::dvec3 RadGeodetic3D,int& TileX,int& TileY) {
 	//TODO: the zoom level shouldn't be hard coded!
-	const float Z = 12; //we've only got tiles for zoom level 12
+	const float Z = BoxZoomLevel; //we've only got tiles for zoom level 12
 	float N = glm::pow(2.0f,Z); //number of tiles in X and Y directions
 	TileX=(int)glm::floor((RadGeodetic3D.x+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
 	TileY=(int)glm::floor((RadGeodetic3D.y+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
@@ -71,12 +73,9 @@ void GroundBox::LonLatToTileXY(glm::dvec3 RadGeodetic3D,int& TileX,int& TileY) {
 /// Build a box that fits the bounds of the tile and return the mesh.
 /// Used for debugging.
 /// </summary>
-Mesh2* GroundBox::DebugMesh(glm::dvec3 RadGeodetic3D) {
-	float TileX,TileY;
-	const float Z = 12; //we've only got tiles for zoom level 12
-	float N = glm::pow(2.0f,Z); //number of tiles in X and Y directions
-	TileX=glm::floor((RadGeodetic3D.x+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
-	TileY=glm::floor((RadGeodetic3D.y+glm::pi<float>())/(2.0f*glm::pi<float>())*N);
+Mesh2* GroundBox::DebugMesh(const int TileZ,const int TileX,const int TileY) {
+	float fTileZ=(float)TileZ, fTileX=(float)TileX, fTileY=(float)TileY;
+	float N = glm::pow(2.0f,fTileZ); //number of tiles in X and Y directions
 	double minLon=TileX*2.0f*glm::pi<float>()/N-glm::pi<float>();
 	double minLat=TileY*2.0f*glm::pi<float>()/N-glm::pi<float>();
 	double maxLon=(TileX+1)*2.0f*glm::pi<float>()/N-glm::pi<float>();
@@ -90,22 +89,22 @@ Mesh2* GroundBox::DebugMesh(glm::dvec3 RadGeodetic3D) {
 	glm::vec3 P2 = e.toVector(maxLon,maxLat,100);
 	glm::vec3 P3 = e.toVector(minLon,maxLat,100);
 	glm::vec3 vN = glm::cross(P3-P0,P1-P0);
-	if ((((int)TileX)%2==0)^(((int)TileY)%2!=0)) {
+	if ((((int)TileX)%2==0)^(((int)TileY)%2==0)) {
 		glm::vec3 red(1.0,0.0,0.0);
-		glm::vec3 blue(0.0,0.0,1.0);
+		//glm::vec3 blue(0.0,0.0,1.0);
 		mesh->AddFace(P0,P1,P2,red,red,red,vN,vN,vN);
-		mesh->AddFace(P0,P2,P3,blue,blue,blue,vN,vN,vN);
+		mesh->AddFace(P0,P2,P3,red,red,red,vN,vN,vN);
 		//back face (check normal?)
-		mesh->AddFace(P2,P1,P0,red,red,red,vN,vN,vN);
-		mesh->AddFace(P3,P2,P0,red,red,red,vN,vN,vN);
+		//mesh->AddFace(P2,P1,P0,red,red,red,vN,vN,vN);
+		//mesh->AddFace(P3,P2,P0,red,red,red,vN,vN,vN);
 	}
 	else {
 		glm::vec3 blue(0.0,0.0,1.0);
 		mesh->AddFace(P0,P1,P2,blue,blue,blue,vN,vN,vN);
 		mesh->AddFace(P0,P2,P3,blue,blue,blue,vN,vN,vN);
 		//back face (check normal?)
-		mesh->AddFace(P2,P1,P0,blue,blue,blue,vN,vN,vN);
-		mesh->AddFace(P3,P2,P0,blue,blue,blue,vN,vN,vN);
+		//mesh->AddFace(P2,P1,P0,blue,blue,blue,vN,vN,vN);
+		//mesh->AddFace(P3,P2,P0,blue,blue,blue,vN,vN,vN);
 	}
 	mesh->CreateBuffers();
 
@@ -150,7 +149,7 @@ void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) 
 			int x2=x-oldx;
 			int y2=y-oldy;
 			if ((x2>=0)&&(x2<=2)&&(y2>=0)&&(y2<=2)) {
-				B[i].mesh=_gndboxes[y2*3+x].mesh;
+				B[i].mesh=_gndboxes[y2*3+x2].mesh;
 				currentMeshes.insert(B[i].mesh);
 				B[i].IsEmpty=false;
 			}
@@ -210,27 +209,27 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 		//convert lon,lat into tile numbers
 		int TileX,TileY;
 		LonLatToTileXY(geodetic3D,TileX,TileY);
-		ShuffleBoxes(12,TileX,TileY); //shuffle current data around centre box as it's unlikely to have moved much
+		ShuffleBoxes(BoxZoomLevel,TileX,TileY); //shuffle current data around centre box as it's unlikely to have moved much
 		//now initiate a load and cache check for any ground box meshes set as IsEmpty
 		for (int i=0; i<9; i++) {
 			if (_gndboxes[i].IsEmpty) {
-				//std::string TileFilename = GetGeoJSONFilename(_gndboxes[i].TileZ,_gndboxes[i].TileX,_gndboxes[i].TileY); //shouldn't this be a URL?
-				//if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
-				//	std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
+				std::string TileFilename = GetGeoJSONFilename(_gndboxes[i].TileZ,_gndboxes[i].TileX,_gndboxes[i].TileY); //shouldn't this be a URL?
+				if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
+					std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
 					//load geojson mesh and extrude - this should be in a thread
 					GeoJSON* geoj = new GeoJSON();
-					//geoj->LoadFile(LocalFilename);
-					////geoj->ToMesh(e);
-					//geoj->ExtrudeMesh(e,0); //hack - 0 is height
-					//geoj->AttachShader(_Shader,true); //NOTE: this only attaches to the geoj child objects, NOT the parent which is an O3D
-					//geoj->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+					geoj->LoadFile(LocalFilename);
+					//geoj->ToMesh(e);
+					geoj->ExtrudeMesh(e,0); //hack - 0 is height
+					geoj->AttachShader(_Shader,true); //NOTE: this only attaches to the geoj child objects, NOT the parent which is an O3D
+					geoj->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 					_gndboxes[i].mesh=geoj;
 					//DEBUG - push a coloured ground square to show the grid
-					geoj->AddChild(DebugMesh(geodetic3D));
-					geoj->AttachShader(_Shader,true);
+					//geoj->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
+					//geoj->AttachShader(_Shader,true);
 					//END DEBUG
 					_gndboxes[i].IsEmpty=false; //don't forget to set the flag
-				//}
+				}
 			}
 		}
 	}

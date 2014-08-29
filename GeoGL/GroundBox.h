@@ -24,11 +24,12 @@ struct BoxContent {
 class GroundBox : public Object3D {
 private:
 	BoxContent _gndboxes[9];
-	Mesh2* DebugMesh(glm::dvec3 RadGeodetic3D);
+	Mesh2* DebugMesh(const int TileZ,const int TileX,const int TileY);
 protected:
 	void ShuffleBoxes(const int TileZ, const int TileX, const int TileY);
 	void UpdateData(const gengine::SceneDataObject& sdo);
 public:
+	static const int BoxZoomLevel; //zoom level used for all boxes (i.e. switchable between 12 and 13)
 	gengine::Shader* _Shader; //shader used for rendering
 	GroundBox();
 	virtual ~GroundBox();

@@ -83,7 +83,14 @@ public:
 	~Mesh2(void);
 	static float ManhattanDist(glm::vec2 V1, glm::vec2 V2);
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);
+	void FromOBJ(const std::string& Filename);
+	//what about ToOBJ?
+	//raw vertex methods
 	int AddVertexRaw(glm::vec3 P);
+	int AddVertexRaw(glm::vec3 P, glm::vec3 Colour);
+	int AddVertexRaw(glm::vec3 P, glm::vec3 Colour, glm::vec3 N);
+	int AddVertexRaw(glm::vec3 P, glm::vec3 Colour, glm::vec2 UV, glm::vec3 N);
+	//vertex functions which weld duplicate points
 	int AddVertex(glm::vec3 P);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour);
 	int AddVertex(glm::vec3 P, glm::vec3 Colour, glm::vec3 Normal);
