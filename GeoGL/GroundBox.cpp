@@ -115,7 +115,9 @@ Mesh2* GroundBox::DebugMesh(const int TileZ,const int TileX,const int TileY) {
 //TODO: need to remove the hard coding i.e. dir, filename and zoom level 12 only
 std::string GetGeoJSONFilename(const int TileZ, const int TileX,const int TileY) {
 	std::stringstream ss;
-	ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".geojson";
+	//ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".geojson";
+	//ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".obj";
+	ss<<"../data/vectortiles/14_8165_10503.obj";
 	return ss.str();
 }
 
@@ -217,13 +219,21 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 				if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
 					std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
 					//load geojson mesh and extrude - this should be in a thread
-					GeoJSON* geoj = new GeoJSON();
-					geoj->LoadFile(LocalFilename);
-					//geoj->ToMesh(e);
-					geoj->ExtrudeMesh(e,0); //hack - 0 is height
-					geoj->AttachShader(_Shader,true); //NOTE: this only attaches to the geoj child objects, NOT the parent which is an O3D
-					geoj->SetColour(glm::vec3(1.0f,0.0f,0.0f));
-					_gndboxes[i].mesh=geoj;
+					//GeoJSON* geoj = new GeoJSON();
+					//geoj->LoadFile(LocalFilename);
+					////geoj->ToMesh(e);
+					//geoj->ExtrudeMesh(e,0); //hack - 0 is height
+					//geoj->AttachShader(_Shader,true); //NOTE: this only attaches to the geoj child objects, NOT the parent which is an O3D
+					//geoj->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+					//_gndboxes[i].mesh=geoj;
+
+					//load pre-computed obj file - this should also be in a thread
+					Mesh2* mesh = new Mesh2();
+					mesh->FromOBJ(LocalFilename);
+					mesh->AttachShader(_Shader,true);
+					mesh->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+					_gndboxes[i].mesh=mesh;
+
 					//DEBUG - push a coloured ground square to show the grid
 					//geoj->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
 					//geoj->AttachShader(_Shader,true);
