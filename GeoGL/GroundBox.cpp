@@ -229,10 +229,13 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 
 					//load pre-computed obj file - this should also be in a thread
 					Mesh2* mesh = new Mesh2();
+					mesh->_VertexFormat=gengine::PositionColourNormal;
 					mesh->FromOBJ(LocalFilename);
+					mesh->CreateBuffers();
 					mesh->AttachShader(_Shader,true);
 					mesh->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 					_gndboxes[i].mesh=mesh;
+					cout<<"Mesh Loaded"<<endl;
 
 					//DEBUG - push a coloured ground square to show the grid
 					//geoj->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
