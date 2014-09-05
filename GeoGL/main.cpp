@@ -286,14 +286,22 @@ int main(int argc, char *argv[])
 	//GeoJSON* geoj = globe.LoadLayerGeoJSON("../data/TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
 	
 	//Thames in WGS84
-	GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
-	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	//GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
+	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../cache/12_2045_2634.geojson");
+	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../cache/14_8188_10537.geojson");
 	//buildings->SetColour(glm::vec3(0.5f,0.5f,0.5f));
 	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+	//Buildings from OBJ
+	Mesh2* buildings = new Mesh2();
+	buildings->FromOBJ("../cache/14_8188_10537.obj");
+	buildings->CreateBuffers();
+	buildings->AttachShader(globe.GetShader(3),true); //this is the vertex colour normal shader for geojson
+	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+	globe.GetSceneGraph()->push_back(buildings);
 
 	//London outline in WGS84
 	//GeoJSON* london = new GeoJSON();

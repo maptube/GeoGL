@@ -151,7 +151,7 @@ namespace geogl {
 			//kick off a thread to copy the file into the local cache
 			//assuming the URI is actually a local file... (and no thread!)
 			std::string Filename = ExtractFilename(URI); //strip the filename off and move the file into the cache
-			//cout<<"Moving "<<URI<<" into "<<(_BaseDir+Filename)<<endl;
+			cout<<"Moving "<<URI<<" into "<<(_BaseDir+Filename)<<endl;
 			bool success = CopyLocalFile(URI,_BaseDir+Filename);
 			return success;
 		}

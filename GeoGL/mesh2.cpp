@@ -1031,43 +1031,57 @@ void Mesh2::FromOBJ(const std::string& Filename) {
 	if (objfile.is_open())
 	{
 		stringstream ss;
-		float x,y,z,nx,ny,nz,u,v;
+		double x,y,z,nx,ny,nz,u,v;
 		int f0,f1,f2;
 		int idx=0;
-		char current='?';
+		std::string current="?";
 		while (getline(objfile,line))
 		{
+			if (line.length()==0) continue; //blank line
 			//mtllib
 			//usemtl
-			char ch = line[0]; //maybe the first non-white
-			if (ch=='#') continue;
-			ss.clear(); ss<<line;
-			if (ch!=current) idx=0; //index counter for v, vt and vn lines
-			switch (ch) {
+			std::string code; //i.e. o, g, v, vt, vn, f
+			//NO! clear clears the error state! ss.clear(); ss<<line;
+			ss.str(line); //set underlying buffer data to the current line
+			ss.clear(); //need to do this to clear the eof flag from last iteration
+			ss.seekg(0); //need to call this to reset the pointer to the start
+			ss>>code; //maybe the first non-white?
+			if (code[0]=='#') continue;
+			if (code!=current) idx=0; //index counter for v, vt and vn lines
+			switch (code[0]) {
 			case 'o': //object
 				break;
 			case 'g': //group
 				break;
-			case 'v': //vertex - this always comes first, so create a vertex entry which the textures and normals can modify later
-				//sscanf(line.c_str(),"%f %f %f",&x,&y,&z); //if the stl version is no good, try this
-				ss>>x>>y>>z;
-				AddVertexRaw(glm::vec3(x,y,z),glm::vec3(0,0,0),glm::vec2(0,0),glm::vec3(0,0,0)); //VCTN
-				break;
-			case 'vt': //texture coord
-				ss>>u>>v;
-				if (_VertexFormat==PositionColourTexture)
-					vertices_VCT.at(idx).UV=glm::vec2(u,v);
-				else if (_VertexFormat==PositionColourTextureNormal)
-					vertices_VCTN.at(idx).UV=glm::vec2(u,v);
-				++idx;
-				break;
-			case 'vn': //normal
-				ss>>nx>>ny>>nz;
-				if (_VertexFormat==PositionColourNormal)
-					vertices_VCN.at(idx).N=glm::vec3(nx,ny,nz);
-				else if (_VertexFormat==PositionColourTextureNormal)
-					vertices_VCTN.at(idx).N=glm::vec3(nx,ny,nz);
-				++idx;
+			case 'v': //As we can have v, vt or vn, split the v line via a second nested switch statement
+				//vertex - this always comes first, so create a vertex entry which the textures and normals can modify later
+				if (code.length()==1) {
+					//sscanf(line.c_str(),"%f %f %f",&x,&y,&z); //if the stl version is no good, try this
+					ss>>x>>y>>z;
+					AddVertexRaw(glm::vec3(x,y,z),glm::vec3(1.0,0,0),glm::vec2(0,0),glm::vec3(0,0,0)); //VCTN
+					++idx;
+				}
+				else { //vt and vn
+					switch (code[1]) {
+					case 't': //vt texture coord
+						ss>>u>>v;
+						if (_VertexFormat==PositionColourTexture)
+							vertices_VCT.at(idx).UV=glm::vec2(u,v);
+						else if (_VertexFormat==PositionColourTextureNormal)
+							vertices_VCTN.at(idx).UV=glm::vec2(u,v);
+						++idx;
+						break;
+					case 'n': //vn normal
+						ss>>nx>>ny>>nz;
+						nx=0; ny=0; nz=1;
+						if (_VertexFormat==PositionColourNormal)
+							vertices_VCN.at(idx).N=glm::vec3(nx,ny,nz);
+						else if (_VertexFormat==PositionColourTextureNormal)
+							vertices_VCTN.at(idx).N=glm::vec3(nx,ny,nz);
+						++idx;
+						break;
+					}
+				}
 				break;
 			case 'f': //face (1 based)
 				ss>>f0>>f1>>f2; //only allowing 3 vertex faces

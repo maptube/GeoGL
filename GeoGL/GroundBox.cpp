@@ -116,8 +116,8 @@ Mesh2* GroundBox::DebugMesh(const int TileZ,const int TileX,const int TileY) {
 std::string GetGeoJSONFilename(const int TileZ, const int TileX,const int TileY) {
 	std::stringstream ss;
 	//ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".geojson";
-	//ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".obj";
-	ss<<"../data/vectortiles/14_8165_10503.obj";
+	ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".obj";
+	//ss<<"../data/vectortiles/14_8165_10503.obj";
 	return ss.str();
 }
 
@@ -254,12 +254,19 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 		if (!_gndboxes[i].IsEmpty) {
 			//RENDER!!!!!
 			//cout<<"Render GroundBoxes"<<endl;
+
+			//GeoJSON Render
 			//NOTE: the geojson object is an object3d container which is not renderable, so you have to draw the children
-			for (vector<Object3D*>::const_iterator it=_gndboxes[i].mesh->BeginChild(); it!=_gndboxes[i].mesh->EndChild(); ++it) {
-				const DrawObject& dobj = (*it)->GetDrawObject();
-				//ShaderUniformCollection* uniforms=dobj._ShaderProgram->_shaderUniforms; //might want to set one of these?
-				GC->Render(dobj,sdo);
-			}
+			//for (vector<Object3D*>::const_iterator it=_gndboxes[i].mesh->BeginChild(); it!=_gndboxes[i].mesh->EndChild(); ++it) {
+			//	const DrawObject& dobj = (*it)->GetDrawObject();
+			//	//ShaderUniformCollection* uniforms=dobj._ShaderProgram->_shaderUniforms; //might want to set one of these?
+			//	GC->Render(dobj,sdo);
+			//}
+
+			//Mesh2 Render
+			//Here, we only have the parent mesh object to render
+			const DrawObject& dobj = _gndboxes[i].mesh->GetDrawObject();
+			GC->Render(dobj,sdo);
 		}
 	}
 }
