@@ -295,12 +295,14 @@ int main(int argc, char *argv[])
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../cache/14_8188_10537.geojson");
 	//buildings->SetColour(glm::vec3(0.5f,0.5f,0.5f));
 	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+
 	//Buildings from OBJ
 	Mesh2* buildings = new Mesh2();
-	buildings->FromOBJ("../cache/14_8188_10537.obj");
+	buildings->_VertexFormat=PositionColourNormal;
+	buildings->FromOBJ("../data/vectortiles/14_8188_10537.obj"/*"../cache/14_8188_10537.obj"*/);
 	buildings->CreateBuffers();
 	buildings->AttachShader(globe.GetShader(3),true); //this is the vertex colour normal shader for geojson
-	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+	buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 	globe.GetSceneGraph()->push_back(buildings);
 
 	//London outline in WGS84

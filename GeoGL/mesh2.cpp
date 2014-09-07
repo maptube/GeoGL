@@ -1073,7 +1073,6 @@ void Mesh2::FromOBJ(const std::string& Filename) {
 						break;
 					case 'n': //vn normal
 						ss>>nx>>ny>>nz;
-						nx=0; ny=0; nz=1;
 						if (_VertexFormat==PositionColourNormal)
 							vertices_VCN.at(idx).N=glm::vec3(nx,ny,nz);
 						else if (_VertexFormat==PositionColourTextureNormal)

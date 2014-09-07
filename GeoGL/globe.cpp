@@ -129,6 +129,7 @@ Globe::Globe(void)
 		"../shaders/diffusenormals.vert","../shaders/diffusenormals.frag");
 	_Shaders.push_back(normalshader);
 
+//HACK - turned off ground boxes here!
 	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
 	GroundBox* buildings = new GroundBox();
 	buildings->_Shader=normalshader; //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
