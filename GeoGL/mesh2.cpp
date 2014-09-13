@@ -1047,7 +1047,7 @@ void Mesh2::FromOBJ(const std::string& Filename) {
 			ss.seekg(0); //need to call this to reset the pointer to the start
 			ss>>code; //maybe the first non-white?
 			if (code[0]=='#') continue;
-			if (code!=current) idx=0; //index counter for v, vt and vn lines
+			if (code!=current) { idx=0; current=code; } //index counter for v, vt and vn lines
 			switch (code[0]) {
 			case 'o': //object
 				break;

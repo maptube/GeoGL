@@ -130,10 +130,10 @@ Globe::Globe(void)
 	_Shaders.push_back(normalshader);
 
 //HACK - turned off ground boxes here!
-	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-	GroundBox* buildings = new GroundBox();
-	buildings->_Shader=normalshader; //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
-	SceneGraph.push_back(buildings);
+//	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
+//	GroundBox* buildings = new GroundBox();
+//	buildings->_Shader=normalshader; //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+//	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);

@@ -32,7 +32,7 @@ void main()
 {
 	vec3 toLight = normalize(positionToLight);
 	//toLight.x=-0.06687852447087486; toLight.y=0.996299796240194; toLight.z=0.0539812835744601;
-	toLight.x=0.03574930745878141; toLight.y=0.9989830014107981; toLight.z=-0.02747635180461317;
+	//toLight.x=0.03574930745878141; toLight.y=0.9989830014107981; toLight.z=-0.02747635180461317;
 	float diffuse = max(dot(toLight,normal),0.0);
 	fragmentColor = vec4(diffuse*passColor.x, diffuse*passColor.y, diffuse*passColor.z, 1.0);
 }

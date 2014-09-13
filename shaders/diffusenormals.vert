@@ -17,10 +17,12 @@ out vec3 normal;
 
 void main()
 {
-	vec3 cameraLightPosition = vec3(-400000,-400000,-4000000);
+	//vec3 cameraLightPosition = vec3(-400000,-400000,-4000000);
+	vec3 cameraLightPosition = vec3(0,1,0);
+	//vec3 cameraLightPosition = vec3(0,0,4000000);
 	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(in_Position, 1.0);
 	normal = in_Normal; //vec3(projectionMatrix * viewMatrix * modelMatrix * vec4(in_Normal, 1.0));
 	vec3 worldPosition = gl_Position.xyz;
-	positionToLight = cameraLightPosition - worldPosition;
+	positionToLight = cameraLightPosition; // - worldPosition;
 	passColor = in_Color;
 }
