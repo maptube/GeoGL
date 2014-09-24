@@ -134,7 +134,7 @@ glm::vec2 TiledEarth::ComputeTextureCoordinate(glm::vec3 P)
 /// <param name="MaxLon">maximum longitude of box in radians</param>
 /// <returns>the mesh object</returns>
 TiledEarthNode* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, double MinLat, double MinLon, double MaxLat, double MaxLon) {
-	cout<<"MakePatch "<<MinLat<<" "<<MinLon<<" "<<MaxLat<<" "<<MaxLon<<endl;
+	//cout<<"MakePatch "<<MinLat<<" "<<MinLon<<" "<<MaxLat<<" "<<MaxLon<<endl;
 	double A = _ellipsoid.A();
 	double B = _ellipsoid.B();
 	double C = _ellipsoid.C();
@@ -221,7 +221,7 @@ TiledEarthNode* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, dou
 	//		mesh->AddFace(Pb,Pc,Pd);
 	//	}
 	//}
-	cout<<"MakePatch vertex count ="<<(lastPointI+1)<<endl;
+	//cout<<"MakePatch vertex count ="<<(lastPointI+1)<<endl;
 
 	mesh->_HasIndexBuffer=false;
 	mesh->CreateBuffers();
@@ -240,8 +240,8 @@ TiledEarthNode* TiledEarth::MakePatch(int WidthSegments, int HeightSegments, dou
 std::string MakeTextureTileString(int Z,int X,int Y,const std::string& base)
 {
 	std::stringstream ss;
-	ss<<"../data/BlueMarble/land_ocean_ice_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
-	//ss<<"../data/BlueMarble/bluemarble_jan04/world_topo_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	//ss<<"../data/BlueMarble/land_ocean_ice_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	ss<<"../data/BlueMarble/bluemarble_jan04/world_topo_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
 	return ss.str();
 }
 

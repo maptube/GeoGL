@@ -18,6 +18,8 @@ class Ellipsoid;
 
 /// <summary>
 /// Object3D parent containing child meshes for every feature, built from a GeoJSON file
+/// The Object3D sits in the scene graph. The geojson loads into the _Features vector as rings and is
+/// converted into geometry with either the ToMesh or ExtrudeMesh methods.
 /// 
 /// </summary>
 class GeoJSON : public Object3D {

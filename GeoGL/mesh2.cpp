@@ -25,6 +25,8 @@ using namespace gengine;
 
 ///////MESH2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+gengine::Shader* Mesh2::normalShader=NULL; //shader used for drawing lines
+
 /// <summary>
 /// DEBUG: print out points to console NOT cout
 /// </summary>
@@ -79,6 +81,8 @@ Mesh2::Mesh2(void)
 
 	renderState = new RenderState();
 	drawObject._rs=renderState; //TODO: find a more elegant way of doing this
+
+	_debugDrawNormalsEnabled=false;
 }
 
 /// <summary>
@@ -999,6 +1003,10 @@ void Mesh2::AttachShader(gengine::Shader* pShader, bool Recursive) {
 void Mesh2::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& sdo) {
 	const DrawObject& dobj=GetDrawObject();
 	GC->Render(dobj,sdo);
+
+	if (_debugDrawNormalsEnabled) {
+		GC->Render(debugDrawNormalsDrawObject,sdo);
+	}
 }
 
 /// <summary>
@@ -1089,4 +1097,75 @@ void Mesh2::FromOBJ(const std::string& Filename) {
 		}
 		objfile.close();
 	}
+}
+
+/// <summary>
+/// Create a buffer containing line geometry showing the direction of normals for every vertex in the mesh.
+/// The normals are per-vertex normals, NOT per-face.
+/// This extra buffer is drawn in the mesh's render function.
+/// </summary>
+/// <param name="length">The length of the line to be drawn to represent the normal vector. 32 is a good number.</param>
+void Mesh2::debug_DrawNormals(const float length) {
+	//This is a CreateBuffers for normal lines
+	//make list of start and end point tuples for every vertex (start point) and normal (direction vector)
+
+	float* buf_normals = new float[_NumVertices*6]; //that's _NumVertices*3*2 (3 elements, start and end point)
+
+	if (_VertexFormat==PositionColourTextureNormal) {
+		int i=0;
+		for (vector<VertexColourTextureNormal>::iterator it = vertices_VCTN.begin(); it!=vertices_VCTN.end(); ++it) {
+			VertexColourTextureNormal VCTN=*it;
+			glm::vec3 start=VCTN.P;
+			glm::vec3 dir=VCTN.N;
+			glm::vec3 end=start+length*dir;
+			buf_normals[i++]=start.x;
+			buf_normals[i++]=start.y;
+			buf_normals[i++]=start.z;
+			buf_normals[i++]=end.x;
+			buf_normals[i++]=end.y;
+			buf_normals[i++]=end.z;
+		}
+	}
+	else if (_VertexFormat==PositionColourNormal) {
+		int i=0;
+		for (vector<VertexColourNormal>::iterator it = vertices_VCN.begin(); it!=vertices_VCN.end(); ++it) {
+			VertexColourNormal VCN=*it;
+			glm::vec3 start=VCN.P;
+			glm::vec3 dir=VCN.N;
+			glm::vec3 end=start+length*dir;
+			buf_normals[i++]=start.x;
+			buf_normals[i++]=start.y;
+			buf_normals[i++]=start.z;
+			buf_normals[i++]=end.x;
+			buf_normals[i++]=end.y;
+			buf_normals[i++]=end.z;
+		}
+	}
+
+	//create the buffer here, then you need a drawobject and a shader
+	debugDrawNormalsVertexData=new VertexData();
+	VertexBuffer* vb = OGLDevice::CreateVertexBuffer("in_Position",ArrayBuffer,StaticDraw,_NumVertices*6*sizeof(float));
+	vb->CopyFromMemory(buf_normals);
+	debugDrawNormalsVertexData->_vb.push_back(vb);
+	//unsigned int NumFaces = faces.size(); //this is the number of face indices i.e. 3 * actual number of faces
+	debugDrawNormalsVertexData->_NumElements=_NumVertices*6; //NumFaces;
+
+	if (normalShader==NULL) { //static reference to line shader not yet set, so need to load and compile one
+		//Create shader for drawing simple lines (mesh normals)
+		//This is shader 4
+		normalShader = OGLDevice::CreateShaderProgram(
+				"../shaders/lineshader.vert","../shaders/lineshader.frag");
+	}
+
+	debugDrawNormalsDrawObject._vertexData = debugDrawNormalsVertexData;
+	debugDrawNormalsDrawObject._PrimType=ptLines;
+	debugDrawNormalsDrawObject._ShaderProgram=normalShader;
+	debugDrawNormalsDrawObject._rs=new RenderState();
+	debugDrawNormalsDrawObject._rs->_DepthTest._Enabled=true;
+	debugDrawNormalsDrawObject._rs->_DepthTest._Function=Greater;
+	debugDrawNormalsDrawObject._rs->_FaceCulling._Enabled=false;
+
+	delete [] buf_normals;
+
+	_debugDrawNormalsEnabled=true;
 }

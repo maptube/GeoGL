@@ -139,11 +139,11 @@ void LeapController::SimulateMultiRotor()
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void LeapController::onInit(const Controller& controller) {
-	std::cout << "Initialized" << std::endl;
+	std::cout << "Leap Initialized" << std::endl;
 }
 
 void LeapController::onConnect(const Controller& controller) {
-	std::cout << "Connected" << std::endl;
+	std::cout << "Leap Connected" << std::endl;
 	controller.enableGesture(Gesture::TYPE_CIRCLE);
 	controller.enableGesture(Gesture::TYPE_KEY_TAP);
 	controller.enableGesture(Gesture::TYPE_SCREEN_TAP);
@@ -152,22 +152,22 @@ void LeapController::onConnect(const Controller& controller) {
 
 void LeapController::onDisconnect(const Controller& controller) {
 	//Note: not dispatched when running in a debugger.
-	std::cout << "Disconnected" << std::endl;
+	std::cout << "Leap Disconnected" << std::endl;
 }
 
 void LeapController::onExit(const Controller& controller) {
-	std::cout << "Exited" << std::endl;
+	std::cout << "Leap Exited" << std::endl;
 }
 
 void LeapController::onFrame(const Controller& controller) {
 	// Get the most recent frame and report some basic information
 	const Frame frame = controller.frame();
-	//std::cout << "Frame id: " << frame.id()
-	//	<< ", timestamp: " << frame.timestamp()
-	//	<< ", hands: " << frame.hands().count()
-	//	<< ", fingers: " << frame.fingers().count()
-	//	<< ", tools: " << frame.tools().count()
-	//	<< ", gestures: " << frame.gestures().count() << std::endl;
+	std::cout << "Frame id: " << frame.id()
+		<< ", timestamp: " << frame.timestamp()
+		<< ", hands: " << frame.hands().count()
+		<< ", fingers: " << frame.fingers().count()
+		<< ", tools: " << frame.tools().count()
+		<< ", gestures: " << frame.gestures().count() << std::endl;
 	
 	if (!frame.hands().isEmpty()) {
 		// Get the first hand
@@ -282,10 +282,10 @@ void LeapController::onFrame(const Controller& controller) {
 }
 
 void LeapController::onFocusGained(const Controller& controller) {
-	std::cout << "Focus Gained" << std::endl;
+	std::cout << "Leap Focus Gained" << std::endl;
 }
 
 void LeapController::onFocusLost(const Controller& controller) {
-	std::cout << "Focus Lost" << std::endl;
+	std::cout << "Leap Focus Lost" << std::endl;
 }
 

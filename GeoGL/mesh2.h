@@ -28,6 +28,7 @@ namespace gengine {
 	class IndexBuffer;
 	class Shader;
 	class Texture2D;
+	class Shader;
 }
 
 /////Vertex formats
@@ -79,12 +80,16 @@ public:
 	enum gengine::VertexFormat _VertexFormat; //Format of buffers used e.g. separate or interleaved, position, colour, texture, normal
 	bool _HasIndexBuffer; //if false, then don't create the index buffer in CreateBuffers
 
+	static gengine::Shader* normalShader; //shader used for drawing lines
+
 	Mesh2(void);
 	~Mesh2(void);
 	static float ManhattanDist(glm::vec2 V1, glm::vec2 V2);
 	static float ManhattanDist(glm::vec3 V1, glm::vec3 V2);
 	void FromOBJ(const std::string& Filename);
 	//what about ToOBJ?
+	void debug_DrawNormals(const float length);
+
 	//raw vertex methods
 	int AddVertexRaw(glm::vec3 P);
 	int AddVertexRaw(glm::vec3 P, glm::vec3 Colour);
@@ -131,6 +136,9 @@ protected:
 	gengine::VertexData* vertexData; //collection of vertex and index buffers
 	gengine::RenderState* renderState;
 	gengine::DrawObject drawObject; //contains textures
+	gengine::VertexData* debugDrawNormalsVertexData; //vertex data containing normals to be drawn on the mesh (if set)
+	gengine::DrawObject debugDrawNormalsDrawObject;
+	bool _debugDrawNormalsEnabled; //true if we're drawing normals as additional lines on the mesh
 
 	int _NumVertices;
 

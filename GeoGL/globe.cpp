@@ -31,6 +31,7 @@
 #include "gengine/events/EventManager.h"
 #include "OrbitController.h"
 #include "EllipsoidOrbitController.h"
+#include "LeapController.h"
 #include "cuboid.h"
 
 #include "Model.h"
@@ -129,6 +130,7 @@ Globe::Globe(void)
 		"../shaders/diffusenormals.vert","../shaders/diffusenormals.frag");
 	_Shaders.push_back(normalshader);
 
+
 //HACK - turned off ground boxes here!
 //	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
 //	GroundBox* buildings = new GroundBox();
@@ -171,8 +173,12 @@ Globe::Globe(void)
 	//controller = new OrbitController(&camera);
 	//controller.centre=glm::vec3(-1.0f,0.0f,0.0f);
 	//controller.centre=glm::vec3(-0.11464,51.46258,0); //Brixton
-	controller = new EllipsoidOrbitController(&camera,&ellipsoid);
-	controller->globe = this; //debug only
+
+	//this was the live block
+	//controller = new EllipsoidOrbitController(&camera,&ellipsoid);
+	//controller->globe = this; //debug only
+	//Leap Motion Controller
+	LeapController controller(&camera);
 
 	//initialise last model run time to something
 	_lastModelRunTime = glfwGetTime();
@@ -256,7 +262,7 @@ GeoJSON* Globe::LoadLayerGeoJSON(std::string Filename)
 	GeoJSON* geoj = new GeoJSON();
 	geoj->LoadFile(Filename);
 	//geoj->ToMesh(ellipsoid);
-	geoj->ExtrudeMesh(ellipsoid,0); //hack - 0 is height
+	geoj->ExtrudeMesh(ellipsoid,50); //hack - 0 is height
 	
 	//Take the first shader defined by the globe and attach to all the objects we've just created.
 	//Presumably we know that the first defined shader is suitable?
@@ -559,7 +565,8 @@ void Globe::RenderChildren(Object3D* Parent, double nearClip, double farClip)
 			const DrawObject& dobj = child->GetDrawObject();
 			glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
 			if (((abs(P.x)>=nearClip)&&(abs(P.x)<=nearClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
-				GC->Render(dobj,*_sdo);
+				//GC->Render(dobj,*_sdo);
+				child->Render(GC,*_sdo);
 		}
 		RenderChildren(child,nearClip,farClip);
 	}

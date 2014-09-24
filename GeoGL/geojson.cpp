@@ -387,8 +387,11 @@ void GeoJSON::ToMesh(Ellipsoid& e) {
 		vector<p2t::Triangle*> triangles = tri.GetTriangles();
 		for (vector<p2t::Triangle*>::iterator trIT = triangles.begin(); trIT!=triangles.end(); ++trIT ) {
 			p2t::Point* v1 = (*trIT)->GetPoint(0);
-			p2t::Point* v2 = (*trIT)->GetPoint(1);
-			p2t::Point* v3 = (*trIT)->GetPoint(2);
+			//p2t::Point* v2 = (*trIT)->GetPoint(1);
+			//p2t::Point* v3 = (*trIT)->GetPoint(2);
+			//better method - guarantee CCW winding
+			p2t::Point* v2 = (*trIT)->PointCCW(*v1);
+			p2t::Point* v3 = (*trIT)->PointCCW(*v2);
 			//you could allow people to pass in a height here - at the moment it's 0 metres above the ellipsoid
 			glm::vec3 P1 = e.toVector(glm::radians(v1->x),glm::radians(v1->y),0); //don't forget to convert to radians for the ellipse!
 			glm::vec3 P2 = e.toVector(glm::radians(v2->x),glm::radians(v2->y),0);
@@ -450,12 +453,14 @@ void GeoJSON::ExtrudeMesh(Ellipsoid& e,double HeightMetres) {
 		egeom.AddShape(*it);
 		//egeom.ExtrudeMesh(*geom,e,HeightMetres); //extrude shape (XY plane) into geom on the specified ellipsoid
 		//hack for generating random height buildings
-		int height = distribution(generator);
+		//int height = distribution(generator);
 	
-		egeom.ExtrudeMesh(*tmpGeom,e,HeightMetres+height);
+		egeom.ExtrudeMesh(*tmpGeom,e,HeightMetres/*+height*/);
 		geom->AppendMesh(*tmpGeom);
 		delete tmpGeom;
 	}
 	geom->CreateBuffers();
+	//DEBUG: turn normals on
+	geom->debug_DrawNormals(32.0f);
 	Children.push_back(geom);
 }
