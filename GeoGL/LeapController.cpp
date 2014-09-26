@@ -12,9 +12,10 @@ const double LeapController::rateRoll = 0.01; //rates applied to cursor position
 const double LeapController::ratePitch = 0.01; //rates applied to cursor position for elevator
 const double LeapController::rateYaw = 0.01; //rates applied to cursor position for rudder
 
-LeapController::LeapController(Camera* camera)
+LeapController::LeapController(Camera* camera, GLFWwindow* window)
 {
 	con_camera = camera;
+	con_window = window;
 	//Aileron=0;
 	//Elevator=0;
 	//Speed=0.00001f; //initial speed
@@ -139,11 +140,11 @@ void LeapController::SimulateMultiRotor()
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void LeapController::onInit(const Controller& controller) {
-	std::cout << "Leap Initialized" << std::endl;
+	//std::cout << "Leap Initialized" << std::endl;
 }
 
 void LeapController::onConnect(const Controller& controller) {
-	std::cout << "Leap Connected" << std::endl;
+	//std::cout << "Leap Connected" << std::endl;
 	controller.enableGesture(Gesture::TYPE_CIRCLE);
 	controller.enableGesture(Gesture::TYPE_KEY_TAP);
 	controller.enableGesture(Gesture::TYPE_SCREEN_TAP);
@@ -152,22 +153,24 @@ void LeapController::onConnect(const Controller& controller) {
 
 void LeapController::onDisconnect(const Controller& controller) {
 	//Note: not dispatched when running in a debugger.
-	std::cout << "Leap Disconnected" << std::endl;
+	//std::cout << "Leap Disconnected" << std::endl;
 }
 
 void LeapController::onExit(const Controller& controller) {
-	std::cout << "Leap Exited" << std::endl;
+	//std::cout << "Leap Exited" << std::endl;
 }
 
 void LeapController::onFrame(const Controller& controller) {
+
+	testPoint(controller);
 	// Get the most recent frame and report some basic information
 	const Frame frame = controller.frame();
-	std::cout << "Frame id: " << frame.id()
-		<< ", timestamp: " << frame.timestamp()
-		<< ", hands: " << frame.hands().count()
-		<< ", fingers: " << frame.fingers().count()
-		<< ", tools: " << frame.tools().count()
-		<< ", gestures: " << frame.gestures().count() << std::endl;
+	//std::cout << "Frame id: " << frame.id()
+	//	<< ", timestamp: " << frame.timestamp()
+	//	<< ", hands: " << frame.hands().count()
+	//	<< ", fingers: " << frame.fingers().count()
+	//	<< ", tools: " << frame.tools().count()
+	//	<< ", gestures: " << frame.gestures().count() << std::endl;
 	
 	if (!frame.hands().isEmpty()) {
 		// Get the first hand
@@ -279,6 +282,58 @@ void LeapController::onFrame(const Controller& controller) {
 	}
 
 	SimulateMultiRotor();
+}
+
+void LeapController::testPoint(const Controller& controller) {
+	const Frame frame = controller.frame();
+	// do nothing unless hands are detected
+	if (frame.hands().isEmpty()) return;
+	// first detected hand
+	const Leap::Hand firstHand = frame.hands()[0];
+	// first pointable object (finger or tool)
+	const Leap::PointableList pointables = firstHand.pointables();
+	if (pointables.isEmpty()) return;
+	const Leap::Pointable firstPointable = pointables[0];
+
+	// get list of detected screens
+	const Leap::ScreenList screens = controller.locatedScreens();
+	// make sure we have a detected screen
+	if (screens.isEmpty()) return;
+	const Leap::Screen screen = screens[0];
+
+	// get x, y coordinates on the first screen
+	const Leap::Vector intersection = screen.intersect(
+		firstPointable,
+		true, // normalize
+		1.0f // clampRatio
+	);
+
+	if (!intersection.isValid()) return;
+	// print intersection coordinates
+	std::cout << "You are pointing at (" <<
+		intersection.x << ", " <<
+		intersection.y << ", " <<
+		intersection.z << ")" << std::endl;
+
+	//move the mouse to the position being pointed at on the screen - need position of window on display
+	//(leap is global, desktop coords?) and point on the leap detected screen
+	int fullx,fully,w,h,xpos,ypos;
+	//GLFWmonitor* monitor = glfwGetWindowMonitor(con_window);
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	glfwGetMonitorPhysicalSize(monitor,&fullx,&fully);
+	//fullx=2560; fully=1440; //hack, why is above returning the wrong values?
+	glfwGetWindowSize(con_window,&w,&h);
+	glfwGetWindowPos(con_window,&xpos,&ypos);
+	double wx=intersection.x*(double)fullx-(double)xpos;
+	double wy=(1.0-intersection.y)*(double)fully-(double)ypos;
+	//clamp to window
+	if (wx<0) wx=0;
+	else if (wx>w) wx=w;
+	if (wy<0) wy=0;
+	else if (wy>h) wy=h;
+
+	//and set the mouse position
+	glfwSetCursorPos(con_window,wx,wy);
 }
 
 void LeapController::onFocusGained(const Controller& controller) {

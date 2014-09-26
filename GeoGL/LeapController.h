@@ -17,11 +17,12 @@ public:
 
 	Leap::Controller* controller;
 	gengine::Camera *con_camera; //the camera being controlled
+	GLFWwindow *con_window; //window to inject mouse events into
 	//float Aileron, Elevator; //angles of rotation in radians
 	//float Speed; //distance moved forward each time Forward() is called
 	double Roll, Pitch, Yaw; //angles of rotation from LeapMotion device
 
-	LeapController(gengine::Camera *camera);
+	LeapController(gengine::Camera *camera, GLFWwindow* window);
 	~LeapController(void);
 
 	//Leap methods (see sample.cpp in the Leap SDK samples)
@@ -44,5 +45,6 @@ protected:
 	//virtual void CursorPosCallback(GLFWwindow *window, double mx, double my);
 	//virtual void ScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 	//virtual void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+	void testPoint(const Leap::Controller& controller);
 };
 

@@ -26,6 +26,7 @@ class Cuboid;
 class GeoJSON;
 class OrbitController;
 class EllipsoidOrbitController;
+class LeapController;
 
 namespace gengine {
 	class GraphicsContext;
@@ -60,6 +61,7 @@ private:
 
 	//OrbitController* controller;
 	EllipsoidOrbitController* controller;
+	LeapController* leapController;
 
 	//std::vector<Object3D*> SceneGraph; //list of object to be rendered on "renderScene"
 	SceneGraphType SceneGraph;

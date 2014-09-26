@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gengine/Camera.h"
 #include "gengine/events/EventListener.h"
 
 //forward declarations

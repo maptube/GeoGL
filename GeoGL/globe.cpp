@@ -174,11 +174,13 @@ Globe::Globe(void)
 	//controller.centre=glm::vec3(-1.0f,0.0f,0.0f);
 	//controller.centre=glm::vec3(-0.11464,51.46258,0); //Brixton
 
-	//this was the live block
-	//controller = new EllipsoidOrbitController(&camera,&ellipsoid);
-	//controller->globe = this; //debug only
+	//We're initialising two controllers here - the ellipsoid orbit controller and the leap motion controller
+	//as we might want to use both at the same time. They're different base classes. Be careful of the destructor code
+	//as it would crash if one wasn't created.
+	controller = new EllipsoidOrbitController(&camera,&ellipsoid);
+	controller->globe = this; //debug only
 	//Leap Motion Controller
-	LeapController controller(&camera);
+	leapController = new LeapController(&camera,GC->window);
 
 	//initialise last model run time to something
 	_lastModelRunTime = glfwGetTime();
@@ -204,7 +206,9 @@ Globe::~Globe(void)
 		delete (*it);
 	}
 
+	//delete camera controllers which were created in the constructor - not everybody will have a leap motion
 	delete controller;
+	delete leapController;
 
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();
