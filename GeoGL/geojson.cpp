@@ -461,6 +461,6 @@ void GeoJSON::ExtrudeMesh(Ellipsoid& e,double HeightMetres) {
 	}
 	geom->CreateBuffers();
 	//DEBUG: turn normals on
-	geom->debug_DrawNormals(32.0f);
+	//geom->debug_DrawNormals(32.0f);
 	Children.push_back(geom);
 }

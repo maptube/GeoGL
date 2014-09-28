@@ -133,9 +133,9 @@ Globe::Globe(void)
 
 //HACK - turned off ground boxes here!
 //	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-//	GroundBox* buildings = new GroundBox();
-//	buildings->_Shader=normalshader; //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
-//	SceneGraph.push_back(buildings);
+	GroundBox* buildings = new GroundBox();
+	buildings->_Shader=normalshader; //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
@@ -180,7 +180,7 @@ Globe::Globe(void)
 	controller = new EllipsoidOrbitController(&camera,&ellipsoid);
 	controller->globe = this; //debug only
 	//Leap Motion Controller
-	leapController = new LeapController(&camera,GC->window);
+	//leapController = new LeapController(&camera,GC->window);
 
 	//initialise last model run time to something
 	_lastModelRunTime = glfwGetTime();
@@ -208,7 +208,7 @@ Globe::~Globe(void)
 
 	//delete camera controllers which were created in the constructor - not everybody will have a leap motion
 	delete controller;
-	delete leapController;
+	//delete leapController;
 
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();
