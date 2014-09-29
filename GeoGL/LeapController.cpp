@@ -81,6 +81,21 @@ void LeapController::Backward()
 //	con_camera->SetCameraMatrix(mCam);
 }
 
+//use a normalised leap y value to control camera distance to ellipsoid in a non-linear way
+void LeapController::EllipsoidDistance(Ellipsoid& e,const float LeapY)
+{
+	//code copied from ellipsoid orbit controller
+	const float scrollSpeed = 0.01f;
+
+	//complex version where it zooms in a percentage of the distance from the eye to the centre
+	glm::dvec3 vCameraPos = con_camera->GetCameraPos();
+	glm::dmat4 mCamera = con_camera->GetCameraMatrix();
+	double h = e.heightAboveSurfaceAtPoint(vCameraPos);
+	double delta = -h*LeapY*scrollSpeed; //where speed is the percentage i.e. 1/100=0.01
+	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
+	con_camera->SetCameraMatrix(mNewCamera);
+}
+
 /// <summary>
 /// Simulate flying a multirotor using your hand position over the leap motion for control. We ignore the effects of gravity though,
 /// so the quad is basically floating.
@@ -302,13 +317,16 @@ void LeapController::GeoNavigate(const Controller& controller) {
 	const FingerList fingers = firstHand.fingers();
 	if (fingers.isEmpty()) return;
 	//at this point we have a hand with fingers, so we can move the viewpoint around
-	const Leap::Vector pos = fingers[0].tipPosition();
-	std::cout<<"Leap: Y="<<pos.y<<std::endl;
-	//std::cout<<"Leap: Palm Z="<<firstHand.stabilizedPalmPosition().z<<std::endl;
+	//const Leap::Vector pos = fingers[0].tipPosition();
+	//std::cout<<"Leap: Y="<<pos.y<<std::endl;
+	//std::cout<<"Leap: Palm Y="<<firstHand.stabilizedPalmPosition().y<<std::endl;
 	//firstHand.
 
-	//Leap::InteractionBox box;
-	//box.center
+	Leap::InteractionBox box=frame.interactionBox();
+	if (!box.isValid()) return;
+	Leap::Vector pos=box.normalizePoint(fingers[0].tipPosition(),true);
+	std::cout<<"Leap: y="<<pos.y<<std::endl;
+	EllipsoidDistance(e,0.5f-pos.y);
 }
 
 void LeapController::testPoint(const Controller& controller) {

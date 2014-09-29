@@ -2,6 +2,7 @@
 #include "main.h"
 #include "gengine/Camera.h"
 //#include "EventListener.h"
+#include "ellipsoid.h"
 
 #include "Leap.h"
 
@@ -47,5 +48,6 @@ protected:
 	//virtual void ScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 	//virtual void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 	void testPoint(const Leap::Controller& controller);
+	void EllipsoidDistance(Ellipsoid& e,const float LeapY);
 };
 
