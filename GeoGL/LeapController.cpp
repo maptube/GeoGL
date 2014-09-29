@@ -3,6 +3,7 @@
 //#include "EventManager.h"
 #include "Leap.h"
 #include "LeapMath.h"
+#include "ellipsoid.h"
 
 using namespace Leap;
 
@@ -161,6 +162,7 @@ void LeapController::onExit(const Controller& controller) {
 }
 
 void LeapController::onFrame(const Controller& controller) {
+	GeoNavigate(controller); return;
 
 	testPoint(controller);
 	// Get the most recent frame and report some basic information
@@ -282,6 +284,31 @@ void LeapController::onFrame(const Controller& controller) {
 	}
 
 	SimulateMultiRotor();
+}
+
+/// <summary>
+/// Navigate on a Globe.
+/// Open hand=navigate, make a fist to stop.
+/// Up/down zooms in and out of globe (radius).
+/// Movement of hand moves over the ground.
+/// </summary>
+void LeapController::GeoNavigate(const Controller& controller) {
+	Ellipsoid e; //HACK, need to pass this in
+	const Frame frame = controller.frame();
+	//do nothing unless at least one hand is detected
+	if (frame.hands().isEmpty()) return;
+	const Leap::Hand firstHand = frame.hands()[0];
+	//check fingers for open/closed hand
+	const FingerList fingers = firstHand.fingers();
+	if (fingers.isEmpty()) return;
+	//at this point we have a hand with fingers, so we can move the viewpoint around
+	const Leap::Vector pos = fingers[0].tipPosition();
+	std::cout<<"Leap: Y="<<pos.y<<std::endl;
+	//std::cout<<"Leap: Palm Z="<<firstHand.stabilizedPalmPosition().z<<std::endl;
+	//firstHand.
+
+	//Leap::InteractionBox box;
+	//box.center
 }
 
 void LeapController::testPoint(const Controller& controller) {

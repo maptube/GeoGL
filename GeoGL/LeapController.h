@@ -40,6 +40,7 @@ public:
 	void Forward();
 	void Backward();
 	void SimulateMultiRotor();
+	void GeoNavigate(const Leap::Controller& controller);
 protected:
 	//event callbacks
 	//virtual void CursorPosCallback(GLFWwindow *window, double mx, double my);
