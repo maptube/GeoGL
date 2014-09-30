@@ -49,5 +49,7 @@ protected:
 	//virtual void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 	void testPoint(const Leap::Controller& controller);
 	void EllipsoidDistance(Ellipsoid& e,const float LeapY);
+	void EllipsoidSpin(Ellipsoid& e, const float LeapX, const float LeapZ);
+	void RotateX(const double ax);
 };
 

@@ -82,10 +82,13 @@ void LeapController::Backward()
 }
 
 //use a normalised leap y value to control camera distance to ellipsoid in a non-linear way
+//TODO: need a better name for this
 void LeapController::EllipsoidDistance(Ellipsoid& e,const float LeapY)
 {
 	//code copied from ellipsoid orbit controller
 	const float scrollSpeed = 0.01f;
+	const double nullzone=0.1; //null zone in the middle where zoom is clamped to zero (in raw normalised leap coordinates)
+	if (abs(LeapY)<nullzone) return;
 
 	//complex version where it zooms in a percentage of the distance from the eye to the centre
 	glm::dvec3 vCameraPos = con_camera->GetCameraPos();
@@ -94,6 +97,66 @@ void LeapController::EllipsoidDistance(Ellipsoid& e,const float LeapY)
 	double delta = -h*LeapY*scrollSpeed; //where speed is the percentage i.e. 1/100=0.01
 	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
+}
+
+/// <summary>
+/// Use left/right, forward/back hand movements to spin the globe, mimicking the right click pan function of the EllipsoidOrbitController.
+/// The only difference is that there is no intersection point on the ellipsoid, the camera is just moved at a speed relative to the
+/// hand distance from the intersection box.
+/// TODO: it might be worth changing the sensitivity as you get closer to the ellipsoid.
+/// NOTE: this is mainly just a fudge to get a navigation system that is actually controllable
+/// <summary>
+/// <param name="e"></param>
+/// <param name="LeapX">Normalised left/right pan speed (-0.5 to 0.5)</param>
+/// <param name="LeapZ">Normalised forward/back pan speed (-0.5 to 0.5)</param>
+void LeapController::EllipsoidSpin(Ellipsoid& e, const float LeapX, const float LeapZ)
+{
+	//The centre of rotation (initial point) is taken as the line from the camera to the origin (sphere centre)
+	//The two angles of rotation are relative to the camera right and up vectors
+	const double speed=0.000000002; //speed multiplier - this times LeapX or Z gives you the angle in radians to rotate by
+	const double nullzone=0.1; //null zone in the middle where rotation is clamped to zero (in raw normalised leap coordinates)
+
+	glm::dvec3 vCameraPos = con_camera->GetCameraPos();
+	double h = e.heightAboveSurfaceAtPoint(vCameraPos);
+	//double h = glm::distance(vCameraPos,glm::dvec3(0,0,0)); //distance from camera to ellipsoid centre (origin)
+	
+	//don't like this, the orbital speed is too slow if you spin by keeping the distance constant
+	//delta is the angle multiplier for this height above the surface so that movement always moves the same distance over the ground
+	//speed=10000 for this to work and h is distance from origin
+	//double delta = glm::atan(speed/h); //so angular speed decreases with height (actually, you're trying to keep h tan theta constant)
+
+	//fudge the speed delta
+	double delta = speed*h;
+	if (delta>0.01) delta=0.01;
+	std::cout<<"delta: "<<delta<<std::endl;
+
+	//I've added the minus to both angles so that visually we're moving the sphere with our hand, which seems a lot more intuitive
+	//calculate speed and handle the null zone in the middle
+	double ax=0,ay=0;
+	if (abs(LeapX)>=nullzone)
+		ax=-delta*LeapX;
+	if (abs(LeapZ)>=nullzone)
+		ay=-delta*LeapZ;
+
+	//now on to the rotations
+	glm::dmat4 mCam = con_camera->GetCameraMatrix();
+	glm::dmat4 m(1);
+	m = glm::rotate(m,ax,glm::dvec3(mCam[1])); //x rotation relative to camera right vector
+	m = glm::rotate(m,ay,glm::dvec3(mCam[0])); //y rotation relative to camera up vector
+	mCam = m * mCam;
+	con_camera->SetCameraMatrix(mCam);
+}
+
+/// <summary>
+/// Rotate around the X axis (aileron roll)
+/// </summary>
+void LeapController::RotateX(const double ax)
+{
+	glm::dmat4 mCam = con_camera->GetCameraMatrix();
+	glm::dmat4 m(1);
+	m = glm::rotate(m,ax,glm::dvec3(mCam[2]));
+	mCam = m * mCam;
+	con_camera->SetCameraMatrix(mCam);
 }
 
 /// <summary>
@@ -325,8 +388,35 @@ void LeapController::GeoNavigate(const Controller& controller) {
 	Leap::InteractionBox box=frame.interactionBox();
 	if (!box.isValid()) return;
 	Leap::Vector pos=box.normalizePoint(fingers[0].tipPosition(),true);
-	std::cout<<"Leap: y="<<pos.y<<std::endl;
+	//std::cout<<"Leap: y="<<pos.y<<std::endl;
 	EllipsoidDistance(e,0.5f-pos.y);
+	EllipsoidSpin(e,pos.x-0.5f,pos.z-0.5f);
+
+	//now detect a circle gesture to do the X rotation
+	const GestureList gestures = frame.gestures();
+	for (int g = 0; g < gestures.count(); ++g) {
+		Gesture gesture = gestures[g];
+		
+		switch (gesture.type()) {
+		case Gesture::TYPE_CIRCLE:
+			{
+				CircleGesture circle = gesture;
+				double clockwise=-1.0; //-1=anticloskwise, +1=clockwise
+				if (circle.pointable().direction().angleTo(circle.normal()) <= PI/4) {
+					clockwise = 1.0;
+				}
+				
+				// Calculate angle swept since last frame
+				float sweptAngle = 0;
+				if (circle.state() != Gesture::STATE_START) {
+					CircleGesture previousUpdate = CircleGesture(controller.frame(1).gesture(circle.id()));
+					//sweptAngle = (circle.progress() - previousUpdate.progress()) * 2 * PI;
+					RotateX(clockwise*circle.progress()*2*PI*0.001); //0.001 is fudge for speed
+				}
+				break;
+			}
+		}
+	}
 }
 
 void LeapController::testPoint(const Controller& controller) {
