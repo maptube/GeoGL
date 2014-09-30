@@ -88,13 +88,14 @@ void LeapController::EllipsoidDistance(Ellipsoid& e,const float LeapY)
 	//code copied from ellipsoid orbit controller
 	const float scrollSpeed = 0.01f;
 	const double nullzone=0.1; //null zone in the middle where zoom is clamped to zero (in raw normalised leap coordinates)
-	if (abs(LeapY)<nullzone) return;
+	if (glm::abs(LeapY)<nullzone) return;
 
 	//complex version where it zooms in a percentage of the distance from the eye to the centre
 	glm::dvec3 vCameraPos = con_camera->GetCameraPos();
 	glm::dmat4 mCamera = con_camera->GetCameraMatrix();
 	double h = e.heightAboveSurfaceAtPoint(vCameraPos);
 	double delta = -h*LeapY*scrollSpeed; //where speed is the percentage i.e. 1/100=0.01
+	//std::cout<<"delta="<<delta<<std::endl;
 	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
 }
@@ -128,14 +129,14 @@ void LeapController::EllipsoidSpin(Ellipsoid& e, const float LeapX, const float 
 	//fudge the speed delta
 	double delta = speed*h;
 	if (delta>0.01) delta=0.01;
-	std::cout<<"delta: "<<delta<<std::endl;
+	//std::cout<<"delta: "<<delta<<std::endl;
 
 	//I've added the minus to both angles so that visually we're moving the sphere with our hand, which seems a lot more intuitive
 	//calculate speed and handle the null zone in the middle
 	double ax=0,ay=0;
-	if (abs(LeapX)>=nullzone)
+	if (glm::abs(LeapX)>=nullzone)
 		ax=-delta*LeapX;
-	if (abs(LeapZ)>=nullzone)
+	if (glm::abs(LeapZ)>=nullzone)
 		ay=-delta*LeapZ;
 
 	//now on to the rotations
