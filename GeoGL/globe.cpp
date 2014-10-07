@@ -180,7 +180,7 @@ Globe::Globe(void)
 	controller = new EllipsoidOrbitController(&camera,&ellipsoid);
 	controller->globe = this; //debug only
 	//Leap Motion Controller
-	leapController = new LeapController(&camera,GC->window);
+	//leapController = new LeapController(&camera,GC->window);
 
 	//initialise last model run time to something
 	_lastModelRunTime = glfwGetTime();
@@ -208,7 +208,7 @@ Globe::~Globe(void)
 
 	//delete camera controllers which were created in the constructor - not everybody will have a leap motion
 	delete controller;
-	delete leapController;
+	//delete leapController;
 
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();

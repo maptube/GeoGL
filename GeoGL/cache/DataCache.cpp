@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <thread>
+#include <memory>
 
 #include <dirent.h>
 //#include <unistd.h>
@@ -95,7 +97,10 @@ namespace geogl {
 			out.write(&data[0],pos);
 
 			//update file map with the new file we've just added
-			_FileIndex.insert(dst);
+			//TODO: do you need to synchronise this? The file is copied before it's set so there's no race.
+			_FileIndex.insert(src);
+			_RequestIndex.erase(src); //remove from waiting request list
+			std::cout<<"Move complete "<<src<<std::endl;
 
 			return true;
 
@@ -135,6 +140,7 @@ namespace geogl {
 		/// the method returns true immediately. The intention is that the rendering loop will continually call this method
 		/// until it returns true, then use GetCacheFile to load it.
 		/// When a call to this method results in a cache miss, the file is added to the load thread for async loading.
+		/// TODO: check whether the waiting and thread loading is thread safe
 		/// </summary>
 		bool DataCache::GetRemoteFile(const std::string& URI) {
 			//todo:
@@ -148,12 +154,26 @@ namespace geogl {
 			bool hit=(_FileIndex.find(URI)!=_FileIndex.end());
 			if (hit) return true; //already there, so nothing to do
 
+			bool waiting=(_RequestIndex.find(URI)!=_RequestIndex.end());
+			if (waiting) return false; //file in the process of loading
+
+			//GUARD FOR TOO MANY THREADS
+			if (_RequestIndex.size()>9) return false;
+
 			//kick off a thread to copy the file into the local cache
 			//assuming the URI is actually a local file... (and no thread!)
 			std::string Filename = ExtractFilename(URI); //strip the filename off and move the file into the cache
 			cout<<"Moving "<<URI<<" into "<<(_BaseDir+Filename)<<endl;
-			bool success = CopyLocalFile(URI,_BaseDir+Filename);
-			return success;
+			_RequestIndex.insert(URI);
+			//old code
+			//bool success = CopyLocalFile(URI,_BaseDir+Filename);
+			//return success;
+			//new code
+			//std::thread st(&DataCache::foo,this,true);
+			std::unique_ptr<std::thread> t(new std::thread(&DataCache::CopyLocalFile,this,URI,_BaseDir+Filename));
+			//std::unique_ptr<std::thread> t(new std::thread (foo));
+			_ThreadPool.push_back(std::move(t));
+			return false;
 		}
 
 		/// <summary>

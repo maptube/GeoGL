@@ -275,9 +275,9 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	//tn->Setup(); //who's responsible for this? globe or me?
-	//globe.AddLayerModel(tn);
+	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	tn->Setup(); //who's responsible for this? globe or me?
+	globe.AddLayerModel(tn);
 
 	//World in WGS84
 	//GeoJSON* geoj = new GeoJSON();
