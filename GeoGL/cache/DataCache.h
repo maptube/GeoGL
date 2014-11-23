@@ -12,7 +12,9 @@
 #include <set>
 #include <vector>
 #include <thread>
+#include <mutex>
 //#include "loaderthread.h"
+#include "async/messagequeue.h"
 
 //forward declarations
 namespace geogl {
@@ -29,10 +31,10 @@ namespace geogl {
 namespace geogl {
 	namespace cache {
 
-	struct TimedThread {
-		std::time_t time;
-		std::thread t;
-	};
+	//struct TimedThread {
+	//	std::time_t time;
+	//	std::thread t;
+	//};
 
 		//singleton? (TODO)
 	//This is a lazy singleton implementation. DO NOT use multithreaded as you can get two of them
@@ -41,13 +43,19 @@ namespace geogl {
 		public:
 			static const std::string _BaseDir; //location where cache files will be stored
 		private:
+			std::mutex MyMutexIndex; //mutex used for fileindex and requestindex changes
+			std::string test;
 			std::set<std::string> _FileIndex; //files currently in the cache
 			std::set<std::string> _RequestIndex; //files requested and waiting for load to complete
+
 			static DataCache* _Instance;
 			std::vector<std::unique_ptr<std::thread>> _ThreadPool;
+			geogl::async::MessageQueue _requestQueue;
+			geogl::async::MessageQueue _doneQueue;
 		protected:
 			DataCache();
 			void BuildFileIndex();
+			virtual void CopiedLocalFile(geogl::async::MessageQueueEventArgs& args);
 			bool CopyLocalFile(const std::string& src, const std::string& dst);
 		public:
 			virtual ~DataCache();

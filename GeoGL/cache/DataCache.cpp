@@ -6,6 +6,8 @@
  */
 
 #include "DataCache.h"
+#include "datacacheworker.h"
+#include "async/messagequeueeventargs.h"
 
 #include <fstream>
 #include <iostream>
@@ -13,7 +15,9 @@
 #include <string>
 #include <vector>
 #include <thread>
-#include <memory>
+//#include <memory>
+//#include <mutex>
+#include <functional>
 
 #include <dirent.h>
 //#include <unistd.h>
@@ -30,10 +34,23 @@ namespace geogl {
 
 		DataCache::DataCache() {
 			BuildFileIndex();
+			//todo: add the message queue here
+			//DataCacheWorker* dcw = new DataCacheWorker();
+			//dcw->_CacheDir = _BaseDir;
+			//_requestQueue = new geogl::async::MessageQueue();
+			//_doneQueue = new geogl::async::MessageQueue();
+
+			//set up a request queue for getting files asynchronously and a done queue for reporting back when they've loaded into the local cache
+			_requestQueue.MessageReceived.push_back(new DataCacheWorker(_doneQueue)); //set up the worker that acts on the messages
+			_requestQueue.StartBackgroundThread();
+			//set up a done queue handler here to add the loaded files to the index
+			_doneQueue.MessageReceived.push_back(new DataCacheIndexWorker(_FileIndex,_RequestIndex));
 		}
 
 		DataCache::~DataCache() {
 			// TODO Auto-generated destructor stub
+			//delete _requestQueue;
+			//delete _doneQueue;
 		}
 
 		DataCache* DataCache::Instance() {
@@ -110,6 +127,24 @@ namespace geogl {
 			//f2<<f1.rdbuf();
 		}
 
+		/// <summary>
+		/// callback for after a file has been copied into the cache
+		/// </summary>
+		void DataCache::CopiedLocalFile(geogl::async::MessageQueueEventArgs& args) {
+			std::cout<<"DataCache CopiedLocalFile"<<std::endl;
+			if (!args.Success) return; //TODO: what happens here if the request fails? It just stays on the loading list forever
+			//update file map with the new file we've just added
+			//TODO: do you need to synchronise this? The file is copied before it's set so there's no race.
+			geogl::cache::DataCacheWorkerMsg* filemsg = dynamic_cast<geogl::cache::DataCacheWorkerMsg*>(args.umessage.get());
+			//std::unique_lock<std::mutex> lck { MyMutexIndex };
+			//MyMutexIndex.lock();
+			//_FileIndex.insert(filemsg->src);
+			//_RequestIndex.erase(filemsg->src); //remove from waiting request list
+			std::cout<<"Copied local file complete "<<filemsg->src<<std::endl;
+			//lock implicitly released
+			//MyMutexIndex.unlock();
+		}
+
 		/*static std::vector<char> ReadAllBytes(char const* filename)
 		{
 			ifstream ifs(filename, ios::binary|ios::ate);
@@ -143,6 +178,7 @@ namespace geogl {
 		/// TODO: check whether the waiting and thread loading is thread safe
 		/// </summary>
 		bool DataCache::GetRemoteFile(const std::string& URI) {
+			_doneQueue.ProcessQueue(); //handle processing of any messages received since last time
 			//todo:
 			//look in local cache first
 			//for a cache miss, load from the URI
@@ -151,6 +187,7 @@ namespace geogl {
 			//old code!!!!
 			//return (_FileIndex.find(URI)!=_FileIndex.end());
 
+			//std::unique_lock<std::mutex> lck { _MutexIndex };
 			bool hit=(_FileIndex.find(URI)!=_FileIndex.end());
 			if (hit) return true; //already there, so nothing to do
 
@@ -158,7 +195,7 @@ namespace geogl {
 			if (waiting) return false; //file in the process of loading
 
 			//GUARD FOR TOO MANY THREADS
-			if (_RequestIndex.size()>9) return false;
+			if (_RequestIndex.size()>0) return false; //was 9
 
 			//kick off a thread to copy the file into the local cache
 			//assuming the URI is actually a local file... (and no thread!)
@@ -169,12 +206,20 @@ namespace geogl {
 			//bool success = CopyLocalFile(URI,_BaseDir+Filename);
 			//return success;
 			//new code
-			//std::thread st(&DataCache::foo,this,true);
-			std::unique_ptr<std::thread> t(new std::thread(&DataCache::CopyLocalFile,this,URI,_BaseDir+Filename));
-			//std::unique_ptr<std::thread> t(new std::thread (foo));
-			_ThreadPool.push_back(std::move(t));
+			//std::unique_ptr<std::thread> t(new std::thread(&DataCache::CopyLocalFile,this,URI,_BaseDir+Filename));
+			//_ThreadPool.push_back(std::move(t));
+			//even newer thread worker code
+			const std::string src = URI;
+			const std::string dst=_BaseDir+Filename;
+			//geogl::cache::DataCacheWorkerMsg* msg = new geogl::cache::DataCacheWorkerMsg(src,dst);
+			geogl::async::MessageQueueEventArgs args(new geogl::cache::DataCacheWorkerMsg(src,dst));
+
+			//args.callback=(void(*)(geogl::async::MessageQueueEventArgs&))&DataCache::CopiedLocalFile; //TODO: you could type the callback
+
+			_requestQueue.Post(args);
 			return false;
 		}
+
 
 		/// <summary>
 		/// Turns a URI into the filename of a file in the local cache that can now be loaded directly
