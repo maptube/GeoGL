@@ -38,6 +38,8 @@
 
 #include "geojson.h"
 
+#include "gui/menu.h"
+
 using namespace std;
 
 using namespace gengine;
@@ -50,8 +52,12 @@ Globe::Globe(void)
 
 	ellipsoid = Ellipsoid(); //bit naughty, but the default is the WGS 84 definition
 
+//TODO: the following creates a 1x1 pixel window - need to fix this
+	//the GLFW window creation MUST be passed the window that shares its opengl context in the constructor
+	_workerGC = OGLDevice::XCreateWindow(1,1); //create a background context which we can pass to any worker threads that need it
+	//need to create worker gc before main display gc due to the "makecurrent" in each
 	int WindowWidth=512,WindowHeight=512;
-	GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight); //create graphics context that we can render to
+	GC = OGLDevice::XCreateWindow(WindowWidth,WindowHeight,_workerGC->window); //create graphics context that we can render to
 	//GC = OGLDevice::CreateStereoWindow(); //create graphics context that we can render to IN 3d!!!
 
 	//initialise font rendering
@@ -133,8 +139,8 @@ Globe::Globe(void)
 
 //HACK - turned off ground boxes here!
 //	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-	GroundBox* buildings = new GroundBox();
-	buildings->_Shader=normalshader; //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+	GroundBox* buildings = new GroundBox(_workerGC);
+	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
 	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
@@ -184,6 +190,19 @@ Globe::Globe(void)
 
 	//initialise last model run time to something
 	_lastModelRunTime = glfwGetTime();
+
+	InitialiseMenu();
+}
+
+/// <summary>
+/// Build the on screen menu
+/// </summary>
+void Globe::InitialiseMenu(void)
+{
+	_Menu = new geogl::gui::Menu(GC);
+	geogl::gui::MenuItem item;
+	item.DisplayText="File";
+	_Menu->MenuRoot.Items.push_back(item);
 }
 
 
@@ -210,6 +229,7 @@ Globe::~Globe(void)
 	delete controller;
 	//delete leapController;
 
+	delete _workerGC; //destroy background graphics context
 	delete GC; //destroy graphics context and window
 	OGLDevice::Destroy();
 }
@@ -590,6 +610,7 @@ void Globe::Step(void)
 	}
 	_lastModelRunTime = timeNow;
 }
+
 
 
 

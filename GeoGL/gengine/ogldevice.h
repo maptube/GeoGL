@@ -48,6 +48,7 @@ namespace gengine {
 		static void Destroy(void);
 
 		static GraphicsContext* XCreateWindow(int Width,int Height);
+		static GraphicsContext* XCreateWindow(int Width,int Height,GLFWwindow* Shared);
 		static GraphicsContext* CreateStereoWindow();
 		static Shader* CreateShaderProgram(std::string VertexFilename, std::string FragmentFilename);
 		static VertexBuffer* CreateVertexBuffer(const std::string& AttributeName, BufferTarget Target, BufferUsage Usage, unsigned int NumBytes);

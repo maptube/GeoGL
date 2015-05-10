@@ -66,12 +66,20 @@ namespace gengine {
 	}
 
 	/// <summary>
-	/// Create an opengl window
+	/// Create an opengl window. Overload of the version taking in a shared context window, which we just pass in as NULL
+	/// to say that there is no shared OpenGL context.
 	/// </summary>
-	GraphicsContext* OGLDevice::XCreateWindow(int Width, int Height)
+	GraphicsContext* OGLDevice::XCreateWindow(int Width, int Height) {
+		return XCreateWindow(Width,Height,NULL);
+	}
+
+	/// <summary>
+	/// Create an opengl window with a context shared between this and the other window in the parameter
+	/// </summary>
+	GraphicsContext* OGLDevice::XCreateWindow(int Width, int Height, GLFWwindow* Share)
 	{
 		//GLFWOpenWindowHint
-		GLFWwindow* window = glfwCreateWindow(Width, Height, "GeoGL", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(Width, Height, "GeoGL", NULL, Share);
 		if (!window) {
 			glfwTerminate();
 			exit(EXIT_FAILURE);
@@ -139,7 +147,7 @@ namespace gengine {
 
 		glfwMakeContextCurrent(window);
 
-		//you need to have created a window and OpenGL context before you tyr and initialise GLEW
+		//you need to have created a window and OpenGL context before you try and initialise GLEW
 		GLenum error = glewInit(); // Enable GLEW
 		if (error != GLEW_OK) // If GLEW fails
 			return NULL; //and destroy window?

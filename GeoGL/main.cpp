@@ -13,7 +13,10 @@
 #include "globe.h"
 #include "ellipsoid.h"
 //#include "opengl4.h"
+//this needs to move into usr
 #include "model_tubenetwork.h"
+//and this is very awkward - need to separate from main code so user software uses globe, not this way around
+#include "../usr/model_busnetwork.h"
 #include "netgraphgeometry.h"
 #include "geojson.h"
 #include "GroundBox.h"
@@ -39,6 +42,8 @@
 #include "turtle.h"
 #include "Agent.h"
 #include "LogoVariantOwns.h"
+#include "gui/mainwindow.h"
+#include "gtkmm/main.h"
 
 #include <vector>
 
@@ -269,15 +274,30 @@ int main(int argc, char *argv[])
 	//std::cout<<"Test4="<<Test4<<std::endl;
 	//delete A;
 
+	//GUI Test
+	Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "org.gtkmmm.example");
+	//geogl::gui::MainWindow* win = new geogl::gui::MainWindow();
+	geogl::gui::MainWindow win;
+	//yes, you probably want gtkglext .. there are c++ bindings to it named gtkglextmm
+	//int x = app->run(win);
+	//delete win;
+
+
 	Globe globe;
 	//fakeLondon(globe);
+
 	
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	tn->Setup(); //who's responsible for this? globe or me?
-	globe.AddLayerModel(tn);
+	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	//tn->Setup(); //who's responsible for this? globe or me?
+	//globe.AddLayerModel(tn);
+
+	//Bus Data
+	ModelBusNetwork* bn = new ModelBusNetwork(globe.GetSceneGraph());
+	bn->Setup();
+	globe.AddLayerModel(bn);
 
 	//World in WGS84
 	//GeoJSON* geoj = new GeoJSON();
@@ -297,20 +317,18 @@ int main(int argc, char *argv[])
 	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 
 	//Buildings from OBJ
-	Mesh2* buildings = new Mesh2();
-	buildings->_VertexFormat=PositionColourNormal;
-	buildings->FromOBJ("../data/vectortiles/14_8188_10537.obj"/*"../cache/14_8188_10537.obj"*/);
-	buildings->CreateBuffers();
-	buildings->AttachShader(globe.GetShader(3),true); //this is the vertex colour normal shader for geojson
-	buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
-	//buildings->debug_DrawNormals(32.0f); //force mesh to draw per vertex formals as lines
-	globe.GetSceneGraph()->push_back(buildings);
+	//Mesh2* buildings = new Mesh2();
+	//buildings->_VertexFormat=PositionColourNormal;
+	//buildings->FromOBJ("../data/vectortiles/14_8188_10537.obj"/*"../cache/14_8188_10537.obj"*/);
+	//buildings->CreateBuffers();
+	//buildings->AttachShader(globe.GetShader(3),true); //this is the vertex colour normal shader for geojson
+	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+	////buildings->debug_DrawNormals(32.0f); //force mesh to draw per vertex formals as lines
+	//globe.GetSceneGraph()->push_back(buildings);
 
 	//London outline in WGS84
-	//GeoJSON* london = new GeoJSON();
-	//london->LoadFile("..\\GeoGL\\data\\London_dt_2001_area_WGS84.geojson");
-	//openglContext.SceneGraph.push_back(london);
-	//GeoJSON* london = globe.LoadLayerGeoJSON("..\\data\\London_dt_2001_area_WGS84.geojson");
+	//GeoJSON* london = globe.LoadLayerGeoJSON("../data/London_dt_2001_area_WGS84.geojson");
+	//london->SetColour(glm::vec3(1.0f,1.0f,1.0f));
 
 
 	//globe.FitViewToLayers(); //now all the data has been loaded, initialise the camera to its default position and zoom
@@ -381,6 +399,9 @@ int main(int argc, char *argv[])
 
 		//rendering
 		globe.RenderScene();
+
+		while( Gtk::Main::events_pending() )
+		Gtk::Main::iteration();
 
 		//Cap the frame rate? would need to call poll events here
 		double ticksNow = glfwGetTime();

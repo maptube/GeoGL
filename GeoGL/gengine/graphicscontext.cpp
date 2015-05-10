@@ -39,6 +39,8 @@ namespace gengine {
 		//initialise texture units
 		_TexUnits = new TextureUnits();
 
+		_BoundShader = nullptr; //this is the currently bound shader so we know when it needs to change
+
 		//initialise FreeType text rendering library
 		if(FT_Init_FreeType(&ft)) {
 			std::cerr<<"Could not initialise freetype library"<<std::endl;
@@ -113,7 +115,12 @@ namespace gengine {
 			return;
 		}
 
-		obj._ShaderProgram->bind(); // Bind our shader
+		//keeping track of the currently bound shader in a private, only change it if you need to as it's expensive
+		if (_BoundShader!=obj._ShaderProgram) {
+			if (_BoundShader!=nullptr) _BoundShader->unbind();
+			obj._ShaderProgram->bind(); // Bind our shader
+			_BoundShader=obj._ShaderProgram;
+		}
 
 		//get shader program id and use it to bind uniforms
 		//unsigned int ShaderId = obj._ShaderProgram->id();
@@ -166,7 +173,8 @@ namespace gengine {
 		//don't unbind the textures, you might want to reuse them
 		//if (obj._textures.size()!=0) _TexUnits->Unbind(); //unbind textures
 
-		obj._ShaderProgram->unbind(); // Unbind our shader
+		//Take this out since we're traking the currently bound shader now
+		//obj._ShaderProgram->unbind(); // Unbind our shader
 	}
 
 	/// <summary>
@@ -371,6 +379,41 @@ namespace gengine {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+	//need this?
+	//void GraphicsContext::Begin2D()
+
+	/// <summary>
+	/// Render a 2D box directly to the viewport. Colour is ARGB. Coordinates are in device coordinates.
+	/// </summary>
+//	void GraphicsContext::FillRect2D(const glm::vec4 colour, const int x, const int y, const int width, const int height)
+//	{
+//		//the context has to have control of the shader as the vertex and colour buffer need to bind to the attributes
+//
+//		//todo: probably want to add a 2D setup routine so you don't have to do this every time
+//		glm::mat4 mat = glm::ortho(0.0f,512.0f,512.0f,0.0f);
+//
+//		RenderState rs;
+//		rs._DepthTest._Enabled=false;
+//		rs._FaceCulling._Enabled=false;
+//		OGLDevice::SetRenderState(rs);
+//
+//		GLfloat box[4][3] = {
+//				{x,y,0},
+//				{x+width,y,0},
+//				{x,y+height,0},
+//				{x+width,y+height,0}
+//		};
+//		GLint cols[4] = { 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff };
+//		VertexBuffer* vb = new VertexBuffer("in_Position",ArrayBuffer,StaticDraw,12*sizeof(GLfloat));
+//		vb->CopyFromMemory(&box[0][0]);
+//		VertexBuffer* vc = new VertexBuffer("in_Color",ArrayBuffer,StaticDraw,4*sizeof(GLuint));
+//		vc->CopyFromMemory(&cols[0]);
+//
+//
+//		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//		delete vb;
+//		delete vc;
+//	}
 
 
 } //namespace gengine

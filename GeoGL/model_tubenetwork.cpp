@@ -12,9 +12,6 @@
 #include <math.h>
 #include <ctime>
 
-#include <fstream>
-#include <iostream>
-#include <string>
 #include <iomanip>
 #include <unordered_map>
 
@@ -264,7 +261,7 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 				//using the ABM structure i.e. this creates a second, separate graph - user should only use ABM interface.
 				ABM::Agent* agent_o = _agents.With("name",o).front();
 				ABM::Agent* agent_d = _agents.With("name",d).front();
-				ABM::Link* L = _links.Create(agent_o,agent_d);
+				ABM::Link* L = _links.CreateLink("line",agent_o,agent_d);
 				//this is where you set the velocity, linecode, direction
 				L->Set<std::string>("lineCode",string(linecodes[i]));
 				L->Set<int>("direction",dir);

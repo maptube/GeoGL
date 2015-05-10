@@ -25,7 +25,8 @@ namespace ABM {
 	class Link
 	{
 	public:
-		static Links* _pParentLinks; //parent of all Link classes - Linkss, which needs to keep a list of its children
+		static Links* _pParentLinks; //parent of all Link classes - Links, which needs to keep a list of its children
+		std::string _BreedName;
 		Agent* end1; //agent at start end of link
 		Agent* end2; //agent at destination end of link
 		glm::vec3 colour; //colour of this link
@@ -151,5 +152,5 @@ namespace ABM {
 
 	};
 
-}
+} //namespace ABM
 

@@ -37,6 +37,7 @@ namespace gengine {
 	{
 	private:
 		TextureUnits* _TexUnits; //private copy of textures bound to device units
+		Shader* _BoundShader; //currently bound shader
 	public:
 		GLFWwindow* window;
 		FT_Library ft; //freetype text library
@@ -57,6 +58,9 @@ namespace gengine {
 		//font handling
 		FT_Face LoadFont(const std::string& FontName, const unsigned int FontSize);
 		void RenderText(const FT_Face FontFace, const glm::vec3 vColour, const char *text, float x, float y, float sx, float sy);
+
+		//immediate mode 2D rendering
+		void FillRect2D(const glm::vec4 colour, const int x, const int y, const int width, const int height);
 
 		virtual void WindowSizeCallback(GLFWwindow* window, int w, int h);
 

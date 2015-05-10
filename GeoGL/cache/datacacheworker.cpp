@@ -98,17 +98,19 @@ DataCacheIndexWorker::~DataCacheIndexWorker() {
 }
 
 void DataCacheIndexWorker::Process(geogl::async::MessageQueueEventArgs& args) {
+	//this process the message that comes back after a file has loaded into the cache
+	//the purpose is to update the internal file index and request list with the new information
 	geogl::cache::DataCacheWorkerMsg* filemsg = dynamic_cast<geogl::cache::DataCacheWorkerMsg*>(args.umessage.get());
 	std::cout<<"DataCacheIndexWorkerWorker "<<filemsg->src<<" and "<<filemsg->dst<<std::endl;
-	std::cout<<"UPDATE INDEX HERE!"<<std::endl;
+	//std::cout<<"UPDATE INDEX HERE!"<<std::endl;
 
-	std::cout<<"DataCacheIndexWorker CopiedLocalFile"<<std::endl;
+	//std::cout<<"DataCacheIndexWorker CopiedLocalFile"<<std::endl;
 	if (!args.Success) return; //TODO: what happens here if the request fails? It just stays on the loading list forever
 	//update file maps with the new file we've just added
 	//this happens in the main thread, so there are no synchronisation issues
 	_FileIndex.insert(filemsg->src);
 	_RequestIndex.erase(filemsg->src); //remove from waiting request list
-	std::cout<<"Copied local file complete "<<filemsg->src<<std::endl;
+	//std::cout<<"Copied local file complete "<<filemsg->src<<std::endl;
 }
 
 

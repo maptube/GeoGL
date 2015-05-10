@@ -25,6 +25,9 @@
 //#include "gengine/shaderuniformcollection.h"
 //#include "gengine/shaderuniform.h"
 #include "cache/DataCache.h"
+#include "async/meshworker.h"
+#include "async/messagequeueeventargs.h"
+
 
 using namespace std;
 
@@ -35,16 +38,31 @@ using namespace geogl::cache;
 
 const int GroundBox::BoxZoomLevel = 14; // zoom level used for all ground boxes to make it easy to switch
 
-GroundBox::GroundBox() {
+GroundBox::GroundBox(gengine::GraphicsContext* workerGC) : _workerGC(workerGC) {
 	// TODO Auto-generated constructor stub
 	//_Tau=1.0;
 	//need min distance before boxes visible
 	//need min and max depth that there is data for
+
+	//set up a request queue for loading meshes asynchronously and a done queue for reporting back when they've been created on the gpu
+	_requestQueue.MessageReceived.push_back(new geogl::async::MeshWorker(_doneQueue,_workerGC)); //set up the worker that acts on the messages
+	_requestQueue.StartBackgroundThread();
+	//set up a done queue handler here to add the loaded mesh objects
+//TODO: _Shader isn't actually set at this point!
+	_doneQueue.MessageReceived.push_back(new GroundBoxMeshWorker(_gndboxes,_Shader)); //this is the worker to put the meshes into the ground boxes array
 }
 
 GroundBox::~GroundBox() {
 	// TODO Auto-generated destructor stub
 	//TODO: free the meshes in the _gndboxes
+}
+
+void GroundBox::SetShader(gengine::Shader* shader) {
+	//if you change the shader, then you have to get rid of the mesh worker message queue and create another one with the new shader
+	//of course, anything not yet processed is destroyed, but then all the meshes need to be changed as well...
+	_Shader=shader;
+	_doneQueue.MessageReceived.clear();
+	_doneQueue.MessageReceived.push_back(new GroundBoxMeshWorker(_gndboxes,_Shader));
 }
 
 //get rid of this...
@@ -135,13 +153,15 @@ std::string GetGeoJSONFilename(const int TileZ, const int TileX,const int TileY)
 void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) {
 	//If the centre box already has the correct tile xyz coords, then exit early. Although it is possible that the viewpoint
 	//could spin, leaving the centre correct and the others changes, we don't bother with direction so it makes no difference.
+	//std::cout<<"In ShuffleBoxes"<<std::endl;
 	if ((_gndboxes[4].TileX==TileX)&&(_gndboxes[4].TileY==TileY)&&(_gndboxes[4].TileZ==TileZ)) return;
+
+	//std::cout<<"ShuffleBoxes : about to shuffle"<<std::endl;
 
 	//OK, it's moved, so we are going to have to do some work
 	int oldx=_gndboxes[0].TileX, oldy=_gndboxes[0].TileY; //store old min box to check for reuse
 	BoxContent B[9];
 	int i=0;
-	std::set<void*> currentMeshes; //nullptr?
 	for (int y=TileY-1; y<=TileY+1; y++) {
 		for (int x=TileX-1; x<=TileX+1; x++) {
 			B[i].TileX=x;
@@ -151,30 +171,27 @@ void GroundBox::ShuffleBoxes(const int TileZ, const int TileX, const int TileY) 
 			int x2=x-oldx;
 			int y2=y-oldy;
 			if ((x2>=0)&&(x2<=2)&&(y2>=0)&&(y2<=2)) {
-				B[i].mesh=_gndboxes[y2*3+x2].mesh;
-				currentMeshes.insert(B[i].mesh);
-				B[i].IsEmpty=false;
+				int i2=y2*3+x2;
+				B[i].mesh=std::move(_gndboxes[i2].mesh);
+				B[i].IsEmpty=_gndboxes[i2].IsEmpty; B[i].IsLoading=_gndboxes[i2].IsLoading;
 			}
-			else B[i].mesh=nullptr;
+			else { B[i].mesh=nullptr; B[i].IsEmpty=true; }
 			++i;
 		}
 	}
 	//now assign the local copy to the live copy and free any meshes that aren't being used
 	for (i=0; i<9; i++) {
-		if (!_gndboxes[i].IsEmpty) {
-			if (currentMeshes.find(_gndboxes[i].mesh)==currentMeshes.end()) {
-				//mesh no longer being used so get rid of it
-				delete _gndboxes[i].mesh;
-			}
-		}
 		//now assignment
 		_gndboxes[i].TileX=B[i].TileX;
 		_gndboxes[i].TileY=B[i].TileY;
 		_gndboxes[i].TileZ=B[i].TileZ;
-		_gndboxes[i].mesh=B[i].mesh;
-		_gndboxes[i].IsEmpty=B[i].IsEmpty;
+		_gndboxes[i].mesh=std::move(B[i].mesh);
+		_gndboxes[i].IsEmpty=B[i].IsEmpty; //(_gndboxes[i].mesh==nullptr); //DEBUG TRAP
+		_gndboxes[i].IsLoading=B[i].IsLoading;
 	}
+	//std::cout<<"Exit ShuffleBoxes"<<std::endl;
 }
+
 
 void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 	//work out closest point to ground and exit early if >min distance
@@ -192,6 +209,8 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 
 	//need delta to be 2 x radius (side view of earth)
 	//RenderLOD(GC,sdo,_root,K,(float)Delta);
+
+	_doneQueue.ProcessQueue(); //update current ground boxes with any loaded meshes, anything not in view is disposed
 
 	//Patch method
 	//cheat and create an ellipsoid!!
@@ -212,9 +231,12 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 		int TileX,TileY;
 		LonLatToTileXY(geodetic3D,TileX,TileY);
 		ShuffleBoxes(BoxZoomLevel,TileX,TileY); //shuffle current data around centre box as it's unlikely to have moved much
+		//do a mesh done list check for any newly delivered complete meshes
 		//now initiate a load and cache check for any ground box meshes set as IsEmpty
+		//TODO:
+		//for all mesh worker messages... fill empty boxes and discard any meshes not required
 		for (int i=0; i<9; i++) {
-			if (_gndboxes[i].IsEmpty) {
+			if (!(_gndboxes[i].IsLoading)&&(_gndboxes[i].IsEmpty)) {
 				std::string TileFilename = GetGeoJSONFilename(_gndboxes[i].TileZ,_gndboxes[i].TileX,_gndboxes[i].TileY); //shouldn't this be a URL?
 				if (dc->GetRemoteFile(TileFilename)) { //kick off async loading, if the file arrives while still in frame then it gets drawn
 					std::string LocalFilename = dc->GetLocalCacheFilename(TileFilename); //file is available
@@ -228,20 +250,24 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 					//_gndboxes[i].mesh=geoj;
 
 					//load pre-computed obj file - this should also be in a thread
-					Mesh2* mesh = new Mesh2();
-					mesh->_VertexFormat=gengine::PositionColourNormal;
-					mesh->FromOBJ(LocalFilename);
-					mesh->CreateBuffers();
-					mesh->AttachShader(_Shader,true);
-					mesh->SetColour(glm::vec3(1.0f,0.0f,0.0f));
-					_gndboxes[i].mesh=mesh;
-					cout<<"Mesh Loaded"<<endl;
+					//this is the bit that needs to push a mesh worker message
+					//Mesh2* mesh = new Mesh2();
+					//mesh->_VertexFormat=gengine::PositionColourNormal;
+					//mesh->FromOBJ(LocalFilename);
+					//mesh->CreateBuffers();
+					//mesh->AttachShader(_Shader,true);
+					//mesh->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+					//_gndboxes[i].mesh=mesh;
+					//cout<<"Mesh Loaded"<<endl;
+					_requestQueue.Post(new geogl::async::MeshWorkerMsg(LocalFilename,_gndboxes[i].TileX,_gndboxes[i].TileY,_gndboxes[i].TileZ));
+					//_gndboxes[i].IsEmpty=true; //set flag to false until it's loaded - it's already false (see above)
+					_gndboxes[i].IsLoading=true; //so we don't try and load it again while it's still in flight
 
 					//DEBUG - push a coloured ground square to show the grid
 					//geoj->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
 					//geoj->AttachShader(_Shader,true);
 					//END DEBUG
-					_gndboxes[i].IsEmpty=false; //don't forget to set the flag
+					//_gndboxes[i].IsEmpty=false; //don't forget to set the flag
 				}
 			}
 		}
@@ -263,10 +289,18 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 			//	GC->Render(dobj,sdo);
 			//}
 
+
 			//Mesh2 Render
 			//Here, we only have the parent mesh object to render
-			const DrawObject& dobj = _gndboxes[i].mesh->GetDrawObject();
-			GC->Render(dobj,sdo);
+			if (_gndboxes[i].mesh==NULL) {
+				std::cerr<<"FAULT: NULL BOX "
+					<<i<<": "<<_gndboxes[i].TileX<<" "<<_gndboxes[i].TileY<<" "<<_gndboxes[i].IsLoading<<std::endl;
+				//HACK! need to fix this as it shouldn't happen!
+			}
+			else {
+				const DrawObject& dobj = _gndboxes[i].mesh->GetDrawObject();
+				GC->Render(dobj,sdo);
+			}
 		}
 	}
 }

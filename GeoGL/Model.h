@@ -84,8 +84,11 @@ namespace ABM {
 		void SetDefaultShape(std::string BreedName, std::string ShapeName);
 		void SetDefaultSize(std::string BreedName, float Size);
 
-		//breeds
+		//breeds (Agents)
 		void Breed(std::string singular, std::string plural); //TODO: create a breed with the given singular and plural names e.g. "node", "nodes" - not really necessary
+		//breeds (Links)
+		void DirectedLinkBreed(std::string singular, std::string plural);
+		void UndirectedLinkBreed(std::string singular, std::string plural);
 
 	protected:
 		Ellipsoid* _pEllipsoid;

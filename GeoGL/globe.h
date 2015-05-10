@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "ellipsoid.h"
-//#include "opengl4.h"
 #include "gengine/Camera.h"
 #include "gengine/events/EventManager.h"
 #include "BBox.h"
@@ -34,6 +33,12 @@ namespace gengine {
 	class Shader;
 }
 
+namespace geogl {
+	namespace gui {
+		class Menu;
+	}
+}
+
 namespace ABM {
 	class Model;
 }
@@ -51,13 +56,15 @@ class Globe : public gengine::events::EventListener
 {
 private:
 	Ellipsoid ellipsoid;
-	//OpenGLContext openglContext;
+	gengine::GraphicsContext* _workerGC; //background graphics context for worker processes - make this into a shared_ptr?
 	gengine::GraphicsContext* GC; //the context that we can render to
 	gengine::SceneDataObject* _sdo; //scene data objects i.e. camera
 
 	std::vector<gengine::Shader*> _Shaders; //Shader programs that have been complied and linked
 
 	FT_Face _FontFace; //Font used for rendering text
+
+	geogl::gui::Menu* _Menu;
 
 	//OrbitController* controller;
 	EllipsoidOrbitController* controller;
@@ -74,6 +81,7 @@ private:
 
 	void DestroyScene(void);
 	void RenderChildren(Object3D* Parent, double nearClip, double farClip);
+	void InitialiseMenu();
 protected:
 	virtual void WindowSizeCallback(GLFWwindow *window, int w, int h);
 public:
@@ -90,6 +98,7 @@ public:
 
 	bool IsRunning(void);
 	//GLFWwindow* GetWindow() { return openglContext.window; }
+	gengine::GraphicsContext* GetGC() { return GC; }
 	SceneGraphType* GetSceneGraph() { return &SceneGraph; }
 
 	gengine::Shader* GetShader(const int Num) { return _Shaders[Num]; }

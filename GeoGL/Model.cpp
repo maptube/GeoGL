@@ -18,7 +18,15 @@ namespace ABM {
 		_agents._pSceneRoot=AgentsSceneRoot; //I really want to get rid of this - shouldn't have to copy pointers to scene graph around
 	
 		//call setup for user defined model initialisation
-		Setup();
+		//NO! this does nothing
+		//Setup();
+
+		//User defined initialisation complete, now build the graphic representation of the links as a single mesh so we have something to look at
+		Object3D* LinksSceneRoot = new Object3D();
+		LinksSceneRoot->Name="_LINKS_"; //TODO: can we make this user defined as a scene can have multiple models? (And _AGENTS_?)
+		//NO! need child model to call this? _links.Create3D(LinksSceneRoot);
+		_pSceneGraph->push_back(LinksSceneRoot);
+		_links._pSceneRoot=LinksSceneRoot; //Again, I would like to get rid of this
 	}
 
 	/// <summary>Destructor</summary>
@@ -74,7 +82,7 @@ namespace ABM {
 	//TODO: need to formalise the mapping between shape names and 3D geometry
 	void Model::SetDefaultShape(std::string BreedName, std::string ShapeName)
 	{
-		//this mimicks:
+		//this mimics:
 		//set-default-shape turtles [string]
 		//set-default-shape links [string]
 		//set-default-shape [breed] [string]
@@ -94,4 +102,19 @@ namespace ABM {
 
 	}
 
-}
+	void Model::Breed(std::string singular, std::string plural)
+	{
+		//TODO: create a breed with the given singular and plural names e.g. "node", "nodes" - not really necessary
+	}
+
+	void Model::DirectedLinkBreed(std::string singular, std::string plural)
+	{
+		//TODO: create directed graph breed type
+	}
+
+	void Model::UndirectedLinkBreed(std::string singular, std::string plural)
+	{
+		//TODO: create undirected graph breed type
+	}
+
+} //namespace ABM

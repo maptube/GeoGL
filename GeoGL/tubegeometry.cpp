@@ -104,7 +104,9 @@ void TubeGeometry::GenerateMesh(float Radius, unsigned int NumSegments)
 	for (itSplines=splines.begin(), itCols=spline_colours.begin(); itSplines!=splines.end(); ++itSplines, ++itCols) {
 		vector<glm::vec3> spline = *itSplines;
 		vector<glm::vec3> colours = *itCols;
-		GenerateTube(Radius,NumSegments,spline,colours);
+		//cout<<"spline size="<<spline.size()<<" colours size="<<colours.size()<<endl;
+		if (spline.size()>1)
+			GenerateTube(Radius,NumSegments,spline,colours);
 	}
 	//now put mesh to buffers
 	CreateBuffers();

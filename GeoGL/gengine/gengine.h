@@ -61,6 +61,11 @@
 //There are instructions included for windows which tells you to run NMAKE /f makefile.vc  setup-v10
 //in order to configure the project for vs2010. You then have to add an x64 project to the jpeg.sln yourself by copying from the win32 one
 
+//GTK3.0, GTKMM, GTKGLEXTMM
+
+//libcurl
+//yum install libcurl libcurl-devel
+
 //////////////////////////////////////////////////////////////
 //Windows include block - probably need WIN32 and WIN64!
 #ifdef WIN32
