@@ -14,7 +14,7 @@ namespace ABM {
 	/// </summary>
 	Links::Links(void)
 	{
-		_graph = new Graph(true);
+		//_graph = new Graph(true);
 
 		//initialise static pointer from Link to Links (this)
 		//This is necessary so that a Link can create another Link, although Links needs to keep the list
@@ -71,7 +71,7 @@ namespace ABM {
 			V->_UserData = AEnd;
 			AEnd->_GVertex = V; //note double linking
 		}
-		L->_GEdge = _graph->ConnectVertices(AStart->_GVertex,AEnd->_GVertex,"",0.0); //V1, V2, label, weight
+		L->_GEdge = G->ConnectVertices(AStart->_GVertex,AEnd->_GVertex,"",0.0); //V1, V2, label, weight
 		L->_GEdge->_UserData=L; //double linking of Link to edge and edge to Link
 		_myLinks.push_back(L);
 		return L;
@@ -97,37 +97,40 @@ namespace ABM {
 		//TODO: need this configurable by the model (and Radius)
 		const int NumSegments = 4; //OK, 4 is square, but there are 50,000 of them!  //20;
 		//now build the geometry
-		//TODO: each breed needs to be a separate mesh
 
 
 		//one alternative is to create a custom network graph geometry that understands links, but it's probably better to keep that
 		//as specific to a plain graph and add some similar code here which is specialised to create a links based tube geometry
-//TODO: need to use breed geometry here!!!
-		TubeGeometry* geom = new TubeGeometry();
-		geom->Name="_LINKS_GEOM_"; //might as well name the object in case we need to find it in the scene graph (TODO: add breed name)
-		//flatten the graph into a set of continuous line segments without branches
-		std::vector<Vertex*> flattened = _graph->Flatten();
-		//now build path segments from the flattened node lists by joining the nodes to the vertex names in the graph
-		std::vector<glm::vec3> spline;
-		std::vector<glm::vec3> colours;
-		colours.push_back(Colour);
-		for (std::vector<Vertex*>::iterator it=flattened.begin(); it!=flattened.end(); ++it) {
-			Vertex* V = *it;
-			if (V==NULL) {
-				geom->AddSpline(spline,colours); //check number of points?
-				spline.clear();
+		for (std::unordered_map<std::string,Graph*>::iterator itBreed = _BreedGraphs.begin(); itBreed!=_BreedGraphs.end(); ++itBreed)
+		{
+			std::string BreedName = itBreed->first;
+			Graph* G = itBreed->second;
+			TubeGeometry* geom = new TubeGeometry();
+			geom->Name="_LINKS_GEOM_"+BreedName; //might as well name the object in case we need to find it in the scene graph
+			//flatten the graph into a set of continuous line segments without branches
+			std::vector<Vertex*> flattened = G->Flatten();
+			//now build path segments from the flattened node lists by joining the nodes to the vertex names in the graph
+			std::vector<glm::vec3> spline;
+			std::vector<glm::vec3> colours;
+			colours.push_back(Colour);
+			for (std::vector<Vertex*>::iterator it=flattened.begin(); it!=flattened.end(); ++it) {
+				Vertex* V = *it;
+				if (V==NULL) {
+					geom->AddSpline(spline,colours); //check number of points?
+					spline.clear();
+				}
+				else {
+					Agent* A=reinterpret_cast<Agent*>(V->_UserData);
+					glm::dvec3 pos = A->GetXYZ();
+					//std::cout<<"Links::Create3D "<<pos.x<<" "<<pos.y<<" "<<pos.z<<std::endl;
+					spline.push_back(glm::vec3(pos)); //TODO: casting the double vector to a single is losing precision
+				}
 			}
-			else {
-				Agent* A=reinterpret_cast<Agent*>(V->_UserData);
-				glm::dvec3 pos = A->GetXYZ();
-				//std::cout<<"Links::Create3D "<<pos.x<<" "<<pos.y<<" "<<pos.z<<std::endl;
-				spline.push_back(glm::vec3(pos)); //TODO: casting the double vector to a single is losing precision
-			}
-		}
-		//this assumes that the flattened list always ends with a null
-		geom->GenerateMesh(Radius,NumSegments);
+			//this assumes that the flattened list always ends with a null
+			geom->GenerateMesh(Radius,NumSegments);
 
-		Parent->AddChild(geom);
+			Parent->AddChild(geom);
+		}
 	}
 
 }

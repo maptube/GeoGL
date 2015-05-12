@@ -26,7 +26,7 @@ namespace ABM {
 		//TODO: one graph per breed
 		std::unordered_map<std::string,Graph*> _BreedGraphs;
 		//TODO: _graph needs to come out in favour of breeds graphs
-		Graph* _graph; //this is the graph structure underlying the agent links, basically, the links are references to vertices
+		//Graph* _graph; //this is the graph structure underlying the agent links, basically, the links are references to vertices
 		std::vector<Link*> _myLinks; //list of created links - do you need this? it's a duplicate of the edges
 	public:
 		Links(void);

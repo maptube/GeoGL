@@ -116,7 +116,7 @@ void ModelBusNetwork::LoadBusStops(const std::string& Filename)
 	else {
 		std::cerr  << "ModelBusNetwork::LoadBusStops failed to parse file: " << Filename <<std::endl;
 	}
-	//std::cout<<"ModelBusNetwork::LoadBusStops created "<<AgentCount<<" new agents"<<std::endl;
+	std::cout<<"ModelBusNetwork::LoadBusStops created "<<AgentCount<<" new agents"<<std::endl;
 }
 
 void ModelBusNetwork::LoadLinks(const std::string& RoutesFilename)
@@ -134,7 +134,7 @@ void ModelBusNetwork::LoadLinks(const std::string& RoutesFilename)
 		std::string LastRoute="";
 		int LastRun=-1;
 		while (!in_csv.eof()) {
-			if (CountLinks>5000) break; //HACK!!!!! Limit number of links loaded
+			//if (CountLinks>5000) break; //HACK!!!!! Limit number of links loaded
 			line.clear();
 			std::getline(in_csv,line);
 			if (line.length()==0) continue; //blank line
