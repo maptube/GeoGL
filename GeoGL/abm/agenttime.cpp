@@ -45,7 +45,37 @@ AgentTime AgentTime::FromString(const std::string& Text)
 }
 
 /// <summary>
-/// Convert an agent time into a string
+/// Convert from string in format DD/MM/YYYY HH:MM:SS
+/// </summary>
+AgentTime AgentTime::FromString2(const std::string& Text)
+{
+	std::tm t = {0};
+
+	stringstream ss(Text);
+	std::string elem;
+	//not exactly elegant, but it works
+	std::getline(ss,elem,'/');
+	t.tm_mday = std::stoi(elem);
+	std::getline(ss,elem,'/');
+	t.tm_mon = std::stoi(elem)-1; //January is zero
+	std::getline(ss,elem,' ');
+	t.tm_year = std::stoi(elem)-1900; //2014 should come out as 114
+	std::getline(ss,elem,':');
+	t.tm_hour = std::stoi(elem);
+	std::getline(ss,elem,':');
+	t.tm_min = std::stoi(elem);
+	std::getline(ss,elem);
+	t.tm_sec = std::stoi(elem);
+
+	AgentTime at;
+	at._DT = std::mktime(&t);
+	at._fraction=0;
+	return at;
+
+}
+
+/// <summary>
+/// Convert an agent time into a string of the form yyyymmdd hh:mm:ss with leading zeroes
 /// </summary>
 std::string AgentTime::ToString(const AgentTime& ATime)
 {
@@ -54,9 +84,36 @@ std::string AgentTime::ToString(const AgentTime& ATime)
 
 	std::stringstream Result("");
 	int Year = t->tm_year+1900;
-	Result<<(t->tm_year+1900)<<setfill('0')<<setw(2)<<(t->tm_mon+1)<<(t->tm_mday)<<" "<<setfill('0')<<setw(2)<<(t->tm_hour)<<":"<<setfill('0')<<setw(2)<<(t->tm_min)<<":"<<setfill('0')<<setw(2)<<(t->tm_sec);
+	Result<<(t->tm_year+1900)<<setfill('0')<<setw(2)<<(t->tm_mon+1)<<setfill('0')<<setw(2)<<(t->tm_mday)<<" "<<setfill('0')<<setw(2)<<(t->tm_hour)<<":"<<setfill('0')<<setw(2)<<(t->tm_min)<<":"<<setfill('0')<<setw(2)<<(t->tm_sec);
 
 	return Result.str();
+}
+
+/// <summary>
+/// Convert an agent time into a file path of the form yyyy/mm/dd
+/// NOTE: there are no leading zeroes on mm or dd
+/// </summary>
+std::string AgentTime::ToFilePath(const AgentTime& ATime)
+{
+	struct tm *tmp = localtime(&ATime._DT); //is local right here? should it be gmtime as above?
+	std::stringstream ss;
+	//dir part (note dirs don't have a leading zero)
+	ss<<(tmp->tm_year+1900)<<"/"<<(tmp->tm_mon+1)<<"/"<<(tmp->tm_mday);
+	std::string DirPart;
+	ss>>DirPart;
+	return DirPart;
+}
+
+std::string AgentTime::ToStringYYYYMMDD_hhmmss(const AgentTime& ATime)
+{
+	struct tm *tmp = localtime(&ATime._DT); //is local right here? should it be gmtime as above?
+	std::stringstream ss;
+	//this is a rubbish way of formatting text
+	ss<<(tmp->tm_year+1900)<<std::setfill('0')<<std::setw(2)<<(tmp->tm_mon+1)<<std::setfill('0')<<std::setw(2)<<(tmp->tm_mday)
+			<<"_"<<std::setfill('0')<<std::setw(2)<<(tmp->tm_hour)<<std::setfill('0')<<std::setw(2)<<(tmp->tm_min)<<std::setfill('0')<<std::setw(2)<<(tmp->tm_sec);
+	std::string TimeCode;
+	ss>>TimeCode;
+	return TimeCode;
 }
 
 void AgentTime::Add(const float Seconds)
@@ -66,6 +123,17 @@ void AgentTime::Add(const float Seconds)
 
 	_DT+=Quotient; //add on the whole seconds
 	_fraction+=fraction; //and the fraction accumulated
+}
+
+/// <summary>
+/// Return T1-T2 in seconds
+/// </summary>
+float AgentTime::DifferenceSeconds(const AgentTime& T1, const AgentTime& T2)
+{
+	float secs=T1._DT-T2._DT;
+	float fraction = T1._fraction - T2._fraction; //need to check this is right
+
+	return secs+fraction;
 }
 
 /// <summary>

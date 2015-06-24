@@ -14,8 +14,8 @@
 //#include "graph.h"
 #include "netgraphgeometry.h"
 
-#include "Model.h"
-#include "agenttime.h"
+#include "abm/Model.h"
+#include "abm/agenttime.h"
 
 //struct TubeStationWGS84
 //{

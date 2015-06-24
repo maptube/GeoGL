@@ -4,6 +4,10 @@
 #include "Link.h"
 #include "LogoVariantOwns.h"
 
+#include "graph.h"
+
+#include <list>
+
 namespace ABM {
 
 	//static declarations
@@ -47,13 +51,15 @@ namespace ABM {
 
 
 	/// <summary>
-	/// Return the agent's xyz position vector
+	/// Return the agent's xyz position vector. This has been changed from returning the mesh position so that agents without a mesh can have a position.
+	/// Only the SetPos now updates the mesh position to keep the two in step.
 	/// </summary>
 	glm::dvec3 Agent::GetXYZ()
 	{
-		double X,Y,Z;
-		_pAgentMesh->GetPos(X,Y,Z);
-		return glm::dvec3(X,Y,Z);
+		//double X,Y,Z;
+		//_pAgentMesh->GetPos(X,Y,Z);
+		//return glm::dvec3(X,Y,Z);
+		return position;
 	}
 
 	/// <summary>
@@ -61,9 +67,10 @@ namespace ABM {
 	/// </summary>
 	double Agent::xcor()
 	{
-		double X,Y,Z;
-		_pAgentMesh->GetPos(X,Y,Z);
-		return X;
+		//double X,Y,Z;
+		//_pAgentMesh->GetPos(X,Y,Z);
+		//return X;
+		return position.x;
 	}
 
 	/// <summary>
@@ -71,9 +78,10 @@ namespace ABM {
 	/// </summary>
 	double Agent::ycor()
 	{
-		double X,Y,Z;
-		_pAgentMesh->GetPos(X,Y,Z);
-		return Y;
+		//double X,Y,Z;
+		//_pAgentMesh->GetPos(X,Y,Z);
+		//return Y;
+		return position.y;
 	}
 
 	/// <summary>
@@ -81,9 +89,10 @@ namespace ABM {
 	/// </summary>
 	double Agent::zcor()
 	{
-		double X,Y,Z;
-		_pAgentMesh->GetPos(X,Y,Z);
-		return Z;
+		//double X,Y,Z;
+		//_pAgentMesh->GetPos(X,Y,Z);
+		//return Z;
+		return position.z;
 	}
 
 	/// <summary>
@@ -94,8 +103,10 @@ namespace ABM {
 	/// <param name="Z"></param>
 	void Agent::SetXYZ(const double X, const double Y, const double Z)
 	{
-		//Do we need to hold XYZ locally as well?
-		_pAgentMesh->SetPos(X,Y,Z);
+		//hold XYZ locally as well as updating the mesh - that way agents without a mesh can have position
+		position = glm::dvec3(X,Y,Z);
+		if (_pAgentMesh)
+			_pAgentMesh->SetPos(X,Y,Z);
 	}
 
 	/// <summary>
@@ -128,7 +139,10 @@ namespace ABM {
 	/// <param name="d">Distance to move</param>
 	void Agent::Forward(float d)
 	{
-		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,0,-d));
+		//TODO: need to handle pAgentMesh null - THIS IS A HACK - need an agent matrix to hold the rotation in addition to a position
+		_pAgentMesh->SetPos(position.x,position.y,position.z); //added
+		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,0,-d)); //original line
+		_pAgentMesh->GetPos(position.x,position.y,position.z); //added
 	}
 	
 	/// <summary>
@@ -137,6 +151,7 @@ namespace ABM {
 	/// <param name="d">Distance to move</param>
 	void Agent::Back(float d)
 	{
+		//TODO: need to handle pAgentMesh null
 		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,0,d));
 	}
 	
@@ -146,6 +161,7 @@ namespace ABM {
 	/// <param name="d">Distance to move</param>
 	void Agent::Left(float d)
 	{
+		//TODO: need to handle pAgentMesh null
 		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(-d,0,0));
 	}
 	
@@ -155,6 +171,7 @@ namespace ABM {
 	/// <param name="d">Distance to move</param>
 	void Agent::Right(float d)
 	{
+		//TODO: need to handle pAgentMesh null
 		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(d,0,0));
 	}
 	
@@ -164,6 +181,7 @@ namespace ABM {
 	/// <param name="d">Distance to move</param>
 	void Agent::Up(float d)
 	{
+		//TODO: need to handle pAgentMesh null
 		//added this - netlogo isn't 3d
 		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,d,0));
 	}
@@ -174,6 +192,7 @@ namespace ABM {
 	/// <param name="d">Distance to move</param>
 	void Agent::Down(float d)
 	{
+		//TODO: need to handle pAgentMesh null
 		//added this - netlogo isn't 3d
 		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,-d,0));
 	}
@@ -197,6 +216,7 @@ namespace ABM {
 	/// <param name="A">The agent that this one is going to look at</param>
 	void Agent::Face(Agent& A)
 	{
+		//TODO: need to handle pAgentMesh null
 		glm::dvec3 P1 = GetXYZ(); //this is me
 		glm::dvec3 P2 = A.GetXYZ(); //this is who I want to look at
 

@@ -34,7 +34,7 @@
 #include "LeapController.h"
 #include "cuboid.h"
 
-#include "Model.h"
+#include "abm/Model.h"
 
 #include "geojson.h"
 
@@ -93,11 +93,11 @@ Globe::Globe(void)
 
 	//add sphere representing the earth and shade using diffuse shader
 	//Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40); //old version with diffuse shading
-	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40,Position); //sphere with just position vertices
+//	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40,Position); //sphere with just position vertices
 	//sphere->SetColour(glm::vec3(0.0,0.4,0.05));
 	//sphere->SetColour(glm::vec3(1.0,1.0,1.0));
 	//sphere->AttachShader(diffuse,false);
-	sphere->AttachShader(texshader,false);
+//	sphere->AttachShader(texshader,false);
 	//Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
 	//This is the real one vvvvv
 	Texture2D* texture=OGLDevice::CreateTexture2DFromFile("../textures/land_ocean_ice_2048_I.jpg" /*"../textures/land_ocean_ice_350_I.jpg"*/ /*"../textures/test-blue.jpg"*/);
@@ -118,7 +118,7 @@ Globe::Globe(void)
 	//texshader->_shaderUniforms->SetUniform1f("u_oneOverTwoPi",glm::one_over_pi<float>()/2.0f); //uniform float u_oneOverTwoPi;
 	(*uniforms)["u_oneOverTwoPi"]=glm::one_over_pi<float>()/2.0f;
 
-	sphere->AttachTexture(0,texture);
+//	sphere->AttachTexture(0,texture);
 	//TODO: texture is going to go out of scope and not be freed!!!
 	//SceneGraph.push_back(sphere);
 
@@ -321,6 +321,7 @@ void Globe::AddLayerModel(ABM::Model* model)
 
 	//attach shader to the top of the agents hierarchy
 	Shader* pShader = _Shaders[0];
+	model->SetAgentShader(pShader);
 	model->_agents._pSceneRoot->AttachShader(pShader,true);
 
 	//attach shader to the top of the links hierarchy

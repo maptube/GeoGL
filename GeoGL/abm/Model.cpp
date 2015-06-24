@@ -2,6 +2,11 @@
 #include "Model.h"
 #include "ellipsoid.h"
 
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 namespace ABM {
 
 	/// <summary>Construct a model which controls a scene graph</summary>
@@ -33,6 +38,14 @@ namespace ABM {
 	Model::~Model(void)
 	{
 		delete _pEllipsoid;
+	}
+
+	/// <summary>
+	/// Sets the shader which is attached to any new agents that are created.
+	/// TODO: you could make this an agent breed default if you want to be really clever?
+	/// </summary>
+	void Model::SetAgentShader(gengine::Shader* pShader) {
+		_agents.agentShader=pShader;
 	}
 
 	/// <summary>Initialisation of model - probably override this</summary>
@@ -115,6 +128,60 @@ namespace ABM {
 	void Model::UndirectedLinkBreed(std::string singular, std::string plural)
 	{
 		//TODO: create undirected graph breed type
+	}
+
+	//Extension methods not in NetLogo
+
+	/// <summary>
+	/// Extension method to load agents from a csv file.
+	/// Load single agent time frame from data file. Create agents and initialise properties.
+	/// </summary>
+	void Model::LoadAgentsCSV(const std::string& Filename, const int SkipLines, std::function<Agent* (std::vector<std::string>)> func)
+	{
+		//TODO: this needs to be able to handle commas inside quotes
+		int AgentCount=0;
+		std::ifstream in_csv(Filename.c_str());
+		if (in_csv.is_open()) {
+			std::string line;
+			for (int i=0; i<SkipLines; i++)
+				std::getline(in_csv,line); //skip the header lines
+
+			while (!in_csv.eof()) {
+				line.clear();
+				std::getline(in_csv,line);
+				if (line.length()==0) continue; //blank line
+				//parse the line as a string stream separated by ,
+				std::stringstream ss(line);
+				std::vector<std::string> items;
+				while (ss.good()) {
+					std::string elem;
+					std::getline(ss,elem,',');
+
+					//remove start and end quotes
+					if ((elem.at(0)=='\"')&&(elem.at(elem.length()-1)=='\"')) {
+						elem=elem.substr(1,elem.length()-2);
+					}
+
+					items.push_back(elem);
+				}
+				//call processing function here (NOTE: you could just not return anything from this function, we're not using it)
+				Agent* a = func(items);
+				++AgentCount; //we don't really know how many were created, but probably one!
+			}
+		}
+		//std::cout<<"Model::LoadAgentsCSV created "<<AgentCount<<" agents from "<<Filename<<std::endl;
+	}
+
+	/// <summary>
+	/// EXTENSION - Not in regular NetLogo
+	/// Set the lat lon position of an agent, using the ellipsoid stored by the model.
+	/// Height is in metres.
+	/// Note Lat, Lon in Degrees.
+	/// </summary>
+	void Model::SetGeodeticPosition(Agent* agent, double Lat, double Lon, double Height)
+	{
+		glm::vec3 P = _pEllipsoid->toVector(glm::radians(Lon),glm::radians(Lat),Height);
+		agent->SetXYZ(P.x,P.y,P.z);
 	}
 
 } //namespace ABM

@@ -3,16 +3,28 @@
 //this is good on #includes
 //http://www.cplusplus.com/forum/articles/10627/
 
-//#include "opengl4.h"
+#include "scenegraph.h"
 #include "netgraphgeometry.h"
 
 #include "Agents.h"
 #include "Links.h"
 
+
 #include <string>
+#include <vector>
+#include <functional>
+
+//TODO:
+//an animation record is a set of agent properties for a specific time
+//the idea is to be able to update the properties as the time changes and do it for any derived model easily
+//i.e. the step can take the new data for the next keyframe and interpolate using agent logic which the user provides
 
 //Forward declarations
 class Ellipsoid;
+
+namespace gengine {
+	class Shader;
+};
 
 namespace ABM {
 
@@ -73,6 +85,8 @@ namespace ABM {
 
 		SceneGraphType* _pSceneGraph;
 
+		void SetAgentShader(gengine::Shader* pShader);
+
 		virtual void Setup();
 		virtual void Step(double Ticks);
 		void UpdateScene();
@@ -89,6 +103,10 @@ namespace ABM {
 		//breeds (Links)
 		void DirectedLinkBreed(std::string singular, std::string plural);
 		void UndirectedLinkBreed(std::string singular, std::string plural);
+
+		//Extension Methods not in NetLogo (and maybe LoadTurtles would be better?)
+		void LoadAgentsCSV(const std::string& Filename, const int SkipLines, std::function<Agent* (std::vector<std::string>)> func);
+		void SetGeodeticPosition(Agent* agent, double Lat, double Lon, double Height);
 
 	protected:
 		Ellipsoid* _pEllipsoid;

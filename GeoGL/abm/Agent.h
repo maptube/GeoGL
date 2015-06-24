@@ -24,6 +24,8 @@ namespace ABM {
 		//this needs to be private
 	public:
 		Mesh2* _pAgentMesh; //pointer to the mesh representing this agent in the 3D scene graph
+	private:
+		glm::dvec3 position; //copy of position so agents without meshes can have position
 	public:
 		Agent(void);
 		~Agent(void);
@@ -271,6 +273,9 @@ namespace ABM {
 		void PenDown(void);
 		void PenErase(void);
 		void PenSize(void);
+
+		//extension methods not in NetLogo
+		//TODO:
 
 	};
 

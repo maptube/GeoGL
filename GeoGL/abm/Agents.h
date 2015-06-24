@@ -4,8 +4,12 @@
 #include <vector>
 #include <set>
 
-#include "opengl4.h"
+//#include "opengl4.h"
 #include "Agent.h"
+
+namespace gengine {
+	class Shader;
+};
 
 namespace ABM {
 	//list of Agent shapes e.g. circle, turtle, cube, tube, cone etc?
@@ -36,6 +40,7 @@ namespace ABM {
 		~Agents(void);
 
 		Object3D* _pSceneRoot; //Root of agents in scene graph. I'd like to get rid of this, but we need it to keep the 3D in step
+		gengine::Shader* agentShader; //shader used for agent rendering
 
 		int NumAgents; //counter for how many agents are in the model
 		unsigned int Birth; //number of agents created in the last animation frame

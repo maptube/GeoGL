@@ -10,19 +10,23 @@
 #include "main.h"
 #include <string>
 
-#include "../GeoGL/Model.h"
+#include "abm/Model.h"
+#include "abm/agenttime.h"
 
 class ModelBusNetwork : public ABM::Model {
 public:
 	static const std::string Filename_StopCodes; //bus stop locations
 	//todo: these were obviously from the tube network
 	static const std::string Filename_BusRoutesNetwork; //bus network from list of stops
-	//static const std::string Filename_TrackernetPositions; //train positions
+	static const std::string Filename_Positions; //bus position data (location csv file)
 	//static const std::string Filename_AnimationDir; //directory containing animation data as csv files
 	//static const float LineSize; //size of track
 	//static const int LineTubeSegments; //number of segments making up the tube geometry
 	//static const float StationSize; //size of station geometry object
 	//static const float TrainSize; //size of train geometry object
+
+	AgentTime AnimationDT; //current animation time
+	AgentTime NextTimeDT; //next animation frame time, on 3 min boundary
 
 	ModelBusNetwork(SceneGraphType* SceneGraph);
 	virtual ~ModelBusNetwork();
@@ -34,6 +38,7 @@ public:
 protected:
 	void LoadBusStops(const std::string& Filename);
 	void LoadLinks(const std::string& RoutesFilename);
+	void UpdateAgents(const AgentTime& DateTime);
 
 };
 

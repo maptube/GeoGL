@@ -2,6 +2,8 @@
 #include "Agents.h"
 #include "Agent.h"
 
+#include "gengine/shader.h"
+
 //geometry
 #include "turtle.h"
 #include "sphere.h"
@@ -10,6 +12,8 @@
 
 #include <sstream>
 #include <algorithm>
+
+//TODO: you need an agentset class so you can do multiple with statements
 
 namespace ABM {
 
@@ -79,7 +83,9 @@ namespace ABM {
 	{
 		Mesh2* mesh;
 		std::string ShapeName = GetDefaultShape(a._BreedName);
-		if (ShapeName=="turtle")
+		if ((ShapeName.length()==0)||(ShapeName=="none"))
+			mesh = nullptr;
+		else if (ShapeName=="turtle")
 			mesh = new Turtle(a.size); //HACK! need default turtle size, in fact defaults for all of these!
 		else if (ShapeName=="sphere")
 			mesh = new Sphere(a.size,10,10);
@@ -88,6 +94,8 @@ namespace ABM {
 		else if (ShapeName=="cylinder")
 			mesh = new Cylinder(a.size,a.size,8); //that's not a cylinder, that's an octagon
 
+		if (mesh!=nullptr)
+			mesh->AttachShader(agentShader,false);
 		a._pAgentMesh = mesh; //REMEMBER, you still have to add this to the scene and give the mesh a unique name
 	}
 
@@ -118,10 +126,13 @@ namespace ABM {
 		//mesh->Name="Agent_"+intToString(a->Number);
 		//_pSceneRoot->AddChild(mesh);
 		//a->_pAgentMesh = mesh; //THIS IS A HACK!
+
 		//new code with mesh shape names
 		CreateShapeMesh(*a); //create mesh for this breed shape
-		a->_pAgentMesh->Name="Agent_"+intToString(a->Number); //name the mesh
-		_pSceneRoot->AddChild(a->_pAgentMesh); //add mesh to scene
+		if (a->_pAgentMesh!=nullptr) { //add mesh to scene unless there is none
+			a->_pAgentMesh->Name="Agent_"+intToString(a->Number); //name the mesh
+			_pSceneRoot->AddChild(a->_pAgentMesh); //add mesh to scene
+		}
 
 		return a;
 	}
@@ -135,8 +146,10 @@ namespace ABM {
 		_Agents.erase(it);
 		--NumAgents; //do you need to do this, as it's a sequence number of created agents?
 		++Death;
-		_pSceneRoot->RemoveChild(A->_pAgentMesh); //remove from scenegraph
-		delete A->_pAgentMesh; //and free the mesh
+		if (A->_pAgentMesh!=nullptr) { //remove mesh from scene and free if this agent actually has a mesh specified
+			_pSceneRoot->RemoveChild(A->_pAgentMesh); //remove from scenegraph
+			delete A->_pAgentMesh; //and free the mesh
+		}
 	}
 
 	/// <summary>

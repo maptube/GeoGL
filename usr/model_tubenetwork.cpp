@@ -28,9 +28,10 @@ using namespace std;
 
 #include "ellipsoid.h"
 #include "netgraphgeometry.h"
+#include "graph.h"
 
-#include "Link.h"
-#include "Agent.h"
+#include "abm/Link.h"
+#include "abm/Agent.h"
 //#include "Model.h"
 
 //define locations of configuration files

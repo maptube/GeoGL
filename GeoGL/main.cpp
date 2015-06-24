@@ -13,10 +13,11 @@
 #include "globe.h"
 #include "ellipsoid.h"
 //#include "opengl4.h"
-//this needs to move into usr
-#include "model_tubenetwork.h"
 //and this is very awkward - need to separate from main code so user software uses globe, not this way around
+#include "../usr/model_tubenetwork.h"
 #include "../usr/model_busnetwork.h"
+#include "../usr/model_correlate.h"
+#include "../usr/model_networkrail.h"
 #include "netgraphgeometry.h"
 #include "geojson.h"
 #include "GroundBox.h"
@@ -40,10 +41,11 @@
 #include "cylinder.h"
 #include "pyramid4.h"
 #include "turtle.h"
-#include "Agent.h"
-#include "LogoVariantOwns.h"
 #include "gui/mainwindow.h"
 #include "gtkmm/main.h"
+
+#include "abm/Agent.h"
+#include "abm/LogoVariantOwns.h"
 
 #include <vector>
 
@@ -298,6 +300,16 @@ int main(int argc, char *argv[])
 	ModelBusNetwork* bn = new ModelBusNetwork(globe.GetSceneGraph());
 	bn->Setup();
 	globe.AddLayerModel(bn);
+
+	//Network Rail Data
+	//ModelNetworkRail* rn = new ModelNetworkRail(globe.GetSceneGraph());
+	//rn->Setup();
+	//globe.AddLayerModel(rn);
+
+	//correlation data
+	//ModelCorrelate* cormodel = new ModelCorrelate(globe.GetSceneGraph());
+	//cormodel->Setup();
+	//globe.AddLayerModel(cormodel);
 
 	//World in WGS84
 	//GeoJSON* geoj = new GeoJSON();

@@ -3,6 +3,8 @@
 #include <ctime>
 #include <string>
 
+//TODO: this should really be in the ABM namespace
+
 class AgentTime
 {
 public:
@@ -13,10 +15,14 @@ public:
 	~AgentTime(void);
 
 	static AgentTime FromString(const std::string& Text);
+	static AgentTime FromString2(const std::string& Text);
 	static std::string ToString(const AgentTime& ATime);
 	static std::string ToString(const time_t t);
+	static std::string ToStringYYYYMMDD_hhmmss(const AgentTime& ATime);
+	static std::string ToFilePath(const AgentTime& ATime);
 
 	void Add(const float Seconds);
+	static float DifferenceSeconds(const AgentTime& T1, const AgentTime& T2);
 
 	AgentTime& operator=(const AgentTime& other);
 	void operator+(const float Seconds);

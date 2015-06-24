@@ -11,6 +11,9 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <string>
+
+//#include <math.h>
 
 #include "json/json.h"
 #include "json/reader.h"
@@ -18,8 +21,10 @@
 #include "ellipsoid.h"
 #include "netgraphgeometry.h"
 
-#include "Link.h"
-#include "Agent.h"
+#include "abm/Link.h"
+#include "abm/Agent.h"
+#include "abm/agenttime.h"
+#include "abm/utils.h"
 
 
 
@@ -28,15 +33,18 @@ const std::string ModelBusNetwork::Filename_StopCodes =
 		"../data/countdown/instant_V1.json"; //bus stop locations
 const std::string ModelBusNetwork::Filename_BusRoutesNetwork =
 		"../data/countdown/TfL_Bus_routes_stream_20150504.csv"; //network of bus routes based on lists of stops
-//const std::string ModelTubeNetwork::Filename_TrackernetPositions =
-//		/*"data/trackernet_20140127_154200.csv";*/
-//		"../data/trackernet_20140127_154200.csv"; //train positions
+//const std::string ModelBusNetwork::Filename_Positions =
+//		"../data/countdown/2014/1/1/countdown_20140101_090000.csv";
 //const std::string ModelTubeNetwork::Filename_AnimationDir =
 //		"../data/tube-anim-strike/28";
 //const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 //const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 //const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
 //const float ModelTubeNetwork::TrainSize = 300.0f; //size of train geometry object
+
+const std::string ModelBusNetwork::Filename_Positions =
+		"../data/countdown/";
+		//"/run/media/richard/SAMSUNG2/countdown-cache/";
 
 ModelBusNetwork::ModelBusNetwork(SceneGraphType* SceneGraph) : ABM::Model(SceneGraph) {
 	// TODO Auto-generated constructor stub
@@ -49,20 +57,252 @@ ModelBusNetwork::~ModelBusNetwork() {
 
 void ModelBusNetwork::Setup() {
 	//from ABM::Model
-	SetDefaultShape("node","cube");
-	SetDefaultSize("node",100.0f/*StationSize*//*0.001f*/);
+	//nodes are the route stop points
+	SetDefaultShape("node","none"); //was cube
+	SetDefaultSize("node",10.0f/*StationSize*//*0.001f*/);
+	//drivers are the buses
 	SetDefaultShape("driver","turtle");
-	//SetDefaultSize("driver",TrainSize/*0.005f*/);
+	SetDefaultSize("driver",400.0f/*0.005f*/);
+	//TODO: SetDefaultColour("driver",glm::dvec3(1.0,0,0));
+	//TODO: need to be able to set the links to no mesh as well.
+
+	AnimationDT = AgentTime::FromString("20140101_000000");
+	NextTimeDT = AgentTime::FromString("20140101_000000");
 
 	LoadBusStops(Filename_StopCodes); //station locations
 	LoadLinks(Filename_BusRoutesNetwork); //network from CSV lists of stops making up each route
+/*	LoadAgentsCSV(Filename_Positions,1,[this](std::vector<std::string> items) {
+		//route, destination, vehicleid, registration, tripid, lat, lon, east, north, bearing, expectedtime(utc), timetostation(secs), linkruntime, detailsstopcode, fromstopcode, tostopcode
+		//"452","Kensal Rise","16069","LJ56VTY","484640","51.51208","-0.202189","524741.4","180825.1","336","31/12/2013 23:59:06","90","78","11533","11531","11533"
+		//so, 452 is the bus route number, buses are created as drivers
+		ABM::Agent* a = _agents.Hatch("driver");
+		a->SetColour(glm::vec3(1,0,0)); //it's a bus, better make it red
+		//set other agent properties here
+		std::string route = items[0];
+		std::string registration = items[3];
+		int Bearing = std::stoi(items[9]);
+		std::string DetailsStopCode = items[13];
+
+		//it seems that we have an estimated arrival time and number of seconds to station (stop). Why? In the example line above, the seconds to arrival is greater than the link runtime.
+		//I'm going to use the expected arrival time and calculate a velocity from that.
+		AgentTime ExpectedTime = AgentTime::FromString2(items[10]); //this is the dd/mm/yy hh:mm:ss format
+		//TODO: need a function to get seconds difference from these two:
+		float DeltaTime = AgentTime::DifferenceSeconds(ExpectedTime,AnimationDT); //this is how many seconds until it reaches the details stop code
+		//float TimeToStop = std::stof(items[11]); //should be same as delta time?
+		float LinkRuntime = std::stof(items[12]);
+		float Lambda = DeltaTime/LinkRuntime; //Lambda factor along fromNode to toNode links
+		if (Lambda<0) Lambda=0; //clamp to 0..1 to prevent agent from straying off link
+		else if (Lambda>1) Lambda=1;
+		//TODO: how about warning when the clamping has had to be used? it's probably a traffic jam issue
+
+		a->Name = registration; //unique name to match up to next data download (licence number) (or vehicle id or trip id?)
+		a->Set<std::string>("route",route);
+
+		//stops have different numbers for each side of the road (route direction), but can be shared between routes
+		std::vector<ABM::Agent*> toNodes = _agents.With("name",DetailsStopCode); //query the node that we have the details for
+		if (toNodes.empty()) {
+			//the details stop code doesn't exist in the database, so drop the agent and flag the error
+			std::cerr<<"Agent toNode not found in database: DetailsStopCode="<<DetailsStopCode<<" Route="<<route<<" Name="<<a->Name<<std::endl;
+			a->Die(); //this isn't a good thing to be doing as it messes up the numbers and the birth/death rate
+			a=nullptr;
+		}
+		else {
+			ABM::Agent* toNode = toNodes.front();
+			ABM::Agent* fromNode = nullptr;
+			//then look at all the inlinks for a previous node on the correct route
+			std::vector<ABM::Link*> links = toNode->InLinks();
+			for (std::vector<ABM::Link*>::iterator it = links.begin(); it!=links.end(); it++) {
+				ABM::Link* l = *it;
+				//todo: can you check that two different directions for a single route don't meet at the same point?
+				if (l->Get<std::string>("route")==route) {
+					fromNode = l->end1; //this is the agent node (stop) at the beginning of the link that ends at the destination stop
+					break;
+				}
+			}
+
+			if (fromNode!=nullptr) {
+				//position between two nodes
+				ABM::Utils::LinearInterpolate(a,Lambda,fromNode,toNode);
+				a->Set<ABM::Agent*>("toNode",toNode);
+				a->Set<ABM::Agent*>("fromNode",fromNode);
+				a->Set<float>("v",0.1f);
+				a->Face(*a->Get<ABM::Agent*>("toNode"));
+			}
+			else {
+				//position at toNode - probably starting point of route?
+				glm::dvec3 P = toNode->GetXYZ();
+				a->SetXYZ(P.x,P.y,P.z);
+				a->Set<ABM::Agent*>("toNode",toNode);
+				a->Set<float>("v",0.1f);
+				//TODO: need to face agent in the correct direction - how? pick out link of toNode?
+				//USE THE BEARING!!!!!
+			}
+
+		}
+
+		return a;
+	});*/
 
 	//now create the 3D representation from the data just loaded
 	_links.Create3D(_links._pSceneRoot); //TODO: need more elegant way of calling this
 }
 
+void ModelBusNetwork::UpdateAgents(const AgentTime& DateTime) {
+	std::string DirPart = AgentTime::ToFilePath(DateTime);
+	std::string TimeCode = AgentTime::ToStringYYYYMMDD_hhmmss(DateTime);
+	std::string Filename = Filename_Positions+DirPart+"/countdown_"+TimeCode+".csv";
+	std::cout<<"ModelBusNetwork::UpdateAgents : "<<Filename<<std::endl;
+	std::set<std::string> LiveAgentNames; //TODO: why not set<Agent*> ?
+	LoadAgentsCSV(Filename,1,[&](std::vector<std::string> items) { //capture was [this]
+		//the general idea is to move all the agent creation code from setup and put it all here...
+
+		////DUPLICATED CODE - originally identical to the setup code
+		//route, destination, vehicleid, registration, tripid, lat, lon, east, north, bearing, expectedtime(utc), timetostation(secs), linkruntime, detailsstopcode, fromstopcode, tostopcode
+		//"452","Kensal Rise","16069","LJ56VTY","484640","51.51208","-0.202189","524741.4","180825.1","336","31/12/2013 23:59:06","90","78","11533","11531","11533"
+		//so, 452 is the bus route number, buses are created as drivers
+		std::string route = items[0];
+		std::string registration = items[3];
+		int Bearing = std::stoi(items[9]);
+		std::string DetailsStopCode = items[13];
+		//it seems that we have an estimated arrival time and number of seconds to station (stop). Why? In the example line above, the seconds to arrival is greater than the link runtime.
+		//I'm going to use the expected arrival time and calculate a velocity from that.
+		AgentTime ExpectedTime = AgentTime::FromString2(items[10]); //this is the dd/mm/yy hh:mm:ss format
+		float LinkRuntime = std::stof(items[12]);
+
+		LiveAgentNames.insert(registration); //TODO: why not use the agent pointer?
+		ABM::Agent* a;
+		std::vector<ABM::Agent*> agents = _agents.With("name",registration);
+		if (agents.size()>0) {
+			//this agent already exists, so move him (later)
+			a=agents.front();
+		}
+		else {
+			//no agent with this registration, so hatch a new one
+			a = _agents.Hatch("driver");
+			a->Name = registration; //unique name to match up to next data download (licence number) (or vehicle id or trip id?)
+			a->Set<std::string>("route",route);
+			a->SetColour(glm::vec3(1,0,0)); //it's a bus, better make it red
+		}
+		//OK, "a" now contains our agent, so we had better position him properly
+
+
+		float DeltaTime = AgentTime::DifferenceSeconds(ExpectedTime,AnimationDT); //this is how many seconds until it reaches the details stop code
+
+		float Lambda = DeltaTime/LinkRuntime; //Lambda factor along fromNode to toNode links
+		if (Lambda<0) Lambda=0; //clamp to 0..1 to prevent agent from straying off link
+		else if (Lambda>1) Lambda=1;
+		//TODO: how about warning when the clamping has had to be used? it's probably a traffic jam issue
+
+		//stops have different numbers for each side of the road (route direction), but can be shared between routes
+		std::vector<ABM::Agent*> toNodes = _agents.With("name",DetailsStopCode); //query the node that we have the details for
+		if (toNodes.empty()) {
+			//the details stop code doesn't exist in the database, so drop the agent and flag the error
+			std::cerr<<"Agent toNode not found in database: DetailsStopCode="<<DetailsStopCode<<" Route="<<route<<" Name="<<a->Name<<std::endl;
+			a->Die(); //this isn't a good thing to be doing as it messes up the numbers and the birth/death rate
+			a=nullptr;
+		}
+		else {
+			ABM::Agent* toNode = toNodes.front();
+			ABM::Agent* fromNode = nullptr;
+			//then look at all the inlinks for a previous node on the correct route
+			std::vector<ABM::Link*> links = toNode->InLinks();
+			for (std::vector<ABM::Link*>::iterator it = links.begin(); it!=links.end(); it++) {
+				ABM::Link* l = *it;
+				//todo: can you check that two different directions for a single route don't meet at the same point?
+				if (l->Get<std::string>("route")==route) {
+					fromNode = l->end1; //this is the agent node (stop) at the beginning of the link that ends at the destination stop
+					break;
+				}
+			}
+
+			if (fromNode!=nullptr) {
+				//position between two nodes
+				ABM::Utils::LinearInterpolate(a,Lambda,fromNode,toNode);
+				a->Set<ABM::Agent*>("toNode",toNode);
+				a->Set<ABM::Agent*>("fromNode",fromNode);
+				a->Set<float>("v",0.1f);
+				a->Face(*a->Get<ABM::Agent*>("toNode"));
+			}
+			else {
+				//position at toNode - probably starting point of route?
+				glm::dvec3 P = toNode->GetXYZ();
+				a->SetXYZ(P.x,P.y,P.z);
+				a->Set<ABM::Agent*>("toNode",toNode);
+				a->Set<float>("v",0.1f);
+				//TODO: need to face agent in the correct direction - how? pick out link of toNode?
+				//USE THE BEARING!!!!!
+			}
+
+		}
+
+		return a;
+
+	});
+
+	//go through all agents and any not in the live list need to be killed off
+	std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+	for (std::vector<ABM::Agent*>::iterator dIT=drivers.begin(); dIT!=drivers.end(); ++dIT)
+	{
+		ABM::Agent* a = *dIT;
+		if (LiveAgentNames.find(a->Name)==LiveAgentNames.end()) {
+			//agent name not on the live list, so we need to get rid of him
+			a->Die();
+		}
+	}
+}
+
 void ModelBusNetwork::Step(double Ticks) {
 	//from ABM::Model
+	//TODO: really need to check the tick speed - globe is passing time*10!
+	float AnimSpeed = 0.5f; //ticks are the time between the last update and this one in seconds, so AnimSpeed is the real time to animation time multiplier (2= 2 times normal speed)
+
+	return;
+
+	AnimationDT.Add(0.001f /*AnimSpeed * Ticks*/);
+	std::cout<<AgentTime::ToString(AnimationDT)<<std::endl;
+	if (AnimationDT>=NextTimeDT) {
+		//need to do an update, otherwise just let everything else keep running
+//		NextTimeDT.Add(180); //move next frame time up by 3 mins
+		//load next csv file
+//		UpdateAgents(NextTimeDT);
+	}
+	else {
+
+		//TODO: code here to do the animation updates
+		std::vector<ABM::Agent*> drivers = _agents.Ask("driver"); //should be drivers really, but haven't implemented plural breeds yet
+		for (std::vector<ABM::Agent*>::iterator dIT = drivers.begin(); dIT!=drivers.end(); ++dIT)
+		{
+			ABM::Agent* d = *dIT;
+			std::string temp = d->Get<std::string>("Name");
+			//UniqueAgents.insert(temp);
+
+			ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
+			d->Face(*toNode);
+			d->Forward(std::min(d->Get<float>("v") * AnimSpeed,(float)d->Distance(*toNode)));
+
+			if (.00001f > d->Distance(*toNode))
+			{
+				//decision point - the destination node has been reached, we need to find another one
+				//std::cout<<"agent reached node"<<std::endl;
+				std::string route = d->Get<std::string>("route");
+				std::vector<ABM::Link*> OutLinks = toNode->OutLinks();
+				//TODO: need to implement a Links::With route==myroute lookup function to improve this bit
+				for (std::vector<ABM::Link*>::iterator itL = OutLinks.begin(); itL!=OutLinks.end(); itL++) {
+					ABM::Link* L = *itL;
+					std::string LinkRoute = L->Get<std::string>("route"); //L->With("route",route)????
+					if (LinkRoute==route) { //NOTE: they use the bearing to get the correct link
+						d->Set<ABM::Agent*>("fromNode",toNode);
+						d->Set<ABM::Agent*>("toNode",L->end2);
+						//found=true???
+						break;
+					}
+				}
+				//if found not true, has the driver got to the end of the line?
+				//NOTE: velocity not changed here - it should be calculated on the basis of the distance and time when a new frame is loaded
+			}
+
+		}
+	}
 }
 
 /// <summary>

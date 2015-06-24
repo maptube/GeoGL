@@ -17,6 +17,7 @@
 #include "gengine/Camera.h"
 #include "gengine/events/EventManager.h"
 #include "BBox.h"
+#include "scenegraph.h"
 
 //forward declarations
 //class GLFWWindow;
@@ -43,11 +44,7 @@ namespace ABM {
 	class Model;
 }
 
-////////////////////////////////////////////////////////////////
 
-typedef std::vector<Object3D*> SceneGraphType;
-
-////////////////////////////////////////////////////////////////
 
 /// <summary>
 /// Virtual Globe class which wraps up all the functions required to render the globe and draw the data on the window
