@@ -15,6 +15,8 @@
 //its intermediate dir of GeoGL\GeoGL\x64\Debug, but can't find poly2tri.lib unless the solution output dir is on the library path. Then it copies its output to the solution output
 //dir of GeoGL\x64\Debug where poly2tri.lib is and everything executes smoothly when you run the project.
 //So, basically, put GeoGL\x64\Debug onto GeoGL's library path for the static link.
+//On LINUX: you need LD_LIBRARY_PATH to contain /home/richard/projects/github/GeoGL/poly2tri
+//otherwise it won't find libpoly2tri.so
 //
 //GLEW
 //====
@@ -45,6 +47,7 @@
 
 //jsoncpp
 //built from source, windows uses an old VS project file and converts to vs2010 to build
+//altered this to sudo dnf install jsoncpp jsoncpp-devel
 
 //freetype
 //Linux: use the package manager or build from source.

@@ -149,7 +149,7 @@ namespace gengine {
 		obj._ShaderProgram->_shaderUniforms->Bind();
 		//bind automatic uniforms - todo: set these on the above to avoid doing it twice
 		obj._ShaderProgram->_shaderUniforms->SetMatrix4dv("projectionMatrix",sceneobj._camera->projectionMatrix); //was 4fv originally
-		obj._ShaderProgram->_shaderUniforms->SetMatrix4dv("viewMatrix",sceneobj._camera->viewMatrix); //was 4fv originally
+		obj._ShaderProgram->_shaderUniforms->SetMatrix4dv("viewMatrix",sceneobj._camera->GetViewMatrix()); //was 4fv originally
 		obj._ShaderProgram->_shaderUniforms->SetMatrix4fv("modelMatrix",obj._ModelMatrix);
 
 		//bind vertex arrays
@@ -192,7 +192,7 @@ namespace gengine {
 		//convert float ModelMatrix to a double
 		glm::dmat4 dModelMatrix = glm::dmat4(obj._ModelMatrix);
 		//glm::mat4 ModelViewMatrix = sceneobj._camera->viewMatrix * obj._ModelMatrix;
-		glm::dmat4 ModelViewMatrix = sceneobj._camera->viewMatrix * dModelMatrix;
+		glm::dmat4 ModelViewMatrix = sceneobj._camera->GetViewMatrix() * dModelMatrix;
 		//glLoadMatrixf(&ModelViewMatrix[0][0]);
 		glLoadMatrixd(&ModelViewMatrix[0][0]);
 
