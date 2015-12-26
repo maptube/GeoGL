@@ -77,6 +77,9 @@ bool intersectRayEllipsoid(
 	else {
 		intersectionPosition = rayStarting + t1 * rayNormalizedDirection;
 	}
+	//std::cout<<"intersectRayEllipsoid: "<<rayStarting.x<<" "<<rayStarting.y<<" "<<rayStarting.z
+	//		<<" t0="<<t0<<" t1="<<t1
+	//		<<" intersect: "<<intersectionPosition.x<<" "<<intersectionPosition.y<<" "<<intersectionPosition.z<<std::endl;
 	return true;
 }
 
@@ -110,7 +113,8 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 		glm::dvec3 vCameraPos = con_camera->GetCameraPos();
 		glm::dvec4 dvViewport(vViewport);
 		//glm::dvec3 P1=dragPoint; //don't need this, but P1 is the dragPoint where the user clicked first
-		glm::dvec3 P2 = glm::unProject(glm::dvec3(winX,winY,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
+		glm::dmat4 mCameraViewMatrix = con_camera->GetViewMatrix();
+		glm::dvec3 P2 = glm::unProject(glm::dvec3(winX,winY,0.9999),mCameraViewMatrix,con_camera->projectionMatrix,vViewport); //unproject current mouse point
 
 		glm::dvec3 intersectionPosition, intersectionNormal;
 		//bool test = glm::intersectRaySphere(
@@ -138,11 +142,17 @@ void EllipsoidOrbitController::CursorPosCallback(GLFWwindow *window, double mx, 
 			//take two normalised vectors from orbit centre to points P1 and P2 on sphere
 			glm::dvec3 NV1 = glm::normalize(dragPoint-centre);
 			glm::dvec3 NV2 = glm::normalize(P2-centre);
+			//std::cout<<"NV1="<<NV1.x<<" "<<NV1.y<<" "<<NV1.z<<" NV2="<<NV2.x<<" "<<NV2.y<<" "<<NV2.z<<std::endl;
 			double CosTheta = glm::dot(NV1,NV2); //A.B = |A||B| Cos(Theta), but A and B are normalised. This is the rotation angle on the plane.
 			//TODO: check whether acos is defined for |x|>1 ???????
+			if (CosTheta>=1.0) CosTheta=1.0; //looks like there's a problem with glm::dot, or normalize where CosTheta is returned >1.0
 			double Theta = glm::acos(CosTheta);
-			//std::cout<<"Angle="<<Theta*180/3.1415<<std::endl;
 			glm::dvec3 PlaneNormal = glm::normalize(glm::cross(NV2,NV1)); //Cross the two vectors to get the normal to the plane of rotation. Either -(1 x 2) or (2 x 1)
+			if ((NV1.x==NV2.x)&&(NV1.y==NV2.y)&&(NV1.z==NV2.z)) { //there's also a problem with the cross product of two identical vectors, so trap and use NV2 as the plane normal for rotation
+				//std::cout<<"TRAP!"<<std::endl;
+				PlaneNormal=NV2;
+			}
+			//std::cout<<"Angle="<<Theta*180/3.1415<<" CosTheta="<<CosTheta<<" PlaneNormal="<<PlaneNormal.x<<" "<<PlaneNormal.y<<" "<<PlaneNormal.z<<std::endl;
 			
 			//you can also work out the angle like this as a double check on theta:
 			//double Theta2 = 2 * asin(glm::length(P2-dragPoint)/2.0/(6378137.0/1000.0));
@@ -216,7 +226,8 @@ void EllipsoidOrbitController::MouseButtonCallback(GLFWwindow *window, int butto
 			double winX = Px;
 			double winY = (double)vViewport[3]-Py;
 			glm::dvec4 dvViewport(vViewport);
-			glm::dvec3 P1 = glm::unProject(glm::dvec3(winX,winY,0.9999),con_camera->viewMatrix,con_camera->projectionMatrix,vViewport); //unproject click point
+			glm::dmat4 mCameraViewMatrix = con_camera->GetViewMatrix();
+			glm::dvec3 P1 = glm::unProject(glm::dvec3(winX,winY,0.9999),mCameraViewMatrix,con_camera->projectionMatrix,vViewport); //unproject click point
 			//find intersection on sphere
 			glm::dvec3 intersectionPosition, intersectionNormal;
 			//bool test = glm::intersectRaySphere(

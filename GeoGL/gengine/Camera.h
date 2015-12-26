@@ -1,15 +1,19 @@
 #pragma once
 #include "gengine.h"
 
+//#include <iostream>
+//#include <memory>
+
 namespace gengine {
 
 	class Camera
 	{
-	public:
-		glm::dmat4 projectionMatrix;
+	private:
 		glm::dmat4 viewMatrix; //view matrix is used to transform scene into view space, camera matrix is camera position+rotation in scene
+	public:
 		double _fov;
 		double _near,_far,_width,_height;
+		glm::dmat4 projectionMatrix;
 
 		Camera(void);
 		~Camera(void);
@@ -33,6 +37,8 @@ namespace gengine {
 			//viewMatrix[3][1] = -Pos.y;
 			//viewMatrix[3][2] = -Pos.z;
 
+			//std::cout<<"SetCameraPos: "<<Pos.x<<" "<<Pos.y<<" "<<Pos.z<<" "<<glm::length(Pos)<<std::endl;
+
 			//I think this is how you do it
 			glm::dmat4 mCamera = glm::inverse(viewMatrix);
 			mCamera[3][0] = Pos.x;
@@ -45,9 +51,19 @@ namespace gengine {
 			//if you were drawing it
 			return glm::inverse(viewMatrix); //this gets the translation right as well
 		};
+		glm::dmat4 GetViewMatrix() {
+			return viewMatrix;
+		}
 		void SetCameraMatrix(glm::dmat4 CameraMatrix) {
+			//std::cout<<"SetCameraMatrix: "<<CameraMatrix[3][0]<<" "<<CameraMatrix[3][1]<<" "<<CameraMatrix[3][2]<<std::endl;
+
 			viewMatrix = glm::inverse(CameraMatrix);
 		};
+		void SetViewMatrix(glm::dmat4 ViewMatrix) {
+			//std::cout<<"SetViewMatrix: "<<ViewMatrix[3][0]<<" "<<ViewMatrix[3][1]<<" "<<ViewMatrix[3][2]<<std::endl;
+
+			viewMatrix = ViewMatrix;
+		}
 		void SetupPerspective(int windowWidth, int windowHeight, double nearClip, double farClip);
 		glm::vec4 GetViewport();
 		/**
