@@ -7,6 +7,10 @@
 #include <fstream>
 #include <sstream>
 
+#include "sensor/geofence.h"
+
+#include "text/TextUtilities.h"
+
 namespace ABM {
 
 	/// <summary>Construct a model which controls a scene graph</summary>
@@ -130,7 +134,35 @@ namespace ABM {
 		//TODO: create undirected graph breed type
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Extension methods not in NetLogo
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//need utility csv split function here (private)
+	std::vector<std::string> SplitCSV(const std::string& Line) {
+		std::vector<std::string> Fields;
+		std::string Text="";
+		bool InQuote=false;
+		for (std::string::const_iterator it = Line.begin(); it!=Line.end(); ++it) {
+			char ch = *it;
+			switch (ch) {
+			case '\"' :
+				InQuote=!InQuote; //what happens with this: "abc"d,"xyz" at the moment you get [abcd,xyz]
+				break;
+			case ',' :
+				if (InQuote) Text+=ch;
+				else { Fields.push_back(Text); Text=""; }
+				break;
+			case ' ':
+				if ((InQuote)||(Text.length()>0)) Text+=ch; //don't allow whitespace at start of field
+				break;
+			default :
+				Text+=ch;
+			}
+		}
+		if (Text.length()>0) Fields.push_back(Text);
+		return Fields;
+	}
 
 	/// <summary>
 	/// Extension method to load agents from a csv file.
@@ -151,19 +183,24 @@ namespace ABM {
 				std::getline(in_csv,line);
 				if (line.length()==0) continue; //blank line
 				//parse the line as a string stream separated by ,
-				std::stringstream ss(line);
+				/*std::stringstream ss(line);
 				std::vector<std::string> items;
 				while (ss.good()) {
 					std::string elem;
 					std::getline(ss,elem,',');
 
 					//remove start and end quotes
-					if ((elem.at(0)=='\"')&&(elem.at(elem.length()-1)=='\"')) {
-						elem=elem.substr(1,elem.length()-2);
+					if (elem.length()>0) {
+						if ((elem.at(0)=='\"')&&(elem.at(elem.length()-1)=='\"')) {
+							elem=elem.substr(1,elem.length()-2);
+						}
 					}
+					elem=geogl::text::TextUtilities::trim(elem);
 
 					items.push_back(elem);
-				}
+				}*/
+				//use custom line parsing function that understands quoted strings
+				std::vector<std::string> items = SplitCSV(line);
 				//call processing function here (NOTE: you could just not return anything from this function, we're not using it)
 				Agent* a = func(items);
 				++AgentCount; //we don't really know how many were created, but probably one!
@@ -182,6 +219,62 @@ namespace ABM {
 	{
 		glm::vec3 P = _pEllipsoid->toVector(glm::radians(Lon),glm::radians(Lat),Height);
 		agent->SetXYZ(P.x,P.y,P.z);
+	}
+
+	//added
+	/// <summary>
+	/// Kill all turtles
+	/// </summary>
+	void Model::ClearTurtles()
+	{
+		//NOTE: clear-turtles kills all the turtles in NetLogo
+
+		//using while loop to kill the first agent on the list as the list gets changed every time an agent is killed, so an iterator won't work
+		while (_agents.NumAgents>0) {
+			_agents._Agents[0]->Die();
+		}
+	}
+
+	/// <summary>
+	/// Kill all turtles of a specific breed
+	/// </summary>
+	void Model::ClearTurtles(std::string BreedName)
+	{
+		//As the agent list gets changed as we're deleting agents, the method is to only delete from the head of the list, which then shrinks.
+		//If the agent at the head of the list isn't the right breed, then the head counter gets moved to the next one on the list.
+		int Head=0;
+		while (Head<_agents.NumAgents) {
+			if (_agents._Agents[Head]->_BreedName==BreedName) {
+				_agents._Agents[Head]->Die();
+			}
+			else ++Head;
+		}
+	}
+
+	/// <summary>
+	/// Extension
+	/// Test all sensors attached to this model.
+	/// TODO: need better way of the model being able to run this transparently - at the moment it's down to the user implementation
+	/// </summary>
+	void Model::SensorTests()
+	{
+		//OK, so for all agents, for all sensors OR for all sensors, for all agents - which is better?
+		//and do you run a single sensor test for every agent individually, or pass it a reference to all the agents.
+		//I'm going for passing all agents to a sensor (allows for density sensors)
+		for (std::vector<sensor::GeoFence*>::iterator it = _sensors.begin(); it!=_sensors.end(); ++it) {
+			_agents.SensorTests(*it);
+		}
+	}
+
+	/// <summary>
+	/// Extension
+	/// Clear the counters of all sensors hooked up to this model.
+	/// </summary>
+	void Model::ClearAllSensors()
+	{
+		for (std::vector<sensor::GeoFence*>::iterator it = _sensors.begin(); it!=_sensors.end(); ++it) {
+			(*it)->Clear();
+		}
 	}
 
 } //namespace ABM

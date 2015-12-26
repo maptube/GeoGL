@@ -1,6 +1,7 @@
 
 #include "Agents.h"
 #include "Agent.h"
+#include "sensor/geofence.h"
 
 #include "gengine/shader.h"
 
@@ -9,6 +10,7 @@
 #include "sphere.h"
 #include "cuboid.h"
 #include "cylinder.h"
+#include "pyramid4.h"
 
 #include <sstream>
 #include <algorithm>
@@ -93,6 +95,8 @@ namespace ABM {
 			mesh = new Cuboid(a.size,a.size,a.size);
 		else if (ShapeName=="cylinder")
 			mesh = new Cylinder(a.size,a.size,8); //that's not a cylinder, that's an octagon
+		else if (ShapeName=="pyramid4")
+			mesh = new Pyramid4(a.size,a.size,a.size);
 
 		if (mesh!=nullptr)
 			mesh->AttachShader(agentShader,false);
@@ -269,5 +273,14 @@ namespace ABM {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//end of defaults get/set
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/// <summary>
+	/// Extension
+	/// Run the sensor test loop on every agent in this set
+	/// </summary>
+	void Agents::SensorTests(ABM::sensor::GeoFence* Sensor)
+	{
+		Sensor->Test(_Agents);
+	}
 
 }

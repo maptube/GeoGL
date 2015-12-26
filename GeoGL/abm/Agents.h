@@ -12,6 +12,12 @@ namespace gengine {
 };
 
 namespace ABM {
+	namespace sensor {
+		class GeoFence;
+	}
+}
+
+namespace ABM {
 	//list of Agent shapes e.g. circle, turtle, cube, tube, cone etc?
 
 	//forward declare
@@ -65,6 +71,10 @@ namespace ABM {
 		std::string GetDefaultShape(std::string BreedName);
 		void SetDefaultSize(std::string BreedName, float Size);
 		float GetDefaultSize(std::string BreedName);
+
+		//extension
+		void SensorTests(ABM::sensor::GeoFence* Sensor); //added, run the sensor test loop
+
 	};
 
 }

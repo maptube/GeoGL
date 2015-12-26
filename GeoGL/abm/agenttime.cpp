@@ -116,6 +116,17 @@ std::string AgentTime::ToStringYYYYMMDD_hhmmss(const AgentTime& ATime)
 	return TimeCode;
 }
 
+/// <summary>
+/// Get the hour, minute and second from the agent time.
+/// </summary>
+void AgentTime::GetTimeOfDay(int& Hour, int& Minute, int& Second)
+{
+	struct tm *tmp = localtime(&_DT); //is local right here? should it be gmtime as above?
+	Hour = tmp->tm_hour;
+	Minute = tmp->tm_min;
+	Second = tmp->tm_sec;
+}
+
 void AgentTime::Add(const float Seconds)
 {
 	int Quotient = (int)floor(Seconds+_fraction); //number of seconds requested plus accumulated fraction so far, which we use to get the whole number of seconds

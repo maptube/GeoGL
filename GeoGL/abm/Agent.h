@@ -10,6 +10,7 @@
 //forward declarations
 class Vertex;
 
+
 namespace ABM {
 
 	//forward declarations
@@ -26,6 +27,7 @@ namespace ABM {
 		Mesh2* _pAgentMesh; //pointer to the mesh representing this agent in the 3D scene graph
 	private:
 		glm::dvec3 position; //copy of position so agents without meshes can have position
+		glm::mat4 agentMatrix; //copy of matrix so agents without meshes can have position and orientation
 	public:
 		Agent(void);
 		~Agent(void);
@@ -276,6 +278,15 @@ namespace ABM {
 
 		//extension methods not in NetLogo
 		//TODO:
+		/// <summary>
+		/// Test whether a variable is owned by an agent, returns true if it is.
+		/// Should this be called just 'Owns'?
+		/// </summary>
+		bool OwnsVariable(std::string VarName) {
+			if (VarName=="name") return true; //built in value
+			std::map<std::string,LogoVariant>::iterator it = _owns.find(VarName);
+			return it!=_owns.end();
+		}
 
 	};
 

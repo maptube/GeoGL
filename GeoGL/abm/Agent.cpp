@@ -121,7 +121,7 @@ namespace ABM {
 		//get at the mesh object in the scene
 		if (_colour!=new_colour) { //it's computationally expensive to change the buffers, so only do it if you really need to
 			_colour=new_colour;
-			_pAgentMesh->SetColour(new_colour);
+			if (_pAgentMesh) _pAgentMesh->SetColour(new_colour); //set colour on the mesh, not if it doesn't have one
 		}
 	}
 
@@ -139,10 +139,26 @@ namespace ABM {
 	/// <param name="d">Distance to move</param>
 	void Agent::Forward(float d)
 	{
+		//new code which can handle the absence of a model matrix (i.e. no mesh)
+		//set the position on the agent matrix
+		//direct manipulation of position
+		agentMatrix[3][0]=(float)position.x;
+		agentMatrix[3][1]=(float)position.y;
+		agentMatrix[3][2]=(float)position.z;
+		agentMatrix = glm::translate(agentMatrix,glm::vec3(0,0,-d));
+		//now get the position back
+		position.x=(float)agentMatrix[3][0];
+		position.y=(float)agentMatrix[3][1];
+		position.z=(float)agentMatrix[3][2];
+		//and set the mesh if it exists
+		if (_pAgentMesh)
+			_pAgentMesh->modelMatrix = agentMatrix;
+
+		//original code
 		//TODO: need to handle pAgentMesh null - THIS IS A HACK - need an agent matrix to hold the rotation in addition to a position
-		_pAgentMesh->SetPos(position.x,position.y,position.z); //added
-		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,0,-d)); //original line
-		_pAgentMesh->GetPos(position.x,position.y,position.z); //added
+		//_pAgentMesh->SetPos(position.x,position.y,position.z); //added
+		//_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,0,-d)); //original line
+		//_pAgentMesh->GetPos(position.x,position.y,position.z); //added
 	}
 	
 	/// <summary>
@@ -152,7 +168,10 @@ namespace ABM {
 	void Agent::Back(float d)
 	{
 		//TODO: need to handle pAgentMesh null
-		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,0,d));
+		//_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,0,d));
+
+		//OK, this is cheating Back=-Forward obviously
+		Forward(-d);
 	}
 	
 	/// <summary>
@@ -216,7 +235,7 @@ namespace ABM {
 	/// <param name="A">The agent that this one is going to look at</param>
 	void Agent::Face(Agent& A)
 	{
-		//TODO: need to handle pAgentMesh null
+		//following assumes agent actually has a mesh that we can get the matrix from
 		glm::dvec3 P1 = GetXYZ(); //this is me
 		glm::dvec3 P2 = A.GetXYZ(); //this is who I want to look at
 
@@ -245,7 +264,9 @@ namespace ABM {
 		Result[3][0]=(float)P1.x;
 		Result[3][1]=(float)P1.y;
 		Result[3][2]=(float)P1.z;
-		_pAgentMesh->modelMatrix = Result;
+		agentMatrix = Result;
+		if (_pAgentMesh)
+			_pAgentMesh->modelMatrix = Result; //and set the mesh matrix if there is actually a mesh
 	}
 
 	/// <summary>

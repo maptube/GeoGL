@@ -21,6 +21,8 @@ public:
 	static std::string ToStringYYYYMMDD_hhmmss(const AgentTime& ATime);
 	static std::string ToFilePath(const AgentTime& ATime);
 
+	void GetTimeOfDay(int& Hour, int& Minute, int& Second);
+
 	void Add(const float Seconds);
 	static float DifferenceSeconds(const AgentTime& T1, const AgentTime& T2);
 

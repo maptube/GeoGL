@@ -26,6 +26,10 @@ namespace gengine {
 	class Shader;
 };
 
+namespace sensor {
+	class GeoFence;
+}
+
 namespace ABM {
 
 	//Forward declarations
@@ -83,6 +87,8 @@ namespace ABM {
 		//NetGraphGeometry* _graph; //physical rendering of graph structure
 		//Patches?
 
+		std::vector<sensor::GeoFence*> _sensors; //list of sensors attached to this model
+
 		SceneGraphType* _pSceneGraph;
 
 		void SetAgentShader(gengine::Shader* pShader);
@@ -107,6 +113,12 @@ namespace ABM {
 		//Extension Methods not in NetLogo (and maybe LoadTurtles would be better?)
 		void LoadAgentsCSV(const std::string& Filename, const int SkipLines, std::function<Agent* (std::vector<std::string>)> func);
 		void SetGeodeticPosition(Agent* agent, double Lat, double Lon, double Height);
+
+		//added Extensions
+		void ClearTurtles();
+		void ClearTurtles(std::string BreedName);
+		void SensorTests();
+		void ClearAllSensors();
 
 	protected:
 		Ellipsoid* _pEllipsoid;
