@@ -139,9 +139,9 @@ Globe::Globe(void)
 
 //HACK - turned off ground boxes here!
 //	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-	GroundBox* buildings = new GroundBox(_workerGC);
-	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
-	SceneGraph.push_back(buildings);
+//	GroundBox* buildings = new GroundBox(_workerGC);
+//	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+//	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
@@ -150,14 +150,14 @@ Globe::Globe(void)
 
 	//setup debug object - this is a cube that we can position in the scene as a marker
 	//Cube1 is Red, Cube2 is Blue
-	debugCube1 = new Cuboid(100000,100000,100000);
-	debugCube1->SetColour(glm::vec3(1.0,0,0));
-	debugCube1->AttachShader(shader,false);
-	SceneGraph.push_back(debugCube1);
-	debugCube2 = new Cuboid(100000,100000,100000);
-	debugCube2->SetColour(glm::vec3(0,0,1.0));
-	debugCube2->AttachShader(shader,false);
-	SceneGraph.push_back(debugCube2);
+//	debugCube1 = new Cuboid(100000,100000,100000);
+//	debugCube1->SetColour(glm::vec3(1.0,0,0));
+//	debugCube1->AttachShader(shader,false);
+//	SceneGraph.push_back(debugCube1);
+//	debugCube2 = new Cuboid(100000,100000,100000);
+//	debugCube2->SetColour(glm::vec3(0,0,1.0));
+//	debugCube2->AttachShader(shader,false);
+//	SceneGraph.push_back(debugCube2);
 
 //HACKED perspective and object locations and size to avoid Z fighting
 	//set up the camera
@@ -336,7 +336,7 @@ void Globe::AddLayerModel(ABM::Model* model)
 void Globe::FitViewToLayers(void)
 {
 	//camera.viewMatrix = FitViewMatrix();
-	camera.viewMatrix = FitViewMatrix2();
+	camera.SetViewMatrix(FitViewMatrix2());
 }
 
 //recursive descent find object by name
@@ -375,7 +375,7 @@ void Globe::LookAt(std::string Name)
 	cout<<"Zoom to "<<Name<<endl;
 	//step 2: zoom to the bounds of the object
 	BBox box = O3D->GetGeometryBounds();
-	camera.viewMatrix = FitViewMatrix2(box);
+	camera.SetViewMatrix(FitViewMatrix2(box));
 }
 
 /// <summary>

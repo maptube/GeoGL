@@ -1,18 +1,21 @@
 
 #include "LeapController.h"
 //#include "EventManager.h"
-#include "Leap.h"
-#include "LeapMath.h"
+//#include "Leap.h"
+//#include "LeapMath.h"
 #include "ellipsoid.h"
 
-using namespace Leap;
+//using namespace Leap;
 
 using namespace gengine;
 
+/*
 const double LeapController::rateRoll = 0.01; //rates applied to cursor position for aileron
 const double LeapController::ratePitch = 0.01; //rates applied to cursor position for elevator
 const double LeapController::rateYaw = 0.01; //rates applied to cursor position for rudder
+*/
 
+/*
 LeapController::LeapController(Camera* camera, GLFWwindow* window)
 {
 	con_camera = camera;
@@ -37,8 +40,9 @@ LeapController::LeapController(Camera* camera, GLFWwindow* window)
 	controller=new Controller();
 	controller->addListener(*this);
 }
+*/
 
-
+/*
 LeapController::~LeapController(void)
 {
 	//tidy up after ourselves by removing the static event callback hooks from the EventManager
@@ -50,6 +54,7 @@ LeapController::~LeapController(void)
 	controller->removeListener(*this);
 	delete controller;
 }
+*/
 
 /**
 * LeapController::Forward
@@ -57,6 +62,7 @@ LeapController::~LeapController(void)
 * Moves camera forward along eve vector and performs rotation based on current Aileron and Elevator settings.
 * Camera is moved this.Speed units along the eye vector.
 */
+/*
 void LeapController::Forward()
 {
 	//rotation
@@ -68,7 +74,9 @@ void LeapController::Forward()
 //	mCam = glm::translate(mCam,glm::vec3(0,0,-Speed)); //OpenGL Z -ve is into screen
 //	con_camera->SetCameraMatrix(mCam);
 }
+*/
 
+/*
 void LeapController::Backward()
 {
 	//rotation
@@ -80,9 +88,11 @@ void LeapController::Backward()
 //	mCam = glm::translate(mCam,glm::vec3(0,0,Speed)); //OpenGL Z -ve is into screen OPPOSITE of Forward
 //	con_camera->SetCameraMatrix(mCam);
 }
+*/
 
 //use a normalised leap y value to control camera distance to ellipsoid in a non-linear way
 //TODO: need a better name for this
+/*
 void LeapController::EllipsoidDistance(Ellipsoid& e,const float LeapY)
 {
 	//code copied from ellipsoid orbit controller
@@ -99,6 +109,7 @@ void LeapController::EllipsoidDistance(Ellipsoid& e,const float LeapY)
 	glm::dmat4 mNewCamera = glm::translate(mCamera,glm::dvec3(0,0,delta));
 	con_camera->SetCameraMatrix(mNewCamera);
 }
+*/
 
 /// <summary>
 /// Use left/right, forward/back hand movements to spin the globe, mimicking the right click pan function of the EllipsoidOrbitController.
@@ -110,6 +121,7 @@ void LeapController::EllipsoidDistance(Ellipsoid& e,const float LeapY)
 /// <param name="e"></param>
 /// <param name="LeapX">Normalised left/right pan speed (-0.5 to 0.5)</param>
 /// <param name="LeapZ">Normalised forward/back pan speed (-0.5 to 0.5)</param>
+/*
 void LeapController::EllipsoidSpin(Ellipsoid& e, const float LeapX, const float LeapZ)
 {
 	//The centre of rotation (initial point) is taken as the line from the camera to the origin (sphere centre)
@@ -147,10 +159,12 @@ void LeapController::EllipsoidSpin(Ellipsoid& e, const float LeapX, const float 
 	mCam = m * mCam;
 	con_camera->SetCameraMatrix(mCam);
 }
+*/
 
 /// <summary>
 /// Rotate around the X axis (aileron roll)
 /// </summary>
+/*
 void LeapController::RotateX(const double ax)
 {
 	glm::dmat4 mCam = con_camera->GetCameraMatrix();
@@ -159,18 +173,20 @@ void LeapController::RotateX(const double ax)
 	mCam = m * mCam;
 	con_camera->SetCameraMatrix(mCam);
 }
+*/
 
 /// <summary>
 /// Simulate flying a multirotor using your hand position over the leap motion for control. We ignore the effects of gravity though,
 /// so the quad is basically floating.
 /// Your hand determines the roll, pitch and yaw angles of the quad, which moves slowly in the appropriate direction.
 /// </summary>
+/*
 void LeapController::SimulateMultiRotor()
 {
 	//glm::vec3 xyz = con_camera->GetCameraPos();
 	glm::dmat4 mCam = con_camera->GetCameraMatrix();
 	//mCam[3][0]=0; mCam[3][1]=0; mCam[3][2]=0;
-	glm::dmat4 m = glm::eulerAngleYXZ(0.0/*-Yaw*/,Pitch,Roll);
+	glm::dmat4 m = glm::eulerAngleYXZ(0.0/ *-Yaw* /,Pitch,Roll);
 	//glm::mat4 m = glm::eulerAngleYXZ(0.0f,0.0f,0.0f);
 	//m = m_cam * m;
 	for (int i=0; i<3; i++)
@@ -183,13 +199,14 @@ void LeapController::SimulateMultiRotor()
 
 	//now find direction vector to move along
 	glm::dvec3 up(mCam[1][0],mCam[1][1],mCam[1][2]); // mCam * (0,1,0)
-	//mCam = glm::translate(mCam,glm::vec3(/*up.x/1000*/0,0,up.z/1000)); //no height translation
+	//mCam = glm::translate(mCam,glm::vec3( / * up.x/1000 * / 0,0,up.z/1000)); //no height translation
 	mCam[3][0]+=up.x/1000;
 	mCam[3][2]+=up.z/1000;
 	//std::cout<<"dx="<<up.x/1000<<" dz="<<up.z/1000<<std::endl;
 
 	con_camera->SetCameraMatrix(mCam);
 }
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -219,10 +236,13 @@ void LeapController::SimulateMultiRotor()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 void LeapController::onInit(const Controller& controller) {
 	//std::cout << "Leap Initialized" << std::endl;
 }
+*/
 
+/*
 void LeapController::onConnect(const Controller& controller) {
 	//std::cout << "Leap Connected" << std::endl;
 	controller.enableGesture(Gesture::TYPE_CIRCLE);
@@ -230,16 +250,22 @@ void LeapController::onConnect(const Controller& controller) {
 	controller.enableGesture(Gesture::TYPE_SCREEN_TAP);
 	controller.enableGesture(Gesture::TYPE_SWIPE);
 }
+*/
 
+/*
 void LeapController::onDisconnect(const Controller& controller) {
 	//Note: not dispatched when running in a debugger.
 	//std::cout << "Leap Disconnected" << std::endl;
 }
+*/
 
+/*
 void LeapController::onExit(const Controller& controller) {
 	//std::cout << "Leap Exited" << std::endl;
 }
+*/
 
+/*
 void LeapController::onFrame(const Controller& controller) {
 	GeoNavigate(controller); return;
 
@@ -364,6 +390,7 @@ void LeapController::onFrame(const Controller& controller) {
 
 	SimulateMultiRotor();
 }
+*/
 
 /// <summary>
 /// Navigate on a Globe.
@@ -371,6 +398,7 @@ void LeapController::onFrame(const Controller& controller) {
 /// Up/down zooms in and out of globe (radius).
 /// Movement of hand moves over the ground.
 /// </summary>
+/*
 void LeapController::GeoNavigate(const Controller& controller) {
 	Ellipsoid e; //HACK, need to pass this in
 	const Frame frame = controller.frame();
@@ -419,7 +447,9 @@ void LeapController::GeoNavigate(const Controller& controller) {
 		}
 	}
 }
+*/
 
+/*
 void LeapController::testPoint(const Controller& controller) {
 	const Frame frame = controller.frame();
 	// do nothing unless hands are detected
@@ -471,12 +501,16 @@ void LeapController::testPoint(const Controller& controller) {
 	//and set the mouse position
 	glfwSetCursorPos(con_window,wx,wy);
 }
+*/
 
+/*
 void LeapController::onFocusGained(const Controller& controller) {
 	std::cout << "Leap Focus Gained" << std::endl;
 }
+*/
 
+/*
 void LeapController::onFocusLost(const Controller& controller) {
 	std::cout << "Leap Focus Lost" << std::endl;
 }
-
+*/

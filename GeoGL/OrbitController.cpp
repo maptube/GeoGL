@@ -191,7 +191,7 @@ void OrbitController::CursorPosCallback(GLFWwindow *window, double mx, double my
 		//do the translation in view space as it make more sense - everything is relative to the view
 		glm::dmat4 mView = dragViewMatrix;
 		mView = glm::translate(mView,delta);
-		con_camera->viewMatrix = mView;
+		con_camera->SetViewMatrix(mView);
 	}
 }
 
@@ -258,7 +258,7 @@ void OrbitController::MouseButtonCallback(GLFWwindow *window, int button, int ac
 			double Px,Py;
 			glfwGetCursorPos(window,&Px,&Py);
 			dragPoint = glm::dvec3(Px,Py,0);
-			dragViewMatrix = con_camera->viewMatrix;
+			dragViewMatrix = con_camera->GetViewMatrix();
 		}
 		else {
 			panning=false;

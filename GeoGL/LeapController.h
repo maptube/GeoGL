@@ -4,11 +4,12 @@
 //#include "EventListener.h"
 #include "ellipsoid.h"
 
-#include "Leap.h"
+//#include "Leap.h"
 
 /// <summary>
 /// Basically a fly controller that is controlled by a Leap Motion sensor
 /// </summary>
+/*
 class LeapController : public Leap::Listener
 {
 public:
@@ -53,3 +54,4 @@ protected:
 	void RotateX(const double ax);
 };
 
+*/

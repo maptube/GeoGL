@@ -18,13 +18,14 @@
 #include "../usr/model_busnetwork.h"
 #include "../usr/model_correlate.h"
 #include "../usr/model_networkrail.h"
+#include "../usr/model_wxairq.h"
 #include "netgraphgeometry.h"
 #include "geojson.h"
 #include "GroundBox.h"
 #include "gengine/events/EventManager.h"
 #include "OrbitController.h"
 #include "FlyController.h"
-#include "LeapController.h"
+//#include "LeapController.h"
 #include "gengine/graphicscontext.h"
 #include "gengine/vertexbuffer.h"
 #include "gengine/indexbuffer.h"
@@ -46,6 +47,7 @@
 
 #include "abm/Agent.h"
 #include "abm/LogoVariantOwns.h"
+#include "abm/sensor/geofence.h"
 
 #include <vector>
 
@@ -292,14 +294,15 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	//tn->Setup(); //who's responsible for this? globe or me?
-	//globe.AddLayerModel(tn);
+	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	tn->Setup(); //who's responsible for this? globe or me?
+	globe.AddLayerModel(tn);
 
 	//Bus Data
-	ModelBusNetwork* bn = new ModelBusNetwork(globe.GetSceneGraph());
-	bn->Setup();
-	globe.AddLayerModel(bn);
+	//ModelBusNetwork* bn = new ModelBusNetwork(globe.GetSceneGraph());
+	//bn->Setup();
+	//globe.AddLayerModel(bn);
+	//ABM::sensor::GeoFence* MY1 = ABM::sensor::GeoFence::CreateCuboid(bn,glm::dvec3(-0.154611,51.522530,100),glm::dvec3(0.01,0.01,200));
 
 	//Network Rail Data
 	//ModelNetworkRail* rn = new ModelNetworkRail(globe.GetSceneGraph());
@@ -311,6 +314,11 @@ int main(int argc, char *argv[])
 	//cormodel->Setup();
 	//globe.AddLayerModel(cormodel);
 
+	//WX and AirQuality
+	//ModelWXAirQ* wxairq = new ModelWXAirQ(globe.GetSceneGraph());
+	//wxairq->Setup();
+	//globe.AddLayerModel(wxairq);
+
 	//World in WGS84
 	//GeoJSON* geoj = new GeoJSON();
 	//geoj->LoadFile("..\\GeoGL\\data\\TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
@@ -318,8 +326,8 @@ int main(int argc, char *argv[])
 	//GeoJSON* geoj = globe.LoadLayerGeoJSON("../data/TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
 	
 	//Thames in WGS84
-	GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
-	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	//GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
+	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");

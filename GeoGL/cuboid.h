@@ -6,7 +6,8 @@
 /// <summary>
 /// Cuboid mesh
 /// </summary>
-class Cuboid : public Mesh2 {
+class Cuboid : public Mesh2
+{
 public:
 	Cuboid(double SX,double SY,double SZ);
 	~Cuboid();
