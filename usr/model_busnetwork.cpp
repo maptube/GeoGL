@@ -25,6 +25,7 @@
 #include "abm/Agent.h"
 #include "abm/agenttime.h"
 #include "abm/utils.h"
+#include "abm/sensor/geofence.h"
 
 
 
@@ -33,6 +34,8 @@ const std::string ModelBusNetwork::Filename_StopCodes =
 		"../data/countdown/instant_V1.json"; //bus stop locations
 const std::string ModelBusNetwork::Filename_BusRoutesNetwork =
 		"../data/countdown/TfL_Bus_routes_stream_20150504.csv"; //network of bus routes based on lists of stops
+const std::string ModelBusNetwork::LogFilename =
+		"/home/richard/modelbusnetwork.txt";
 //const std::string ModelBusNetwork::Filename_Positions =
 //		"../data/countdown/2014/1/1/countdown_20140101_090000.csv";
 //const std::string ModelTubeNetwork::Filename_AnimationDir =
@@ -61,13 +64,14 @@ void ModelBusNetwork::Setup() {
 	SetDefaultShape("node","none"); //was cube
 	SetDefaultSize("node",10.0f/*StationSize*//*0.001f*/);
 	//drivers are the buses
-	SetDefaultShape("driver","turtle");
+	SetDefaultShape("driver","none"); //was turtle
 	SetDefaultSize("driver",400.0f/*0.005f*/);
 	//TODO: SetDefaultColour("driver",glm::dvec3(1.0,0,0));
 	//TODO: need to be able to set the links to no mesh as well.
 
 	AnimationDT = AgentTime::FromString("20140101_000000");
 	NextTimeDT = AgentTime::FromString("20140101_000000");
+	SensorRecordStartDT = AgentTime::FromString("20140101_000000");
 
 	LoadBusStops(Filename_StopCodes); //station locations
 	LoadLinks(Filename_BusRoutesNetwork); //network from CSV lists of stops making up each route
@@ -147,6 +151,29 @@ void ModelBusNetwork::Setup() {
 	_links.Create3D(_links._pSceneRoot); //TODO: need more elegant way of calling this
 }
 
+void ModelBusNetwork::WriteLogBusNumbers(const AgentTime& DateTime)
+{
+	//write out the total number of bus agents counted at this point in time
+	std::string TimeCode = AgentTime::ToStringYYYYMMDD_hhmmss(DateTime);
+	std::vector<ABM::Agent*> buses = _agents.Ask("driver");
+	std::ofstream out_log(ModelBusNetwork::LogFilename,std::ios::app);
+	out_log<<TimeCode<<","<<buses.size()<<std::endl;
+	out_log.close();
+}
+
+void ModelBusNetwork::WriteLogBusGeoFencedNumbers()
+{
+	//write out the current value of the geofence sensor placed at the MY1 position on Marylebone Road
+	std::ofstream out_log(ModelBusNetwork::LogFilename,std::ios::app);
+	//TODO: need better way of doing this - need to write out information from sensor before clearing them
+	int Counter = _sensors[0]->Counter; //OK, this is a complete HACK!
+	//to the screen so you can see what's happening
+	std::cout<<"GeoFence:, "<<AgentTime::ToString(SensorRecordStartDT)<<", "<<AgentTime::ToString(AnimationDT)<<", "<<Counter<<std::endl;
+	//and to the file log so you have some data
+	out_log<<"GeoFence:, "<<AgentTime::ToString(SensorRecordStartDT)<<", "<<AgentTime::ToString(AnimationDT)<<", "<<Counter<<std::endl;
+	out_log.close();
+}
+
 void ModelBusNetwork::UpdateAgents(const AgentTime& DateTime) {
 	std::string DirPart = AgentTime::ToFilePath(DateTime);
 	std::string TimeCode = AgentTime::ToStringYYYYMMDD_hhmmss(DateTime);
@@ -197,7 +224,7 @@ void ModelBusNetwork::UpdateAgents(const AgentTime& DateTime) {
 		std::vector<ABM::Agent*> toNodes = _agents.With("name",DetailsStopCode); //query the node that we have the details for
 		if (toNodes.empty()) {
 			//the details stop code doesn't exist in the database, so drop the agent and flag the error
-			std::cerr<<"Agent toNode not found in database: DetailsStopCode="<<DetailsStopCode<<" Route="<<route<<" Name="<<a->Name<<std::endl;
+//			std::cerr<<"Agent toNode not found in database: DetailsStopCode="<<DetailsStopCode<<" Route="<<route<<" Name="<<a->Name<<std::endl;
 			a->Die(); //this isn't a good thing to be doing as it messes up the numbers and the birth/death rate
 			a=nullptr;
 		}
@@ -220,7 +247,7 @@ void ModelBusNetwork::UpdateAgents(const AgentTime& DateTime) {
 				ABM::Utils::LinearInterpolate(a,Lambda,fromNode,toNode);
 				a->Set<ABM::Agent*>("toNode",toNode);
 				a->Set<ABM::Agent*>("fromNode",fromNode);
-				a->Set<float>("v",0.1f);
+				a->Set<float>("v",10.0f/*0.1f*/);
 				a->Face(*a->Get<ABM::Agent*>("toNode"));
 			}
 			else {
@@ -228,7 +255,7 @@ void ModelBusNetwork::UpdateAgents(const AgentTime& DateTime) {
 				glm::dvec3 P = toNode->GetXYZ();
 				a->SetXYZ(P.x,P.y,P.z);
 				a->Set<ABM::Agent*>("toNode",toNode);
-				a->Set<float>("v",0.1f);
+				a->Set<float>("v",10.0f/*0.1f*/);
 				//TODO: need to face agent in the correct direction - how? pick out link of toNode?
 				//USE THE BEARING!!!!!
 			}
@@ -254,17 +281,31 @@ void ModelBusNetwork::UpdateAgents(const AgentTime& DateTime) {
 void ModelBusNetwork::Step(double Ticks) {
 	//from ABM::Model
 	//TODO: really need to check the tick speed - globe is passing time*10!
-	float AnimSpeed = 0.5f; //ticks are the time between the last update and this one in seconds, so AnimSpeed is the real time to animation time multiplier (2= 2 times normal speed)
+	float AnimSpeed = 0.4f; //0.4f; //ticks are the time between the last update and this one in seconds, so AnimSpeed is the real time to animation time multiplier (2= 2 times normal speed)
 
-	return;
+	//AnimationDT.Add(AnimSpeed * Ticks);
+	//AnimationDT.Add(180); //HACK to step it by 3 min frames
 
-	AnimationDT.Add(0.001f /*AnimSpeed * Ticks*/);
-	std::cout<<AgentTime::ToString(AnimationDT)<<std::endl;
+	//additional time constraints
+	AnimationDT.Add(0.1/*60*/); //need to make sure I jump it by constant steps to keep the time in sync with the +-10 mins window
+	//OK, so we only want to simulate for 10 minutes either side of the hour
+	int Hour, Minute, Second;
+	AnimationDT.GetTimeOfDay(Hour,Minute,Second);
+	if (Minute==10) {
+		WriteLogBusGeoFencedNumbers();
+		AnimationDT.Add(40*60); //if we're at 10 past the hour, then add 40 minutes to get to 10 to the next hour
+		NextTimeDT.Add(40*60); //add 40 mins to next to keep it in step
+		ClearAllSensors(); //and clear the sensors
+		SensorRecordStartDT = AnimationDT; //make a nore of when we started the sensor
+	}
+	//end of additional time constraints section
+
+	std::cout<<AgentTime::ToString(AnimationDT)<<" "<<AgentTime::ToString(NextTimeDT)<<std::endl;
 	if (AnimationDT>=NextTimeDT) {
 		//need to do an update, otherwise just let everything else keep running
-//		NextTimeDT.Add(180); //move next frame time up by 3 mins
+		NextTimeDT.Add(180); //move next frame time up by 3 mins
 		//load next csv file
-//		UpdateAgents(NextTimeDT);
+		UpdateAgents(NextTimeDT);
 	}
 	else {
 
@@ -303,6 +344,8 @@ void ModelBusNetwork::Step(double Ticks) {
 
 		}
 	}
+	SensorTests(); //force any sensors to update - TODO: need to find better way of doing this
+	WriteLogBusNumbers(AnimationDT);
 }
 
 /// <summary>

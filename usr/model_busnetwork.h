@@ -19,6 +19,7 @@ public:
 	//todo: these were obviously from the tube network
 	static const std::string Filename_BusRoutesNetwork; //bus network from list of stops
 	static const std::string Filename_Positions; //bus position data (location csv file)
+	static const std::string LogFilename; //name of log file where results get written to
 	//static const std::string Filename_AnimationDir; //directory containing animation data as csv files
 	//static const float LineSize; //size of track
 	//static const int LineTubeSegments; //number of segments making up the tube geometry
@@ -27,6 +28,7 @@ public:
 
 	AgentTime AnimationDT; //current animation time
 	AgentTime NextTimeDT; //next animation frame time, on 3 min boundary
+	AgentTime SensorRecordStartDT; //record when we started the bus count sensor
 
 	ModelBusNetwork(SceneGraphType* SceneGraph);
 	virtual ~ModelBusNetwork();
@@ -39,6 +41,8 @@ protected:
 	void LoadBusStops(const std::string& Filename);
 	void LoadLinks(const std::string& RoutesFilename);
 	void UpdateAgents(const AgentTime& DateTime);
+	void WriteLogBusNumbers(const AgentTime& DateTime);
+	void WriteLogBusGeoFencedNumbers();
 
 };
 

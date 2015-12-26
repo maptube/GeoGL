@@ -47,7 +47,8 @@ void ModelCorrelate::Setup() {
 	//SetDefaultShape("bus","turtle");
 	SetDefaultShape("bus","none");
 	SetDefaultSize("bus",100);
-	AnimationDT = AnimationDT.FromString("20131231_235700"); //so by adding 3m you get midnight on 1/1/2014
+	//AnimationDT = AnimationDT.FromString("20131231_235700"); //so by adding 3m you get midnight on 1/1/2014
+	AnimationDT = AnimationDT.FromString("20141231_235700");
 }
 
 ////////////////////
@@ -178,9 +179,15 @@ void ModelCorrelate::Step(double Ticks) {
 			if (TubeNumbersLine[LineCode][TimePoint]==0) TubeNumbersLine[LineCode][TimePoint]=TubeNumbersLine[LineCode][TimePoint-1];
 		}
 	}
-	//std::cout<<AnimationDT.ToString(AnimationDT)<<" "<<TimePoint<<": Tubes="<<tubes.size()<<" buses="<<buses.size()<<std::endl;
 
-	if (TimePoint==479) { //last timepoint before a new day starts - we can do this as we're controlling the time which is guaranteed monotonic
+	//this writes out the raw count for each 3 min period
+	std::cout<<AnimationDT.ToString(AnimationDT)<<std::endl;
+	std::ofstream out_lograw("/home/richard/Correlate.txt",std::ios::app);
+	out_lograw<<"RawCounts,"<<AnimationDT.ToString(AnimationDT)<<","<<TimePoint<<",Tubes=,"<<tubes.size()<<",Buses=,"<<buses.size()<<std::endl;
+	out_lograw.close();
+
+	//this is the complex correlation data
+	/*if (TimePoint==479) { //last timepoint before a new day starts - we can do this as we're controlling the time which is guaranteed monotonic
 		std::ofstream out_log("/home/richard/Correlate.txt",std::ios::app);
 
 		std::cout<<TimeCode<<" Tube: "<<TubeNumbers[180]<<" Bus: "<<BusNumbers[180]<<std::endl; //180 is 9am
@@ -326,7 +333,12 @@ void ModelCorrelate::Step(double Ticks) {
 		}
 
 		out_log.close();
-	}
+	}*/
+
+	//this is a hack to write out the bus numbers to a simple file that I can make the year's data from:
+	std::ofstream out_log("/home/richard/BusNumbers.txt",std::ios::app);
+	out_log<<TimeCode<<","<<buses.size()<<std::endl;
+	out_log.close();
 }
 
 
