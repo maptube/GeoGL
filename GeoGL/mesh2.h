@@ -131,7 +131,7 @@ public:
 	virtual void Render(gengine::GraphicsContext* GC, const gengine::SceneDataObject& sdo);
 	virtual bool HasGeometry() { return true; } //yes, this object has geometry associated with it and can be rendered
 	virtual const gengine::DrawObject& GetDrawObject();
-	//TODO: SetMatrix - VERY IMPORTANT!
+	virtual void SetMatrix(const glm::mat4& matrix);
 protected:
 	gengine::VertexData* vertexData; //collection of vertex and index buffers
 	gengine::RenderState* renderState;

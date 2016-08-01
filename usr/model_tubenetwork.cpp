@@ -33,6 +33,7 @@ using namespace std;
 #include "abm/Link.h"
 #include "abm/Agent.h"
 //#include "Model.h"
+#include "agentobject.h"
 
 //define locations of configuration files
 const std::string ModelTubeNetwork::Filename_StationCodes =
@@ -45,7 +46,9 @@ const std::string ModelTubeNetwork::Filename_TrackernetPositions =
 		/*"data/trackernet_20140127_154200.csv";*/
 		"../data/trackernet_20140127_154200.csv"; //train positions
 const std::string ModelTubeNetwork::Filename_AnimationDir =
-		"../data/tube-anim-strike/28";
+		/*"../data/tube-anim-strike/28";*/
+		"../data/trackernet/2014/12/8";
+		/*"/run/media/richard/SAMSUNG2/trackernet-cache/2014/2/1"*/
 const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
@@ -61,16 +64,17 @@ const float ModelTubeNetwork::TrainSize = 300.0f; //size of train geometry objec
 ModelTubeNetwork::ModelTubeNetwork(SceneGraphType* SceneGraph) : ABM::Model(SceneGraph) {
 	//tube_graph = new Graph(true);
 	//tube_stations = new map<string,struct TubeStationWGS84>();
-	tube_stations = new unordered_map<string,struct GraphNameXYZ>();
+	//tube_stations = new unordered_map<string,struct GraphNameXYZ>(); //old code not used now in favour of node agents
 }
 
 /// <summary>Destructor</summary>
 ModelTubeNetwork::~ModelTubeNetwork() {
 	//delete tube_graph;
-	for (std::unordered_map<char,Graph*>::iterator it=tube_graphs.begin(); it!=tube_graphs.end(); ++it) {
-		delete (it->second);
-	}
-	delete tube_stations;
+	//old code not used now in favour of node agents and links graph
+	//for (std::unordered_map<char,Graph*>::iterator it=tube_graphs.begin(); it!=tube_graphs.end(); ++it) {
+	//	delete (it->second);
+	//}
+	//delete tube_stations;
 }
 
 
@@ -127,15 +131,228 @@ glm::vec3 ModelTubeNetwork::LineCodeToVectorColour(char Code) {
 	}
 }
 
+/// <summary>
+/// Called when new data is loaded to maintain the hash tables for where destination codes are being used.
+/// This is a general hook for data mining information from the real time running data.
+/// You can derive the lines from destination codes using this information, plus the routes from lists of stations sorted by destination code.
+/// In theory you could even derive the network graph from this, but that's probably going a bit too far. If you have the route station codes
+/// then you don't need the graph anyway.
+/// </summary>
+void ModelTubeNetwork::datamineDestinationCodes() {
+	std::cout<<"ModelTubeNetwork::datamineDestinationCodes"<<std::endl;
+	//TODO:
+	//inspect all the currently loaded agents and update your internal code tables
+	//Tables:
+	//Route Table - holds unordered hash of stations keyed on the destination code DestCode->{station combinations}
+	//Line Table - holds possible lines keyed on destination code DestCode->{stations}
+	//Also, how about storing all the raw data i.e. details station, destination code, direction, platform, (time of day?)
+	//that way you can do the Bayesian probability on the current data.
+	std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+	for (std::vector<ABM::Agent*>::iterator dIT = drivers.begin(); dIT!=drivers.end(); ++dIT)
+	{
+		ABM::Agent* d = *dIT;
+		//code = d->name
+		//to node is the details station
+		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
+		//get the lines that this station serves directly from the agent itself
+		std::string LineCodes = toNode->Get<std::string>("LineCodes");
+		//destination code
+		int DestinationCode = d->Get<int>("DestinationCode");
+
+		////
+
+		//derive line from destination code and lines served by station being visited by this driver agent
+		std::map<int,std::unordered_map<char,int>>::iterator it = DMLines.find(DestinationCode);
+		if (it==DMLines.end()) {
+			//no existing record for this destination code, so add a new one
+			std::unordered_map<char,int> LineCount;
+			//DMLines.insert(make_pair(DestinationCode,LineCount));
+			DMLines[DestinationCode]=LineCount;
+		}
+		//now add the new data to the LineCount map pointed to by *it
+		//std::unordered_map<char,int> LineCount = it->second;
+		std::unordered_map<char,int> LineCount = DMLines[DestinationCode];
+		for (int i=0; i<LineCodes.length(); i++) {
+			std::unordered_map<char,int>::iterator it2 = LineCount.find(LineCodes[i]);
+			if (it2==LineCount.end()) LineCount[LineCodes[i]] = 1;
+			else {
+				int Count = LineCount[LineCodes[i]]; //it2->second;
+				++Count;
+				LineCount[LineCodes[i]]=Count; //it2->second=Count;
+			}
+		}
+		DMLines[DestinationCode]=LineCount;
+
+		////
+
+		//derive stations along route for every route code based on origin and destination probabilities
+		//need dest, trip, set to make a primary key for a unique vehicle NOTE: the agent name is already Line_Trip_Set
+		//std::stringstream ss();
+		//ss<<DestinationCode<<d->Name.substr(1);
+		//std::string PKVehicle;
+		//ss>>PKVehicle;
+		//std::map<std::string,std::vector<dm_route_record>>::iterator itVehicle = DMRoutes.find(PKVehicle);
+		//if (itVehicle==DMRoutes.end()) {
+		//	//not found, so create a new record of a route
+		//	dm_route_record rec;
+		//	rec.DestinationCode=DestinationCode;
+		//	//rec.TimePoint=AgentTime NOW!
+		//	rec.OriginStationCode="";
+		//	rec.DestinationStationCode=toNode->Name;
+		//}
+		//else {
+		//	//vehicle already has a route, so check last time in case this is a new day
+		//	//std::vector<dm_route_record>* ODList = itVehicle->second;
+		//	//bool Found=false;
+		//	//for (std::vector<dm_route_record>::iterator itOD=ODList->begin(); itOD!=ODList->end(); ++itOD) {
+		//	//	dm_route_record OD = *itOD;
+		//	//	if ((OD.DestinationStationCode==toNode->Name)&&(OD.TimePoint>30)) { //TODO: timepoint here
+		//	//		//
+		//	//
+		//	//	}
+		//	//}
+		//
+		//	//method 2 - check it's not a duplicate of the last record and then just stuff it on the end of the list
+		//	std::vector<dm_route_record>* ODList = itVehicle->second;
+		//	dm_route_record lastrec = ODList[ODList->size()-1];
+		//	if ((lastrec.DestinationStationCode!=DestinationCode)||(lastrec.TimePoint>30)) { //TODO: timepoint here!!
+		//		//push new record here
+		//	}
+		//}
+
+		//method 3
+		//int DestinationCode = d->Get<int>("DestinationCode");
+		std::map<int,std::vector<dm_route_record>>::iterator itDest = DMRoutes.find(DestinationCode);
+		if (itDest==DMRoutes.end()) {
+			//no existing record for this route, so create a new one
+			dm_route_record rec;
+			rec.DestinationCode=DestinationCode;
+			rec.OriginStationCode=d->Get<std::string>("PreviousStation"); //this is the previous details station which came direct from the data NOT calculated
+			rec.DestinationStationCode=toNode->Name;
+			rec.Count=1;
+			std::vector<dm_route_record> ODList;
+			ODList.push_back(rec);
+			DMRoutes[DestinationCode] = ODList;
+		}
+		else {
+			//TODO: this isn't exactly an elegant way of doing it...
+			//you have a list of OD transitions, so find and update count or create
+			std::vector<dm_route_record> ODList = itDest->second;
+			std::string origin = d->Get<std::string>("PreviousStation");
+			std::string dest = toNode->Name;
+			bool Found=false;
+			for (std::vector<dm_route_record>::iterator itOD = ODList.begin(); itOD!=ODList.end(); ++itOD) {
+				//dm_route_record rec = *itOD;
+				if ((itOD->OriginStationCode==origin)&&(itOD->DestinationStationCode==dest)) {
+					++itOD->Count; //update the count of the LIVE copy
+					itDest->second = ODList; //and put the updated list back onto the DMRoutes map
+					Found=true;
+					break;
+				}
+			}
+			if (!Found) {
+				//create a new OD link with a count of 1
+				dm_route_record rec;
+				rec.DestinationCode=DestinationCode;
+				rec.OriginStationCode=d->Get<std::string>("PreviousStation"); //TODO: need to add this as previous station FROM THE DATA
+				rec.DestinationStationCode=toNode->Name;
+				rec.Count=1;
+				//ODList.push_back(rec); //NO!!!!
+				itDest->second.push_back(rec); //watch the copied reference when you add a new record to update it
+			}
+		}
+	}
+
+	dataminePrintDestinationCodes();
+	dataminePrintRoutes();
+}
+
+void ModelTubeNetwork::dataminePrintDestinationCodes() {
+	std::cout<<"ModelTubeNetwork::dataminePrintDestinationCodes"<<std::endl;
+	for (std::map<int,std::unordered_map<char,int>>::iterator it = DMLines.begin(); it!=DMLines.end(); ++it)
+	{
+		int DestinationCode = it->first;
+		std::unordered_map<char,int> LineCount = it->second;
+		std::cout<<DestinationCode<<" : ";
+		for (std::unordered_map<char,int>::iterator it2 = LineCount.begin(); it2!=LineCount.end(); ++it2) {
+			char LineCode = it2->first;
+			int count = it2->second;
+			std::cout<<LineCode<<" "<<count<<" ";
+		}
+		std::cout<<std::endl;
+	}
+}
+
+/// <summary>
+/// Print out the origin destination links extracted from listening to the real time or archive running data. This is used to make up
+/// the network graph dynamically from the data.
+/// </summary>
+void ModelTubeNetwork::dataminePrintRoutes() {
+	std::cout<<"ModelTubeNetwork::dataminePrintODLinks"<<std::endl;
+	for (std::map<int,std::vector<dm_route_record>>::iterator it = DMRoutes.begin(); it!=DMRoutes.end(); ++it) {
+		int DestCode = it->first;
+		std::vector<dm_route_record> ODLinks = it->second;
+		std::cout<<"Destination Code "<<DestCode<<std::endl;
+		for (std::vector<dm_route_record>::iterator itLink = ODLinks.begin(); itLink!=ODLinks.end(); ++itLink) {
+			dm_route_record rec = *itLink;
+			std::cout<<rec.OriginStationCode<<" -> "<<rec.DestinationStationCode<<" "<<rec.Count<<" | ";
+		}
+		std::cout<<std::endl;
+	}
+}
 
 /// <summary>
 /// Load the station names and positions from the CSV file. Create an agent of Breed "node" and name=stationcode at each station.
+/// The agent is also tagged with "LineCodes" which is a string containing the lines that this station serves.
 /// This allows us to look up stations when creating the network graph.
 /// Call this first, before loadLinks.
 /// </summary>
 /// <param name="Filename">The CSV file containing the stations data</param>
 void ModelTubeNetwork::loadStations(std::string Filename) {
-	//OK, now on to loading part two - load the stations file containing the lat/lon of all the tube stations which form vertices in the graph
+	LoadAgentsCSV(Filename,1,[this](std::vector<std::string> items) {
+		//#code,NPTGCode,lines,lon,lat,name
+		//ACT,9400ZZLUACT1,DP,-0.28025120353611,51.50274977300050,Acton Town
+		ABM::Agent *a = nullptr;
+		if ((items.size()==0)||(items[0][0]=='#')) return a; //blank line or comment line
+		if (items.size()>=6) {
+			std::string code1;
+			float lon,lat;
+			std::string LineCodes;
+			code1 = items[0];
+			lon = std::stof(items[3]);
+			lat = std::stof(items[4]);
+			LineCodes = items[2];
+			//TubeStationWGS84 pos = {lon,lat};
+			GraphNameXYZ pos; //TODO: you could remove this at tube_stations has now been removed
+			//pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0;
+			pos.Name=code1; pos.P=_pEllipsoid->toVector(glm::radians(lon),glm::radians(lat),0);
+			//tube_stations->insert(make_pair/*<string,struct GraphNameXYZ>*/(code1,pos)); //old stations lookup table, not used now in favour of station agents
+
+			//and create the node agent
+			//vector<ABM::Agent*> AList = PatchesPatchXYSprout((int)pos.P.x,(int)pos.P.y,1,"node");
+			//ABM::Agent *a = AList.front();
+
+			a = _agents.Hatch("node"); //alternative method to sprout
+
+			a->SetXYZ(pos.P.x,pos.P.y,pos.P.z);
+			a->Name=code1;
+			a->Set("LineCodes",LineCodes);
+		}
+		return a;
+	});
+
+}
+
+
+/// <summary>
+/// Load the station names and positions from the CSV file. Create an agent of Breed "node" and name=stationcode at each station.
+/// This allows us to look up stations when creating the network graph.
+/// Call this first, before loadLinks.
+/// TODO: this needs to use the new lambda loading function
+/// </summary>
+/// <param name="Filename">The CSV file containing the stations data</param>
+void ModelTubeNetwork::loadStationsOLD(std::string Filename) {
+/*	//OK, now on to loading part two - load the stations file containing the lat/lon of all the tube stations which form vertices in the graph
 	//ifstream in_csv("C:\\richard\\projects\\VC++\\GeoGL\\GeoGL\\data\\station-codes.csv");
 	ifstream in_csv(Filename.c_str());
 	//#code,NPTGCode,lines,lon,lat,name
@@ -164,7 +381,7 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 				GraphNameXYZ pos;
 				//pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0; 
 				pos.Name=code1; pos.P=_pEllipsoid->toVector(glm::radians(lon),glm::radians(lat),0);
-				tube_stations->insert(make_pair/*<string,struct GraphNameXYZ>*/(code1,pos));
+				tube_stations->insert(make_pair/ *<string,struct GraphNameXYZ>* /(code1,pos));
 				
 				//and create the node agent
 				vector<ABM::Agent*> AList = PatchesPatchXYSprout((int)pos.P.x,(int)pos.P.y,1,"node");
@@ -182,7 +399,7 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 			//sscanf(line.c_str(),"%s,%s,%s,%f,%f",code1,code2,tubelines,lon,lat);
 		}
 		in_csv.close();
-	}
+	}*/
 }
 
 /// <summary>
@@ -211,12 +428,16 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 	//const string dirs[] = { string("0") }; //uni-directional
 
 	for (int i=0; i<10; i++) {
-		Graph *G = new Graph(true);
+//		Graph *G = new Graph(true);
 		std::map<std::string,int> VertexNames; //lookup between vertex names and ids in the network graph (need a new lookup each time a new graph is started)
 		const Json::Value& jsLine = root[linecodes[i]];
 		for (int dir=0; dir<=1; dir++) { //HACK for unidirectional
 			const Json::Value& jsLineDir = jsLine[dirs[dir]];
 			std::string Label = linecodes[i]+"_"+dirs[dir]; //e.g. V_0 for Victoria Northbound or V_1 for Southbound
+			std::string BreedName = linecodes[i]; //e.g. V for Victoria in any direction
+			//create a breed and a default colour
+			//std::cout<<"SetDefaultColour: "<<Label<<" "<<linecodes[i]<<std::endl;
+			SetDefaultColour(BreedName,LineCodeToVectorColour(BreedName[0]));
 			for (unsigned int v = 0; v < jsLineDir.size(); ++v ) {
 				//cout<<"data:"<<jsLineDir[v]<<endl;
 				//OutputDebugStringW(L"data:");
@@ -234,40 +455,42 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 				//add the vertices to the graph and connect them (in a directional sense)
 				//need to lookup the vertex id from the 3 letter station code string which we keep in VertexNames map as the graph is built
 				//TODO: need to handle lines and directions properly (label edges?)
-				Vertex *VOrigin, *VDestination;
-				std::map<std::string,int>::const_iterator it;
-				it = VertexNames.find(o);
-				if (it==VertexNames.end()) {
-					//not found, so create a new vertex
-					VOrigin = G->AddVertex();
-					VOrigin->_Name=o; //station 3 letter code
-					//VertexNames.insert(pair<string,int>(o,VOrigin->_VertexId)); //push name and vertex id onto hash
-					VertexNames[o]=VOrigin->_VertexId; //push name and vertex id onto hash
-				}
-				else VOrigin = G->_Vertices[it->second];
-				//destination
-				it = VertexNames.find(d);
-				if (it==VertexNames.end()) {
-					//not found, so create a new vertex
-					VDestination = G->AddVertex();
-					VDestination->_Name=d; //station 3 letter code
-					//VertexNames.insert(pair<string,int>(d,VDestination->_VertexId)); //push name and vertex id onto hash
-					VertexNames[d]=VDestination->_VertexId; //push name and vertex id onto hash
-				}
-				else VDestination = G->_Vertices[it->second];
-				//now connect the pair - THIS RETURNS THE EDGE IF YOU NEED IT
-				G->ConnectVertices(VOrigin,VDestination,Label,(float)r); //node weight is the runlink in seconds
+//				Vertex *VOrigin, *VDestination;
+//				std::map<std::string,int>::const_iterator it;
+//				it = VertexNames.find(o);
+//				if (it==VertexNames.end()) {
+//					//not found, so create a new vertex
+//					VOrigin = G->AddVertex();
+//					VOrigin->_Name=o; //station 3 letter code
+//					//VertexNames.insert(pair<string,int>(o,VOrigin->_VertexId)); //push name and vertex id onto hash
+//					VertexNames[o]=VOrigin->_VertexId; //push name and vertex id onto hash
+//				}
+//				else VOrigin = G->_Vertices[it->second];
+//				//destination
+//				it = VertexNames.find(d);
+//				if (it==VertexNames.end()) {
+//					//not found, so create a new vertex
+//					VDestination = G->AddVertex();
+//					VDestination->_Name=d; //station 3 letter code
+//					//VertexNames.insert(pair<string,int>(d,VDestination->_VertexId)); //push name and vertex id onto hash
+//					VertexNames[d]=VDestination->_VertexId; //push name and vertex id onto hash
+//				}
+//				else VDestination = G->_Vertices[it->second];
+//				//now connect the pair - THIS RETURNS THE EDGE IF YOU NEED IT
+//				G->ConnectVertices(VOrigin,VDestination,Label,(float)r); //node weight is the runlink in seconds
 				
 				//Everything up to this point is direct manipulation of an internal graph structure. The following is another method
 				//using the ABM structure i.e. this creates a second, separate graph - user should only use ABM interface.
 				ABM::Agent* agent_o = _agents.With("name",o).front();
 				ABM::Agent* agent_d = _agents.With("name",d).front();
-				ABM::Link* L = _links.CreateLink("line",agent_o,agent_d);
+				//ABM::Link* L = _links.CreateLink("line",agent_o,agent_d);
+				ABM::Link* L = _links.CreateLink(BreedName,agent_o,agent_d); //use line code as breed name i.e. V for Victoria Northbound or Southbound (links are uni directional, so need two)
 				//this is where you set the velocity, linecode, direction
 				L->Set<std::string>("lineCode",string(linecodes[i]));
 				L->Set<int>("direction",dir);
 				L->Set<float>("runlink",(float)r);
 				L->colour=LineCodeToVectorColour(linecodes[i][0]);
+				//L->_GEdge->_Label = BreedName; //Label; //i.e. V_0
 				//now add a pre-created velocity for this link based on distance and runlink in seconds
 				double dx = L->end2->xcor()-L->end1->xcor();
 				double dy = L->end2->ycor()-L->end1->ycor();
@@ -276,12 +499,13 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 				L->Set<float>("velocity",(float)(dist/(float)r));
 			}
 		}
-		tube_graphs.insert(pair<char,Graph*>(linecodes[i].c_str()[0],G));
+//		tube_graphs.insert(pair<char,Graph*>(linecodes[i].c_str()[0],G));
 	}
 }
 
 /// <summary>
 /// Load train positions from CSV file (or web service?) and create agents for them
+/// TODO: this needs to use the lambda function
 /// </summary>
 void ModelTubeNetwork::loadPositions(std::string Filename) {
 	ifstream in_csv(Filename.c_str());
@@ -461,6 +685,11 @@ ABM::Agent* ModelTubeNetwork::HatchAgentFromAnimationRecord(const std::string& U
 			return nullptr;
 		}
 	}
+	//set additional information on the agent that's not used in the positioning
+	a->Set("DestinationCode",rec.DestinationCode);
+	a->Set("Platform",rec.Platform);
+	a->Set("PreviousStation","");
+	a->Set("DetailsStation",rec.StationCode);
 	return a;
 }
 
@@ -547,6 +776,8 @@ void ModelTubeNetwork::LoadAnimation(const std::string& DirectoryName) {
 				std::string stationcode = items[9];
 				float timetostation = atof(items[7].c_str());
 				int dir = std::atoi(items[12].c_str());
+				std::string platform = items[11];
+				int destinationCode = std::atoi(items[14].c_str());
 				std::string UniqueName = lineCode+"_"+tripcode+"_"+setcode;
 
 				//now write the hash record here, so it's hashed by time, then vehicle id, then comes the record
@@ -555,6 +786,8 @@ void ModelTubeNetwork::LoadAnimation(const std::string& DirectoryName) {
 				anim_rec.StationCode=stationcode;
 				anim_rec.TimeToStation=timetostation;
 				anim_rec.Direction=dir;
+				anim_rec.Platform=platform;
+				anim_rec.DestinationCode=destinationCode;
 				tube_anim_frames[DTTime][UniqueName] = anim_rec;
 				//cout<<"Written: "<<DTCode<<" "<<UniqueName<<" "<<stationcode<<endl;
 			}
@@ -567,34 +800,41 @@ void ModelTubeNetwork::LoadAnimation(const std::string& DirectoryName) {
 	cout<<"Finished processing animation frames. Found "<<tube_anim_frames.size()<<" animation frames."<<endl;
 }
 
-/// <summary>Generate a tube (spline) geometry for a specific Underground line as defined by the LineCode.</summary>
+/// <summary>
+/// NOT USED NOW?
+/// Generate a tube (spline) geometry for a specific Underground line as defined by the LineCode.
+/// </summary>
 /// <param name="LineCode"></param>
 /// <returns></returns>
-NetGraphGeometry* ModelTubeNetwork::GenerateLineMesh(char LineCode) {
-	//get the graph for the requested linecode using the map
-	std::unordered_map<char,Graph*>::iterator itG = tube_graphs.find(LineCode);
-	Graph* G = itG->second;
-	//find its colour
-	glm::vec3 LineColour = LineCodeToVectorColour(LineCode);
-	//now build the geometry
-	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,LineSize/*0.00025f*/,LineTubeSegments,LineColour);
-	geom->Name="LINE_"+LineCode; //might as well name the object in case we need to find it in the scene graph
+//NetGraphGeometry* ModelTubeNetwork::GenerateLineMesh(char LineCode) {
+//	//get the graph for the requested linecode using the map
+//	std::unordered_map<char,Graph*>::iterator itG = tube_graphs.find(LineCode);
+//	Graph* G = itG->second;
+//	//find its colour
+//	glm::vec3 LineColour = LineCodeToVectorColour(LineCode);
+//	//now build the geometry
+//	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,LineSize/*0.00025f*/,LineTubeSegments,LineColour);
+//	geom->Name="LINE_"+LineCode; //might as well name the object in case we need to find it in the scene graph
+//
+//	return geom;
+//}
 
-	return geom;
-}
 
-
-/// <summary>Generate one object for all the lines in the correct colours</summary>
+/// <summary>
+/// NOT USED NOW?
+/// Generate one object for all the lines in the correct colours
+/// TODO: need to use the model interface for this
+/// </summary>
 /// <returns></returns>
-Object3D* ModelTubeNetwork::GenerateMesh() {
-	Object3D* o3d = new Object3D();
-	o3d->Name="LondonUnderground";
-	for (std::unordered_map<char,Graph*>::iterator it=tube_graphs.begin(); it!=tube_graphs.end(); ++it) {
-		NetGraphGeometry* geom = GenerateLineMesh(it->first);
-		o3d->AddChild(geom);
-	}
-	return o3d;
-}
+//Object3D* ModelTubeNetwork::GenerateMesh() {
+//	Object3D* o3d = new Object3D();
+//	o3d->Name="LondonUnderground";
+//	for (std::unordered_map<char,Graph*>::iterator it=tube_graphs.begin(); it!=tube_graphs.end(); ++it) {
+//		NetGraphGeometry* geom = GenerateLineMesh(it->first);
+//		o3d->AddChild(new AgentObject(geom));
+//	}
+//	return o3d;
+//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //ABM
@@ -629,11 +869,15 @@ void ModelTubeNetwork::Setup() {
 	FrameTimeN=AnimationDT._DT;
 	/////
 
-	Object3D* lu = GenerateMesh();
-	lu->Name="LondonUnderground";
-	//you shouldn't manipulate the scene graph directly, but instead create the equivalent of an ABM.Links object
-	_pSceneGraph->push_back(lu); //this is bad, but only until ABM can represent the network
-	_links._pSceneRoot = lu; //set the root scene graph object for the links to this network object
+	//OLD method for creating links in the 3D scene graph
+//	Object3D* lu = GenerateMesh();
+//	lu->Name="LondonUnderground";
+//	//you shouldn't manipulate the scene graph directly, but instead create the equivalent of an ABM.Links object
+//	_pSceneGraph->push_back(lu); //this is bad, but only until ABM can represent the network
+//	_links._pSceneRoot = lu; //set the root scene graph object for the links to this network object
+
+	//ABM method of creating links in the 3D scene graph
+	_links.Create3D(_links._pSceneRoot); //TODO: need more elegant way of calling this
 	
 
 	//now create some tube trains (=drivers in netlogo and agentscript speak)
@@ -1200,6 +1444,7 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 		//DisplayStatistics();
 		//reset birth and death rates
 		_agents.Birth=0; _agents.Death=0;
+//		datamineDestinationCodes();
 	}
 	//FAST STATISTICS!
 	//DisplayStatistics();
@@ -1259,6 +1504,11 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 				continue;
 			}
 			tube_anim_record anim_rec = FrameN[AName];
+
+			//this is for the data mining code - we track the details station code (and previous) so that we can find the od links for the network
+			std::string DetailsStation = d->Get<std::string>("DetailsStation");
+			d->Set("PreviousStation",DetailsStation); //used by the data mining code to track OD links - this is direct from the raw data, toNode can be moved around
+			d->Set("DetailsStation",anim_rec.StationCode);
 
 			
 			//Frame next station, dir and timetostation is the data from the frame record
@@ -1381,13 +1631,14 @@ void ModelTubeNetwork::StepAnimation(double Ticks)
 				//agent from frame data not found on current active list of drivers, so need to hatch it
 				tube_anim_record rec = it->second;
 				ABM::Agent* a = HatchAgentFromAnimationRecord(Name,rec);
-				if (a!=nullptr) {
-					//this is a really nasty hack - we need to set the shader on the agent we've just created, so copy it from one of the other agents
-					std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
-					ABM::Agent* A2 = drivers.front();
-					a->_pAgentMesh->AttachShader(A2->_pAgentMesh->GetDrawObject()._ShaderProgram,true);
-					//cout<<"Hatched agent: "<<Name<<endl;
-				}
+//I don't think you need this any more if the agents are using templates
+//				if (a!=nullptr) {
+//					//this is a really nasty hack - we need to set the shader on the agent we've just created, so copy it from one of the other agents
+//					std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+//					ABM::Agent* A2 = drivers.front();
+//					a->_pAgentMesh->AttachShader(A2->_pAgentMesh->GetDrawObject()._ShaderProgram,true);
+//					//cout<<"Hatched agent: "<<Name<<endl;
+//				}
 			}
 		}
 	}

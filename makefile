@@ -47,7 +47,8 @@ INCLUDEDIRS=-IGeoGL `pkg-config jsoncpp --cflags` -I$(POLY2TRI_HOME) -I$(FREETYP
 SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/image/*.cpp) \
 $(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/cache/*.cpp) $(wildcard GeoGL/async/*.cpp) \
 $(wildcard GeoGL/net/*.cpp) $(wildcard GeoGL/gui/*.cpp) $(wildcard GeoGL/clipper/*.cpp) \
-$(wildcard GeoGL/abm/*.cpp) $(wildcard GeoGL/abm/sensor/*.cpp) $(wildcard GeoGL/io/*.cpp) $(wildcard usr/*.cpp)
+$(wildcard GeoGL/abm/*.cpp) $(wildcard GeoGL/abm/sensor/*.cpp) $(wildcard GeoGL/io/*.cpp) $(wildcard usr/*.cpp) \
+$(wildcard GeoGL/algorithms/index/*.cpp) $(wildcard GeoGL/gis/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=bin/GeoGLProgram
 

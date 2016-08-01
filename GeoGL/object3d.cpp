@@ -198,3 +198,11 @@ void Object3D::AttachShader(gengine::Shader* pShader, bool Recursive) {
 		}
 	}
 }
+
+/// <summary>
+/// Set the model matrix. Virtual as an object with a mesh should also copy it to the draw object.
+/// </summary>
+/// <param name="matrix">The new matrix to copy into this obejct's model matrix</param>
+void Object3D::SetMatrix(const glm::mat4& matrix) {
+	modelMatrix = matrix;
+}

@@ -36,11 +36,11 @@
 
 //define locations of configuration files
 const std::string ModelWXAirQ::Filename_WXData =
-		"../data/wxairq/metodatapoint/";
-		//"/run/media/richard/SAMSUNG2/metodatapoint-cache/";
+		//"../data/wxairq/metodatapoint/";
+		"/run/media/richard/SAMSUNG2/metodatapoint-cache/";
 const std::string ModelWXAirQ::Filename_AirQData =
-		"../data/wxairq/airquality/";
-		//"/run/media/richard/SAMSUNG2/airquality-cache/";
+		//"../data/wxairq/airquality/";
+		"/run/media/richard/SAMSUNG2/airquality-cache/";
 const std::string ModelWXAirQ::Filename_AirQStationList =
 		"../data/wxairq/aurn-defra-2.csv";
 const std::string ModelWXAirQ::LogFilename =
@@ -67,13 +67,13 @@ void ModelWXAirQ::Setup() {
 	//TODO: need to be able to set the links to no mesh as well.
 
 	//breeds are: wx and airq
-	SetDefaultShape("wx","pyramid4");
+	SetDefaultShape("wx","none"); //was pyramid4
 	SetDefaultSize("wx",12000.0f); //400.0f is a better size
-	SetDefaultShape("airq","cube");
-	SetDefaultSize("airq",12000.0f); //400.0f is a better size
+	SetDefaultShape("airq","sphere"); //was cube
+	SetDefaultSize("airq",50.0f); //400.0f is a better size (was 12000)
 
-	//AnimationDT = AgentTime::FromString("20131231_230000");
-	AnimationDT = AgentTime::FromString("20141231_230000"); //for the 2015 bus strike data
+	AnimationDT = AgentTime::FromString("20131231_230000");
+	//AnimationDT = AgentTime::FromString("20141231_230000"); //for the 2015 bus strike data
 	//NextTimeDT = AgentTime::FromString("20140101_000000");
 
 	//load air q stations here
@@ -274,13 +274,31 @@ void ModelWXAirQ::WriteLogLondonBoxNO2Hourly(std::string TimeCode) {
 }
 
 void ModelWXAirQ::WriteLogLondonBoxNO2(std::string TimeCode) {
-	//this one just write out the current data hour by hour for all sites within the London box. Used to generate the
+	//this one just writes out the current data hour by hour for all sites within the London box. Used to generate the
 	//mean values for the bus strike data in Jan/Feb 2015
+	//NOTE: ONLY BANK HOLIDAYS FOR 2014 are handled correctly.
 	const float MinLat=51.286, MinLon=-0.51, MaxLat=51.692, MaxLon=0.34; //London box
+	//const AgentTime Holidays[] = { AgentTime::FromString("2014") };
+
+	int DayOfWeek = this->AnimationDT.GetDayOfWeek();
+	int WeekDay=1; //1=normal working day, 0=sat, sun or bank holiday
+	if ((DayOfWeek==0)||(DayOfWeek==6)) WeekDay=0; //Sun or Sat
+	//Bank Holidays in 2014: 1 Jan, 18,21 April, 5,26 May, 25 Aug, 25, 26 Dec
+	//TODO: put in Bank Holidays here...
+	int Year,Month,Day;
+	this->AnimationDT.GetYearMonthDay(Year,Month,Day);
+	if (Year==2014) {
+		if ((Month==1)&&(Day==1)) WeekDay=0; //Jan 1st
+		if ((Month==4)&&((Day==18)||(Day==21))) WeekDay=0; //April 18 and 21, Good Friday, Easter Monday
+		if ((Month==5)&&((Day==5)||(Day==26))) WeekDay=0; //May 5 and 26 Bank Holidays
+		if ((Month==8)&&(Day==25)) WeekDay=0; //Aug 25 Bank Holiday
+		if ((Month==12)&&((Day==25)||(Day==26))) WeekDay=0; //Christmas
+	}
 
 	std::ofstream out_log(ModelWXAirQ::LogFilename,std::ios::app);
 
 	out_log<<TimeCode<<"0000"; //it had mmss stripped off earlier
+	out_log<<","<<DayOfWeek<<","<<WeekDay; //write day of week (0..6) followed by whether it's a normal weekday (0|1)
 	std::vector<ABM::Agent*> airq = _agents.Ask("airq");
 	for (std::vector<ABM::Agent*>::iterator it = airq.begin(); it!=airq.end(); it++) {
 		ABM::Agent* a = (*it);
@@ -294,6 +312,7 @@ void ModelWXAirQ::WriteLogLondonBoxNO2(std::string TimeCode) {
 	}
 	out_log<<std::endl;
 }
+
 
 void ModelWXAirQ::Step(double Ticks) {
 	AnimationDT.Add(3600); //it's hourly data
@@ -377,7 +396,7 @@ void ModelWXAirQ::Step(double Ticks) {
 			if (agents.size()==0) {
 				std::cerr<<"Error: Air Quality agent "<<SiteID<<" not found"<<std::endl;
 			}
-			else { //I'm asuming you can't get more than one!
+			else { //I'm assuming you can't get more than one!
 				float O3, NO2, SO2, PM2p5, PM10;
 				//ABM::Agent* a = _agents.Hatch("airq");
 				a=agents[0];
@@ -390,15 +409,19 @@ void ModelWXAirQ::Step(double Ticks) {
 				//O3 index
 				if (SafeFloat(items[4],NO2)) {
 					a->Set<float>("NO2",NO2);
-					//and update NO2 hourly total and counters, used to compute hourly average
-					std::string HH = TimeCode.substr(9,2); //OK, it's a bit of a hack, but it gives you a 2 digit hour string
-					float total = 0, count = 0;
-					if (a->OwnsVariable("NO2Total_"+HH)) total = a->Get<float>("NO2Total_"+HH);
-					if (a->OwnsVariable("NO2Count_"+HH)) count = a->Get<float>("NO2Count_"+HH);
-					total+=NO2;
-					count+=1;
-					a->Set<float>("NO2Total_"+HH,total);
-					a->Set<float>("NO2Count_"+HH,count);
+					//update NO2 hourly based on the type of day i.e. weekday or Sunday
+					int DayOfWeek = AnimationDT.GetDayOfWeek();
+					if (DayOfWeek==0) {
+						//and update NO2 hourly total and counters, used to compute hourly average
+						std::string HH = TimeCode.substr(9,2); //OK, it's a bit of a hack, but it gives you a 2 digit hour string
+						float total = 0, count = 0;
+						if (a->OwnsVariable("NO2Total_"+HH)) total = a->Get<float>("NO2Total_"+HH);
+						if (a->OwnsVariable("NO2Count_"+HH)) count = a->Get<float>("NO2Count_"+HH);
+						total+=NO2;
+						count+=1;
+						a->Set<float>("NO2Total_"+HH,total);
+						a->Set<float>("NO2Count_"+HH,count);
+					}
 				}
 				//NO2 index
 				if (SafeFloat(items[6],SO2)) a->Set<float>("SO2",SO2);
@@ -438,10 +461,10 @@ void ModelWXAirQ::Step(double Ticks) {
 
 	//Second data logging - this writes Hour, sideid1, siteid2...siteidn for
 	//NOTE: we only do this once after all the data has been processed
-	//if (TimeCode=="20141231_23") WriteLogLondonBoxNO2Hourly(TimeCode);
+	if (TimeCode=="20141231_23") WriteLogLondonBoxNO2Hourly(TimeCode);
 
 	//Third data logging - this write hourly data for all London sites to allow a running mean to be calculated for the London box data
-	WriteLogLondonBoxNO2(TimeCode);
+	//WriteLogLondonBoxNO2(TimeCode);
 }
 
 //todo: this needs to be a library function

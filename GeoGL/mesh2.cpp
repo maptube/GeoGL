@@ -1016,8 +1016,17 @@ void Mesh2::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObject& 
 const gengine::DrawObject& Mesh2::GetDrawObject() {
 	//we need to get the modelMatrix from the parent class property and put it into the draw object
 	//TODO: you could pass in a parent modelMatrix and do the pre-multiply here?
-	drawObject._ModelMatrix = this->modelMatrix;
+	drawObject._ModelMatrix = this->modelMatrix; //TODO: Check whether you actually need this any more - it should be redundant as SetMatrix should be used instead of setting matrix property directly
 	return drawObject;
+}
+
+/// <summary>
+/// Set the model matrix. Virtual as an object with a mesh should also copy it to the draw object.
+/// </summary>
+/// <param name="matrix">The new matrix to copy into this obejct's model matrix</param>
+void Mesh2::SetMatrix(const glm::mat4& matrix) {
+	drawObject._ModelMatrix = matrix;
+	modelMatrix = matrix;
 }
 
 /// <summary>
@@ -1169,3 +1178,4 @@ void Mesh2::debug_DrawNormals(const float length) {
 
 	_debugDrawNormalsEnabled=true;
 }
+

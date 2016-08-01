@@ -9,6 +9,7 @@
 
 //forward declarations
 class Vertex;
+class AgentObject;
 
 
 namespace ABM {
@@ -24,7 +25,8 @@ namespace ABM {
 	{
 		//this needs to be private
 	public:
-		Mesh2* _pAgentMesh; //pointer to the mesh representing this agent in the 3D scene graph
+		//Mesh2* _pAgentMesh; //pointer to the mesh representing this agent in the 3D scene graph
+		AgentObject* _pAgentMesh; //pointer to the mesh representing this agent in the 3D scene graph
 	private:
 		glm::dvec3 position; //copy of position so agents without meshes can have position
 		glm::mat4 agentMatrix; //copy of matrix so agents without meshes can have position and orientation

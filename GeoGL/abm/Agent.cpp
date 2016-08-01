@@ -3,6 +3,7 @@
 #include "Agents.h"
 #include "Link.h"
 #include "LogoVariantOwns.h"
+#include "agentobject.h"
 
 #include "graph.h"
 
@@ -152,7 +153,7 @@ namespace ABM {
 		position.z=(float)agentMatrix[3][2];
 		//and set the mesh if it exists
 		if (_pAgentMesh)
-			_pAgentMesh->modelMatrix = agentMatrix;
+			_pAgentMesh->SetMatrix(agentMatrix);
 
 		//original code
 		//TODO: need to handle pAgentMesh null - THIS IS A HACK - need an agent matrix to hold the rotation in addition to a position
@@ -181,7 +182,11 @@ namespace ABM {
 	void Agent::Left(float d)
 	{
 		//TODO: need to handle pAgentMesh null
-		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(-d,0,0));
+		agentMatrix = glm::translate(agentMatrix,glm::vec3(-d,0,0));
+		_pAgentMesh->SetMatrix(agentMatrix);
+
+		//old code
+		//_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(-d,0,0));
 	}
 	
 	/// <summary>
@@ -191,7 +196,11 @@ namespace ABM {
 	void Agent::Right(float d)
 	{
 		//TODO: need to handle pAgentMesh null
-		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(d,0,0));
+		agentMatrix = glm::translate(agentMatrix,glm::vec3(d,0,0));
+		_pAgentMesh->SetMatrix(agentMatrix);
+
+		//old code
+		//_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(d,0,0));
 	}
 	
 	/// <summary>
@@ -202,7 +211,11 @@ namespace ABM {
 	{
 		//TODO: need to handle pAgentMesh null
 		//added this - netlogo isn't 3d
-		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,d,0));
+		agentMatrix = glm::translate(agentMatrix,glm::vec3(0,d,0));
+		_pAgentMesh->SetMatrix(agentMatrix);
+
+		//old code
+		//_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,d,0));
 	}
 	
 	/// <summary>
@@ -213,7 +226,11 @@ namespace ABM {
 	{
 		//TODO: need to handle pAgentMesh null
 		//added this - netlogo isn't 3d
-		_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,-d,0));
+		agentMatrix = glm::translate(agentMatrix,glm::vec3(0,-d,0));
+		_pAgentMesh->SetMatrix(agentMatrix);
+
+		//old code
+		//_pAgentMesh->modelMatrix = glm::translate(_pAgentMesh->modelMatrix,glm::vec3(0,-d,0));
 	}
 
 	/// <summary>
@@ -266,7 +283,7 @@ namespace ABM {
 		Result[3][2]=(float)P1.z;
 		agentMatrix = Result;
 		if (_pAgentMesh)
-			_pAgentMesh->modelMatrix = Result; //and set the mesh matrix if there is actually a mesh
+			_pAgentMesh->SetMatrix(Result); //and set the mesh matrix if there is actually a mesh
 	}
 
 	/// <summary>

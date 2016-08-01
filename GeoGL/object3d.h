@@ -22,7 +22,7 @@ public:
 	std::string Name;
 	BBox bounds; //bounding box
 
-	glm::mat4 modelMatrix; // Store the model matrix (promoted from protected)
+	//glm::mat4 modelMatrix; // Store the model matrix (promoted from protected)
 
 	Object3D();
 	~Object3D();
@@ -41,10 +41,10 @@ public:
 	virtual void AttachShader(gengine::Shader* pShader, bool Recursive);
 	virtual BBox GetGeometryBounds();
 	virtual void ComputeBounds();
-	//TODO: SetMatrix - VERY IMPORTANT!
+	virtual void SetMatrix(const glm::mat4& matrix);
 
 protected:
-	//glm::mat4 modelMatrix; // Store the model matrix
+	glm::mat4 modelMatrix; // Store the model matrix
 
 	//hierarchy
 	std::vector<Object3D*> Children;

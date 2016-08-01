@@ -6,6 +6,7 @@
 
 //#include "opengl4.h"
 #include "Agent.h"
+#include "agentsdefaults.h"
 
 namespace gengine {
 	class Shader;
@@ -24,21 +25,26 @@ namespace ABM {
 	//class Agent;
 
 	//contains all default property settings for an agent breed
-	struct AgentDefaults {
+	/*struct AgentDefaults {
 		bool shape_present;
 		bool size_present;
+		bool colour_present;
 
 		std::string shape;
 		float size;
-	};
+		glm::vec3 colour;
+	};*/
 
-	class Agents
+	class Agents : public AgentsDefaults
 	{
 	private:
 		//storage for defaults, all maps of breed name against the variable
 		//std::unordered_map<std::string,std::string> _defaultShape;
 		//std::unordered_map<std::string,float> _defaultSize;
 		std::map<std::string,struct AgentDefaults> _defaultProperties;
+
+		//TODO: hold buffer for agent shapes here...
+		std::map<std::string,Mesh2*> _AgentMeshes;
 
 		void CreateShapeMesh(Agent& a);
 	public:
@@ -54,6 +60,7 @@ namespace ABM {
 		std::set<std::string> _BreedNames;
 		std::vector<ABM::Agent*> _Agents; //list of all agents?
 
+		void SetAgentShader(gengine::Shader* pShader);
 		void SetAgentDefaults(Agent& A);
 
 		//Agent methods
@@ -64,13 +71,6 @@ namespace ABM {
 		//TODO: you could pass a function to WITH as the selector (visitor pattern)
 		std::vector<ABM::Agent*> Ask(std::string BreedName); //For(breedname) ? i.e. for d in drivers
 		void Owns(void);
-
-		//defaults
-		AgentDefaults GetDefaultProperties(std::string BreedName);
-		void SetDefaultShape(std::string BreedName, std::string ShapeName);
-		std::string GetDefaultShape(std::string BreedName);
-		void SetDefaultSize(std::string BreedName, float Size);
-		float GetDefaultSize(std::string BreedName);
 
 		//extension
 		void SensorTests(ABM::sensor::GeoFence* Sensor); //added, run the sensor test loop

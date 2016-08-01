@@ -19,6 +19,7 @@
 #include "../usr/model_correlate.h"
 #include "../usr/model_networkrail.h"
 #include "../usr/model_wxairq.h"
+#include "../usr/model_traveltowork.h"
 #include "netgraphgeometry.h"
 #include "geojson.h"
 #include "GroundBox.h"
@@ -50,6 +51,9 @@
 #include "abm/sensor/geofence.h"
 
 #include <vector>
+#include <chrono>
+#include <iostream>
+#include <fstream>
 
 //extern "C" {
 //#include "GLFW/glfw3.h"
@@ -139,7 +143,7 @@ static void error_callback(int error, const char* description)
 
 //create a fake version of London
 void fakeLondon(Globe& globe) {
-	SceneGraphType* SG = globe.GetSceneGraph();
+	/*SceneGraphType* SG = globe.GetSceneGraph();
 	Ellipsoid e; //bit naughty, shouldn't globe do the coord conversion
 	Cylinder* eye = new Cylinder(10,100,20);
 	glm::translate(eye->modelMatrix,glm::vec3(0,100,0)); //move it up so the base is on the ground
@@ -158,7 +162,7 @@ void fakeLondon(Globe& globe) {
 	shard->Rotate(-51.504358*3.141592654/180,glm::vec3(0,0,1)); //azimuthal rotation
 	shard->SetPos(shard_pos.x,shard_pos.y,shard_pos.z);
 	shard->AttachShader(globe.GetShader(0),true); //presumably shader 0 is the right one?
-	SG->push_back(shard);
+	SG->push_back(shard);*/
 }
 
 
@@ -294,9 +298,14 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	tn->Setup(); //who's responsible for this? globe or me?
-	globe.AddLayerModel(tn);
+	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	//tn->Setup(); //who's responsible for this? globe or me?
+	//globe.AddLayerModel(tn);
+	//std::vector<ABM::Agent*> nodes = tn->_agents.Ask("node");
+	//std::vector<ABM::Agent*> drivers = tn->_agents.Ask("driver");
+	//std::cout<<"TubeModel: node="<<nodes.size()<<std::endl; //280 stations
+	//std::cout<<"TubeModel: driver="<<drivers.size()<<std::endl; //370 tubes
+	//std::cout<<"TubeModel: Links="<<tn->_links.NumLinks()<<std::endl; //write out the number of links between node - 716
 
 	//Bus Data
 	//ModelBusNetwork* bn = new ModelBusNetwork(globe.GetSceneGraph());
@@ -315,9 +324,14 @@ int main(int argc, char *argv[])
 	//globe.AddLayerModel(cormodel);
 
 	//WX and AirQuality
-	//ModelWXAirQ* wxairq = new ModelWXAirQ(globe.GetSceneGraph());
-	//wxairq->Setup();
-	//globe.AddLayerModel(wxairq);
+	ModelWXAirQ* wxairq = new ModelWXAirQ(globe.GetSceneGraph());
+	wxairq->Setup();
+	globe.AddLayerModel(wxairq);
+
+	//Travel to work model
+	//ModelTravelToWork* traveltowork = new ModelTravelToWork(globe.GetSceneGraph());
+	//traveltowork->Setup();
+	//globe.AddLayerModel(traveltowork);
 
 	//World in WGS84
 	//GeoJSON* geoj = new GeoJSON();
@@ -390,8 +404,13 @@ int main(int argc, char *argv[])
 	//glfwSetScrollCallback(openglContext.window, scroll_callback);
 	//glfwSetKeyCallback(openglContext.window, key_callback);
 
-	globe.LookAt("LondonUnderground");
+	//globe.LookAt("LondonUnderground");
+	//globe.LookAt(/*"_AGENTS_"*/"_LINKS_"); //generic name of agents in scene
+	globe.LookAt("_AGENTS");
 	
+	//TIMING BLOCK
+	//std::ofstream out_lograw("/home/richard/main-stats.txt",std::ios::app);
+	//out_lograw<<"TIMING, fps, modeltime us, rendertime us, drivers, birth, death"<<std::endl;
 
 	while (globe.IsRunning()) {
 		double startTicks = glfwGetTime();
@@ -408,7 +427,9 @@ int main(int argc, char *argv[])
 		//GC->SwapBuffers();
 
 		//model update
+		auto modelStartTicks=std::chrono::high_resolution_clock::now();
 		globe.Step();
+		auto modelEndTicks=std::chrono::high_resolution_clock::now();
 
 		//set viewpoint to first agent
 		//V_3_211 or V_3_202 or D_1_24 or D_1_42
@@ -418,7 +439,9 @@ int main(int argc, char *argv[])
 		//globe.camera.SetCameraMatrix(glm::dmat4(m));
 
 		//rendering
+		auto renderStartTicks=std::chrono::high_resolution_clock::now();
 		globe.RenderScene();
+		auto renderEndTicks=std::chrono::high_resolution_clock::now();
 
 		while( Gtk::Main::events_pending() )
 		Gtk::Main::iteration();
@@ -429,7 +452,17 @@ int main(int argc, char *argv[])
 		globe._debugFPS=fps;
 		//std::string strTime = AgentTime::ToString(tn->AnimationDT);
 		//globe._debugMessage = strTime;
+
+		//TIMING BLOCK
+		//std::cout<<"TIMING,"<<startTicks<<","<<modelStartTicks<<","<<modelEndTicks<<","<<renderStartTicks<<","<<renderEndTicks<<","<<ticksNow<<std::endl;
+		auto modelMS=std::chrono::duration_cast<std::chrono::microseconds>(modelEndTicks-modelStartTicks);
+		auto renderMS=std::chrono::duration_cast<std::chrono::microseconds>(renderEndTicks-renderStartTicks);
+		//std::vector<ABM::Agent*> drivers = tn->_agents.Ask("driver"); //how long does this take?
+		//out_lograw<<AgentTime::ToString(tn->AnimationDT)<<","<<fps<<","<<modelMS.count()<<","<<renderMS.count()<<","<<drivers.size()<<","<<tn->_agents.Birth<<","<<tn->_agents.Death<<std::endl;
 	}
+
+	//TIMING BLOCK
+	//out_lograw.close();
 
 	return 0;
 }

@@ -19,6 +19,24 @@
 /// <param name="Size"></param>
 Turtle::Turtle(float TurtleSize)
 {
+	init(TurtleSize,_VertexFormat);
+}
+
+Turtle::Turtle(float TurtleSize, gengine::VertexFormat VF)
+{
+	init(TurtleSize,VF);
+}
+
+/// <summary>
+/// Destructor
+/// </summary>
+Turtle::~Turtle(void)
+{
+}
+
+void Turtle::init(float TurtleSize, gengine::VertexFormat VF)
+{
+	_VertexFormat = VF;
 	Size = TurtleSize;
 	Colour=glm::vec3(0,0,0); //black turtle
 
@@ -27,7 +45,7 @@ Turtle::Turtle(float TurtleSize)
 		glm::vec3( -0.5, -0.1,   0.5), //0, a
 		glm::vec3(  0.5, -0.1,   0.5), //1, b
 		glm::vec3(  0.0, -0.1,  -0.5), //2, c
-		
+
 		glm::vec3(  0.0, -0.1,  1.0/6.0), //3, + centroid bottom
 		glm::vec3(  0.0,  0.1,  1.0/6.0)  //4, + centroid top
 	};
@@ -39,7 +57,7 @@ Turtle::Turtle(float TurtleSize)
 	glm::vec3 yellow(1.0,1.0,0.0);
 	glm::vec3 cyan(0.0,1.0,1.0);
 	glm::vec3 magenta(1.0,0.0,1.0);
-	
+
 	//top
 	AddFace(p[4],p[2],p[0],green,green,green);
 	AddFace(p[4],p[1],p[2],green,green,green);
@@ -54,11 +72,4 @@ Turtle::Turtle(float TurtleSize)
 	ScaleVertices(Size,Size,Size);
 
 	CreateBuffers();
-}
-
-/// <summary>
-/// Destructor
-/// </summary>
-Turtle::~Turtle(void)
-{
 }

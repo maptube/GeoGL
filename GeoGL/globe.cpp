@@ -138,10 +138,10 @@ Globe::Globe(void)
 
 
 //HACK - turned off ground boxes here!
-//	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-//	GroundBox* buildings = new GroundBox(_workerGC);
-//	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
-//	SceneGraph.push_back(buildings);
+	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
+	GroundBox* buildings = new GroundBox(_workerGC);
+	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
@@ -158,6 +158,12 @@ Globe::Globe(void)
 //	debugCube2->SetColour(glm::vec3(0,0,1.0));
 //	debugCube2->AttachShader(shader,false);
 //	SceneGraph.push_back(debugCube2);
+
+	//create a variant of the diffuse shader for use as a specialised agent shader where a single colour can be passed in
+	//This is shader 4
+	Shader* agentshader = OGLDevice::CreateShaderProgram(
+			"../shaders/agentshader.vert","../shaders/agentshader.frag");
+	_Shaders.push_back(agentshader);
 
 //HACKED perspective and object locations and size to avoid Z fighting
 	//set up the camera
@@ -290,7 +296,7 @@ GeoJSON* Globe::LoadLayerGeoJSON(std::string Filename)
 	
 	//Take the first shader defined by the globe and attach to all the objects we've just created.
 	//Presumably we know that the first defined shader is suitable?
-	//0=default shader, 1=diffuse shader, 2=globe shader, 3=diffuse normal shader
+	//0=default shader, 1=diffuse shader, 2=globe shader, 3=diffuse normal shader, 4=agent shader
 	Shader* pShader = _Shaders[3]; //was 0, then 1
 	geoj->AttachShader(pShader,true);
 	SceneGraph.push_back(geoj);
@@ -320,14 +326,17 @@ void Globe::AddLayerModel(ABM::Model* model)
 	modelLayers.push_back(model);
 
 	//attach shader to the top of the agents hierarchy
-	Shader* pShader = _Shaders[0];
+	//0=default shader, 1=diffuse shader, 2=globe shader, 3=diffuse normal shader, 4=agent shader
+	//Shader* pShader = _Shaders[0];
+	Shader* pShader = _Shaders[4];
 	model->SetAgentShader(pShader);
 	model->_agents._pSceneRoot->AttachShader(pShader,true);
 
 	//attach shader to the top of the links hierarchy
 	//TODO: need to check how the links are actually working - suspect a netgraph geom is being attached to the scene - YES
 	//TODO: check whether this is the same root as the agents? It shouldn't be really - they could have different shaders. - NO
-	model->_links._pSceneRoot->AttachShader(pShader,true);
+	Shader* pLinkShader = _Shaders[0]; //I've attached the original shader which has the colours fixed in a colour buffer attached with the shader
+	model->_links._pSceneRoot->AttachShader(pLinkShader,true);
 }
 
 /// <summary>
@@ -537,9 +546,16 @@ void Globe::RenderScene(void)
 			Object3D* o3d=(*sceneIT);
 			if (o3d->HasGeometry()) {
 				const DrawObject& dobj = o3d->GetDrawObject();
-				glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
+				//glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
+				glm::dvec3 P = o3d->bounds.Centre() - vCam;
+				double R = o3d->bounds.Radius();
+	//TODO: here you need a better on screen test - also need to check bounding sphere complete inclusion (close to planet) as this formula isn't right
 				//OK, this is a box test, which is better, this, sqrt or a d^2 comparison with VERY large numbers? AND we might draw twice.
-				if (((abs(P.x)>=nearClip)&&(abs(P.x)<=farClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
+				double dist = glm::length(P);
+				//test min and max sphere distance, then min and max total containment of frustum
+				if ((((dist-R)>=nearClip)&&((dist-R)<=farClip))||(((dist+R)>=nearClip)&&((dist+R)<=farClip))
+						|| (((dist-R)<=nearClip)&&((dist+R)>=farClip)) )
+				//if (((abs(P.x)>=nearClip)&&(abs(P.x)<=farClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
 					//GC->Render(dobj,*_sdo);
 					o3d->Render(GC,*_sdo);
 			}
@@ -548,7 +564,7 @@ void Globe::RenderScene(void)
 	}
 
 	//if FPS is set, draw the frame rate on the frame buffer - this is set by client code outside globe for each frame
-	if (_debugFPS>0)
+	/*if (_debugFPS>0)
 	{
 		GC->_FontShader->bind();
 	
@@ -569,7 +585,7 @@ void Globe::RenderScene(void)
 		float sx=2.0/512.0; float sy=2.0/512.0; //this is window size
 		GC->RenderText(_FontFace,glm::vec3(0,1.0,0),_debugMessage.c_str(),-1.0+8.0*sx,1.0-50.0*sy,sx,sy); //why not (-1,-1) in device coordinates?
 		GC->_FontShader->unbind();
-	}
+	}*/
 
 	GC->SwapBuffers();
 }
@@ -588,8 +604,13 @@ void Globe::RenderChildren(Object3D* Parent, double nearClip, double farClip)
 		Object3D* child = *childIT;
 		if (child->HasGeometry()) {
 			const DrawObject& dobj = child->GetDrawObject();
-			glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
-			if (((abs(P.x)>=nearClip)&&(abs(P.x)<=nearClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
+			//glm::dvec3 P = glm::dvec3(dobj._ModelMatrix[3])-vCam;
+			glm::dvec3 P = child->bounds.Centre() - vCam;
+			double dist = glm::length(P);
+			double R = child->bounds.Radius();
+			if ((((dist-R)>=nearClip)&&((dist-R)<=farClip))||(((dist+R)>=nearClip)&&((dist+R)<=farClip))
+					|| (((dist-R)<=nearClip)&&((dist+R)>=farClip)) )
+			//if (((abs(P.x)>=nearClip)&&(abs(P.x)<=nearClip))||((abs(P.y)>=nearClip)&&(abs(P.y)<=farClip))||((abs(P.z)>=nearClip)&&(abs(P.z)<=farClip)))
 				//GC->Render(dobj,*_sdo);
 				child->Render(GC,*_sdo);
 		}

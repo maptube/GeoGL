@@ -22,6 +22,8 @@ public:
 	static std::string ToFilePath(const AgentTime& ATime);
 
 	void GetTimeOfDay(int& Hour, int& Minute, int& Second);
+	void GetYearMonthDay(int& Year, int& Month, int& Day);
+	int GetDayOfWeek();
 
 	void Add(const float Seconds);
 	static float DifferenceSeconds(const AgentTime& T1, const AgentTime& T2);

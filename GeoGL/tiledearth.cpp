@@ -19,7 +19,6 @@
 #include "gengine/shaderuniformcollection.h"
 #include "gengine/shaderuniform.h"
 
-using namespace std;
 using namespace gengine;
 
 //these constants define the resolution of the data at each LOD level and the number of levels created
@@ -29,6 +28,7 @@ const int TiledEarth::LODHeightSegments=40; //40
 
 TiledEarth::TiledEarth(void)
 {
+	Name="TiledEarth";
 	_ellipsoid = Ellipsoid();
 	_Tau=1.0; //~1.0-2.0? This is the screen error tolerance which has to be acceptable to draw an LOD chunk, otherwise the child chunks are considered instead
 	//_Tau=10.0; //for mars
@@ -48,9 +48,12 @@ TiledEarth::TiledEarth(void)
 	_root = BuildChunkedLOD(LODDepth, LODWidthSegments, LODHeightSegments, 0, 0, 0, -glm::half_pi<double>(), -glm::pi<double>(), glm::half_pi<double>(), glm::pi<double>()); //(lat=-pi/2..+pi/2, lon=-pi..pi)
 	//_root is the top of the progressive mesh tree. Can't use Children of this object as the standard scene render would
 	//try to draw all of them!
-	//bounds=_root->bounds;
-	cout<<"TiledEarth Mesh Count="<<_MeshCount<<endl;
-	cout<<"TiledEarth R="<<_root->bounds.Radius()<<endl;
+	//need to set the bounds to a cube containing the earth, otherwise it won't draw in the scene
+	bounds.ExpandToIncludePoint(-_ellipsoid.A(),-_ellipsoid.B(),-_ellipsoid.C());
+	bounds.ExpandToIncludePoint(_ellipsoid.A(),_ellipsoid.B(),_ellipsoid.C());
+	std::cout<<"TiledEarth R="<<bounds.Radius()<<std::endl;
+	std::cout<<"TiledEarth Mesh Count="<<_MeshCount<<std::endl;
+	std::cout<<"TiledEarth _root R="<<_root->bounds.Radius()<<std::endl;
 }
 
 
@@ -241,7 +244,8 @@ std::string MakeTextureTileString(int Z,int X,int Y,const std::string& base)
 {
 	std::stringstream ss;
 	//ss<<"../data/BlueMarble/land_ocean_ice_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
-	ss<<"../data/BlueMarble/bluemarble_jan04/world_topo_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	//ss<<"../data/BlueMarble/bluemarble_jan04/world_topo_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
+	ss<<"../data/BlueMarble/world_topo_bathy_feb04/world_topo_bathy_feb04_QUAD_"<<Z<<"_"<<X<<"_"<<Y<<".jpg";
 	return ss.str();
 }
 
@@ -342,7 +346,7 @@ void TiledEarth::RenderLOD(gengine::GraphicsContext* GC,const gengine::SceneData
 	}
 	else {
 		//recursion
-		for (vector<Object3D*>::const_iterator childIT=mesh->BeginChild(); childIT!=mesh->EndChild(); ++childIT) {
+		for (std::vector<Object3D*>::const_iterator childIT=mesh->BeginChild(); childIT!=mesh->EndChild(); ++childIT) {
 			RenderLOD(GC,sdo,(TiledEarthNode*)*childIT,K,Delta/2.0);
 		}
 	}

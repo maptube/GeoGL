@@ -6,6 +6,7 @@
 #include "gengine/shader.h"
 
 //geometry
+#include "agentobject.h"
 #include "turtle.h"
 #include "sphere.h"
 #include "cuboid.h"
@@ -37,6 +38,18 @@ namespace ABM {
 		//initialise static pointer from Agent to Agents (this)
 		//This is necessary so that an Agent can hatch another Agent, although Agents needs to keep the list
 		Agent::_pParentAgents=this;
+
+		//create agent mesh lookup - a better way of doing this might be to create the shape when the breed is created i.e. dynamically,
+		//but, since there are a limited number at the moment, we might as well do it here...
+		_AgentMeshes["turtle"]=new Turtle(1.0);
+		_AgentMeshes["sphere"]=new Sphere(1.0,10,10);
+		_AgentMeshes["cube"]=new Cuboid(1.0,1.0,1.0);
+		_AgentMeshes["cylinder"]=new Cylinder(1.0,1.0,8);
+		_AgentMeshes["pyramid4"]=new Pyramid4(1.0,1.0,1.0);
+		//now go through all the template shape meshes and attach the shader
+		for (std::map<std::string,Mesh2*>::iterator it=_AgentMeshes.begin(); it!=_AgentMeshes.end(); ++it) {
+			it->second->AttachShader(agentShader,false);
+		}
 	}
 
 	/// <summary>Destructor</summary>
@@ -45,6 +58,17 @@ namespace ABM {
 		//free all the created agent structures
 		for (std::vector<Agent*>::iterator it=_Agents.begin(); it!=_Agents.end(); ++it) {
 			delete *it;
+		}
+		//delete mesh shape templates
+		for (std::map<std::string,Mesh2*>::iterator it=_AgentMeshes.begin(); it!=_AgentMeshes.end(); ++it) {
+			delete it->second;
+		}
+	}
+
+	void Agents::SetAgentShader(gengine::Shader* pShader) {
+		agentShader=pShader;
+		for (std::map<std::string,Mesh2*>::iterator it=_AgentMeshes.begin(); it!=_AgentMeshes.end(); ++it) {
+			it->second->AttachShader(agentShader,false);
 		}
 	}
 
@@ -83,23 +107,38 @@ namespace ABM {
 	/// </summary>
 	void Agents::CreateShapeMesh(Agent& a)
 	{
-		Mesh2* mesh;
+		//original code that creates a new mesh for each agent in the scene
+		//NEED TO KEEP THIS FOR PERFORMANCE TESTS
+		//Mesh2* mesh;
+		//std::string ShapeName = GetDefaultShape(a._BreedName);
+		//if ((ShapeName.length()==0)||(ShapeName=="none"))
+		//	mesh = nullptr;
+		//else if (ShapeName=="turtle")
+		//	mesh = new Turtle(a.size); //HACK! need default turtle size, in fact defaults for all of these!
+		//else if (ShapeName=="sphere")
+		//	mesh = new Sphere(a.size,10,10);
+		//else if (ShapeName=="cube")
+		//	mesh = new Cuboid(a.size,a.size,a.size);
+		//else if (ShapeName=="cylinder")
+		//	mesh = new Cylinder(a.size,a.size,8); //that's not a cylinder, that's an octagon
+		//else if (ShapeName=="pyramid4")
+		//	mesh = new Pyramid4(a.size,a.size,a.size);
+		//
+		//if (mesh!=nullptr)
+		//	mesh->AttachShader(agentShader,false);
+		//a._pAgentMesh = mesh; //REMEMBER, you still have to add this to the scene and give the mesh a unique name
+
+		//new code that puts an AgentObject into the scene that uses a shared mesh object
+		AgentObject* mesh;
 		std::string ShapeName = GetDefaultShape(a._BreedName);
 		if ((ShapeName.length()==0)||(ShapeName=="none"))
 			mesh = nullptr;
-		else if (ShapeName=="turtle")
-			mesh = new Turtle(a.size); //HACK! need default turtle size, in fact defaults for all of these!
-		else if (ShapeName=="sphere")
-			mesh = new Sphere(a.size,10,10);
-		else if (ShapeName=="cube")
-			mesh = new Cuboid(a.size,a.size,a.size);
-		else if (ShapeName=="cylinder")
-			mesh = new Cylinder(a.size,a.size,8); //that's not a cylinder, that's an octagon
-		else if (ShapeName=="pyramid4")
-			mesh = new Pyramid4(a.size,a.size,a.size);
-
-		if (mesh!=nullptr)
-			mesh->AttachShader(agentShader,false);
+		else {
+			//TODO: need to trap the ShapeName not found here!!!!
+			mesh = new AgentObject(_AgentMeshes[ShapeName]);
+			mesh->SetSize(a.size,a.size,a.size);
+			//attach shader here? should have already been done?
+		}
 		a._pAgentMesh = mesh; //REMEMBER, you still have to add this to the scene and give the mesh a unique name
 	}
 
@@ -210,7 +249,7 @@ namespace ABM {
 	/// Get the properties structure for this Breed, or return an empty one if it doesn't already exist
 	/// </summary>
 	/// <returns>Either an existing agent defaults struct, or a new empty one if it didn't already exist.</returns>
-	AgentDefaults Agents::GetDefaultProperties(std::string BreedName)
+/*	AgentDefaults Agents::GetDefaultProperties(std::string BreedName)
 	{
 		struct AgentDefaults props;
 		props.shape_present=props.size_present=false;
@@ -270,6 +309,21 @@ namespace ABM {
 		return 0.1f;
 	}
 
+	void Agents::SetDefaultColour(std::string BreedName, glm::vec3 Colour)
+	{
+		struct AgentDefaults props = GetDefaultProperties(BreedName);
+		props.colour_present=true;
+		props.colour=Colour;
+		_defaultProperties[BreedName]=props;
+	}
+
+	glm::vec3 Agents::GetDefaultColour(std::string BreedName)
+	{
+		struct AgentDefaults props = GetDefaultProperties(BreedName);
+		if (props.colour_present) return props.colour;
+		return glm::vec3(1.0f,1.0f,1.0f);
+	}
+*/
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//end of defaults get/set
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

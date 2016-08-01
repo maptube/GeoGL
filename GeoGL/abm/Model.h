@@ -103,6 +103,7 @@ namespace ABM {
 		//defaults
 		void SetDefaultShape(std::string BreedName, std::string ShapeName);
 		void SetDefaultSize(std::string BreedName, float Size);
+		void SetDefaultColour(std::string BreedName, glm::vec3 Colour);
 
 		//breeds (Agents)
 		void Breed(std::string singular, std::string plural); //TODO: create a breed with the given singular and plural names e.g. "node", "nodes" - not really necessary

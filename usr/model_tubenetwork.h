@@ -10,6 +10,7 @@
 #include <ctime>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 
 //#include "graph.h"
 #include "netgraphgeometry.h"
@@ -30,13 +31,39 @@ struct tube_anim_record {
 	std::string StationCode;
 	float TimeToStation;
 	short Direction;
+	short DestinationCode; //added for dm
+	std::string Platform; //added for dm
 };
+
+struct dm_route_record {
+	//int TimePoint; //1min
+	int DestinationCode;
+	//int trip_num;
+	//int set_num;
+	std::string OriginStationCode;
+	std::string DestinationStationCode;
+	int Count;
+};
+
+//TODO: how about an event definition for the analytics? time, trip, set, station code, platform, destination code, (time to station?)
 
 /**
 * If you create one of these then you're creating a real working tube network
 */
 class ModelTubeNetwork : public ABM::Model {
 protected:
+	//datamining tables
+	//std::unordered_map<int,std::unordered_set<std::string>> DMRoutes; //i.e. 123->{WIM,WPK,STH...UPM} set of stations identified by a destination code
+	//std::map<int,std::unordered_map<std::string,std::vector<dm_route_record>>> DMRoutes; //i.e. 123->{1_76->[WIM,WPK,STH...UPM] } set of stations identified by a destination code and vehicle id (NOTE dest unique for lines i.e. not D_1_76)
+	//std::map<std::string,std::vector<dm_route_record>> DMRoutes; //i.e. 123_1_76->[ (WIM,WPK), (WPK,STH), (STH,...), (...,UPM) ] unique vehicle identifier of dest_trip_set with a list of origin and destination links and counts
+	std::map<int,std::vector<dm_route_record>> DMRoutes; //i.e. 123->[ (WIM,WPK), (WPK,STH), (STH,...), (...,UPM) ]
+	std::map<int,std::unordered_map<char,int>> DMLines; //i.e. 123->{ D->100, P->50, C->10, V->20 } possible lines for a destination code with a count for each (TODO: look at Frugal max count algorithm?)
+
+
+	//debug+mine
+	void datamineDestinationCodes();
+	void dataminePrintDestinationCodes();
+	void dataminePrintRoutes();
 	void DisplayStatistics();
 public:
 	static const std::string Filename_StationCodes; //station locations
@@ -55,9 +82,10 @@ public:
 	time_t FrameTimeN; //frame of animation data that we're currently working towards i.e. next frame after time now
 	float AnimationTimeMultiplier; //so you can run the animation at 2x, 4x, anything you like
 
+	//old code not used now in favour of node agents and links graph
 	//Graph* tube_graph;
-	std::unordered_map<char,Graph*> tube_graphs; //one for each line
-	std::unordered_map<std::string,struct GraphNameXYZ>* tube_stations;
+	//std::unordered_map<char,Graph*> tube_graphs; //one for each line
+	//std::unordered_map<std::string,struct GraphNameXYZ>* tube_stations;
 
 	//animation
 	std::map<time_t,std::map<std::string,struct tube_anim_record>> tube_anim_frames;
@@ -68,14 +96,15 @@ public:
 	~ModelTubeNetwork();
 	unsigned int LineCodeToColour(char Code);
 	glm::vec3 LineCodeToVectorColour(char Code);
+	void loadStationsOLD(std::string Filename);
 	void loadStations(std::string Filename);
 	void loadLinks(std::string NetworkJSONFilename);
 	void loadPositions(std::string Filename);
 	void LoadAnimatePositions();
 	ABM::Agent* HatchAgentFromAnimationRecord(const std::string& UniqueName, const tube_anim_record& rec);
 	void LoadAnimation(const std::string& DirectoryName);
-	NetGraphGeometry* GenerateLineMesh(char LineCode);
-	Object3D* GenerateMesh();
+	//NetGraphGeometry* GenerateLineMesh(char LineCode);
+	//Object3D* GenerateMesh();
 
 	bool PositionAgent(ABM::Agent* agent,char LineCode, float TimeToStation, std::string StationName, int Direction);
 

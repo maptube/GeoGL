@@ -302,4 +302,72 @@ public:
 		}
 
 	}
+
+	///////////////////////
+
+	/*
+	 * This is a copy of the Flatten functionality in Graph, but with an added complication of only following links belonging to
+	 * the given BreedName. This is a version of flatten that is Link aware. It is necessary because the vertices (Agents) which the links
+	 * connect are shared between all breed graphs, resulting in incorrect links otherwise.
+	 *
+	 * Flatten a graph into a list of vertices with contiguous segments connected as a path and a NULL meaning break path
+	 * and start a new one.
+	 * In other words, build a list of lines which we can use to draw the graph from.
+	 * TODO: you could add something to find the root of the tree, as this algorithm tends to start in the middle and work out, resulting
+	 * in a line that's broken into two parts. (see Knuth, finding root of tree in part 1).
+	 */
+	std::vector<Vertex*> Flatten(std::string Label)
+	{
+		std::vector<Vertex*> Result;
+
+		//see Knuth... almost certainly
+		//set all vertices to not visited
+		int numverts = _Vertices.size();
+		int numedges = _Edges.size();
+		for (std::unordered_map<int,Vertex*>::iterator vIT=_Vertices.begin(); vIT!=_Vertices.end(); ++vIT) {
+			vIT->second->_IsVisited=false;
+		}
+
+		//for all vertices not visited, FollowLinks until a dead end, setting isvisited as you go
+		//This is only any use for disconnected parts of the network - FollowLinks must be recursive
+		//Result.push_back(std::vector<Vertex*>());
+		for (std::unordered_map<int,Vertex*>::iterator vIT=_Vertices.begin(); vIT!=_Vertices.end(); ++vIT) {
+			Vertex* V = vIT->second;
+			if (!V->_IsVisited) {
+				FollowLinks(V,Label,Result);
+			}
+		}
+
+		return Result;
+	}
+
+	/*
+	 * For the recursive Flatten, following a label name
+	 * Recursive depth first polyline follower to turn a minimum spanning tree into a list of polylines.
+	 * Follow links that haven't already been visited until you hit a dead end.
+	 */
+	void FollowLinks(Vertex* V,std::string Label,std::vector<Vertex*>& paths)
+	{
+		if ((V->_IsVisited)||(V->_OutEdges.size()==0)) {
+			//guard case, we've hit a dead end if we come to an already visited node, or one with no out links
+			//NOTE: this is not the only terminal node case
+			V->_IsVisited=true;
+			paths.push_back(V);
+			paths.push_back(NULL);
+			return; //probably not necessary as there is only one block
+		}
+		else {
+			V->_IsVisited=true;
+			for (std::list<Edge*>::iterator eIT = V->_OutEdges.begin(); eIT!=V->_OutEdges.end(); ++eIT) {
+				//testing edge label here so we only follow a specific labelled edge (e.g. ABM Link Breeds)
+				if ((*eIT)->_Label==Label) {
+					paths.push_back(V);
+					FollowLinks((*eIT)->_ToVertex,Label,paths);
+				}
+			}
+		}
+
+	}
+	////////////////////////////////////////////////////////////
+
 };

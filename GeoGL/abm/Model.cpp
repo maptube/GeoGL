@@ -45,11 +45,13 @@ namespace ABM {
 	}
 
 	/// <summary>
-	/// Sets the shader which is attached to any new agents that are created.
+	/// Sets the shader which is attached to any new agents that are created. Need to do this by passing the change on to the Agents object so that the
+	/// shader can be changed on the template objects which have already been created in the model and agents constructors.
 	/// TODO: you could make this an agent breed default if you want to be really clever?
 	/// </summary>
 	void Model::SetAgentShader(gengine::Shader* pShader) {
-		_agents.agentShader=pShader;
+		//_agents.agentShader=pShader;
+		_agents.SetAgentShader(pShader);
 	}
 
 	/// <summary>Initialisation of model - probably override this</summary>
@@ -105,8 +107,11 @@ namespace ABM {
 		//set-default-shape [breed] [string]
 
 		//how do you do this? you really need to intercept BreedName=turtle of links and send the request to the correct one.
-		//for now, just pass it on to the _agents map
+		//for now, just pass it on to the _agents map and the _links map and let them figure out whether to store it or not.
+		//TODO: need to make this more sensible by only setting defaults on pre-existing breeds, that way you don't store them twice.
+		//The current implementation of agentsdefaults is to create if not already existing.
 		_agents.SetDefaultShape(BreedName,ShapeName);
+		_links.SetDefaultShape(BreedName,ShapeName);
 	}
 
 	void Model::SetDefaultSize(std::string BreedName, float Size)
@@ -116,7 +121,13 @@ namespace ABM {
 		//set-default-size links [string]
 		//set-default-size [breed] [string]
 		_agents.SetDefaultSize(BreedName,Size);
+		_links.SetDefaultSize(BreedName,Size);
+	}
 
+	void Model::SetDefaultColour(std::string BreedName, glm::vec3 Colour)
+	{
+		_agents.SetDefaultColour(BreedName,Colour);
+		_links.SetDefaultColour(BreedName,Colour);
 	}
 
 	void Model::Breed(std::string singular, std::string plural)

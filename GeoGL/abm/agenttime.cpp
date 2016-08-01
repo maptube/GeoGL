@@ -127,6 +127,27 @@ void AgentTime::GetTimeOfDay(int& Hour, int& Minute, int& Second)
 	Second = tmp->tm_sec;
 }
 
+/// <summary>
+/// Get the year, month and day, so a return of 2016, 1, 13 would be 13th Jan 2016
+/// </summary>
+void AgentTime::GetYearMonthDay(int& Year, int& Month, int& Day)
+{
+	struct tm *tmp = localtime(&_DT); //is local right here? should it be gmtime as above?
+	Year = tmp->tm_year+1900;
+	Month = tmp->tm_mon+1;
+	Day = tmp->tm_mday;
+}
+
+/// <summary>
+/// Returns the day of the week as 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+/// (tm struct tm_wday return).
+/// </summary>
+int AgentTime::GetDayOfWeek()
+{
+	struct tm *tmp = localtime(&_DT);
+	return tmp->tm_wday;
+}
+
 void AgentTime::Add(const float Seconds)
 {
 	int Quotient = (int)floor(Seconds+_fraction); //number of seconds requested plus accumulated fraction so far, which we use to get the whole number of seconds
