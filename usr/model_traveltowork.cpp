@@ -33,7 +33,7 @@ void ModelTravelToWork::Setup() {
 	SetDefaultSize("worker",5000);
 	SetDefaultShape("msoa","none"); //was cube
 	SetDefaultSize("msoa",100);
-	NumberOfAgents=5000;
+	NumberOfAgents = 5000;
 
 
 	//now load the data - msoa node positions and origin destination data
@@ -92,7 +92,7 @@ void ModelTravelToWork::CreateRandomJourney() {
 	//double x = uniform_x(e);
 
 	//std::uniform_int_distribution<int> uniform_trips {0,TotalTripCount};
-	std::uniform_int_distribution<int> uniform_trips {0,trips.size()};
+	std::uniform_int_distribution<int> uniform_trips {0,(int)trips.size()};
 	//std::default_random_engine e;
 	int x = uniform_trips(e);
 

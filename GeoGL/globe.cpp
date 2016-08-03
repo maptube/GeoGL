@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "gengine/ogldevice.h"
 #include "gengine/graphicscontext.h"
@@ -38,7 +39,7 @@
 
 #include "geojson.h"
 
-#include "gui/menu.h"
+//#include "gui/menu.h"
 
 using namespace std;
 
@@ -205,10 +206,10 @@ Globe::Globe(void)
 /// </summary>
 void Globe::InitialiseMenu(void)
 {
-	_Menu = new geogl::gui::Menu(GC);
-	geogl::gui::MenuItem item;
-	item.DisplayText="File";
-	_Menu->MenuRoot.Items.push_back(item);
+	//_Menu = new geogl::gui::Menu(GC);
+	//geogl::gui::MenuItem item;
+	//item.DisplayText="File";
+	//_Menu->MenuRoot.Items.push_back(item);
 }
 
 
@@ -526,7 +527,7 @@ void Globe::RenderScene(void)
 
 	//TODO: need to get this gl reference out!!!
 	//glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
-	glClearColor(0,0,0,0); //space is black
+	glClearColor(1.0,0,0,0); //space is black
 	GC->Clear();
 
 	glm::dvec3 vCam = camera.GetCameraPos();

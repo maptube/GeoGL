@@ -7,6 +7,11 @@
 
 #pragma once
 
+#ifdef WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
 #include <string>
 
 namespace geogl {

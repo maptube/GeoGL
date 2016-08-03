@@ -72,8 +72,10 @@
 //////////////////////////////////////////////////////////////
 //Windows include block - probably need WIN32 and WIN64!
 #ifdef WIN32
+//NOTE: VS2015 usually builds to $(SolutionDir)$(Platform)\$(Configuration)\ but this means the relative paths are wrong, so I've changed this to $(SolutionDir)build which means ..\fonts and shaders will find the files
 
 // Include Windows functions
+#define NOMINMAX
 #include <Windows.h>
 
 // Include input and output operations
@@ -93,13 +95,20 @@
 //#include <SDL_opengl.h>
 //#include <glext.h>????
 //#include <GL/glxew.h>
-#pragma comment(lib, "glew32.lib")
+//WIN32
+//#pragma comment(lib, "glew32.lib")
+//WIN64
+#pragma comment(lib, "glew.lib")
 #pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glfw3.lib")
+////#pragma comment(lib, "glfw3.lib")
 //#pragma comment(lib, "SDL2.lib")
 //#pragma comment(lib, "SDL2main.lib")
 
+#pragma comment(lib, "libcurl.lib")
+
 #pragma comment(lib, "poly2tri.lib")
+
+#pragma comment(lib, "jsoncpp.lib")
 
 #endif
 ///////////////////////////////////////////////////////////////////
@@ -109,10 +118,10 @@
 #ifdef WIN64
 
 // Include Windows functions
-#include <Windows.h>
+////#include <windows.h>
 
 // Include input and output operations
-#include <iostream>
+////#include <iostream>
 
 //OpenGL and GLEW Header Files and Libraries
 //This is quite a complicated set of includes where the ordering is critical. GLEW and WGLEW must be included before SDL_opengl.h as this will
@@ -121,20 +130,20 @@
 //NO_SDL_GEXT #define is to defer all GL extension processing to GLEW i.e. I want to control it myself and not let SDL do anything.
 //Then come the implementation dependent versions of GLEW, WGLEW etc which need to be included based on operating system.
 //So why are we using SDL? To make the application Windows/Linux portable (maybe Android?).
-#include <GL/glew.h>
-#include <GL/wglew.h>
-#include <GLFW/glfw3.h>
+////#include <GL/glew.h>
+////#include <GL/wglew.h>
+////#include <GLFW/glfw3.h>
 //#include <glext.h>????
 //#include <GL/glxew.h>
 
 //OK, so this is completely weird - OpenGL 64 bit is labelled opengl32.dll and it's in system32 - the real 32 bit version is in wow64 and is also labelled with opengl32.dll
-#pragma comment(lib, "glew32.lib")
-#pragma comment(lib, "opengl32.lib")
-#pragma comment(lib, "glfw3.lib")
+////#pragma comment(lib, "glew32.lib")
+////#pragma comment(lib, "opengl32.lib")
+////#pragma comment(lib, "glfw3.lib")
 
-#pragma comment(lib, "jpeg.lib")
+////#pragma comment(lib, "jpeg.lib")
 
-#pragma comment(lib, "poly2tri.lib")
+////#pragma comment(lib, "poly2tri.lib")
 
 #endif
 
@@ -154,7 +163,7 @@
 //Freetype includes for OpenGL fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#pragma comment(lib, "freetype253_D.lib")
+////#pragma comment(lib, "freetype253_D.lib")
 ///////////////////////////////////////////////////////////////////
 
 // GLM include files

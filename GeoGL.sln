@@ -1,34 +1,36 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeoGL", "GeoGL\GeoGL.vcxproj", "{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeoGL", "GeoGL.vcxproj", "{C3DD575B-67DB-48D1-86A9-593F33110EB2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "poly2tri", "poly2tri\poly2tri.vcxproj", "{8268C4CF-6D01-44BA-B0C3-A38D006E596D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
-		Release|Win32 = Release|Win32
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Debug|Win32.Build.0 = Debug|Win32
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Debug|x64.ActiveCfg = Debug|x64
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Debug|x64.Build.0 = Debug|x64
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Release|Win32.ActiveCfg = Release|Win32
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Release|Win32.Build.0 = Release|Win32
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Release|x64.ActiveCfg = Release|Win32
-		{71FF840F-1E33-4127-B3BC-D4DDC2832A8B}.Release|x64.Build.0 = Release|Win32
-		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Debug|Win32.Build.0 = Debug|Win32
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Debug|x64.ActiveCfg = Debug|x64
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Debug|x64.Build.0 = Debug|x64
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Debug|x86.ActiveCfg = Debug|Win32
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Debug|x86.Build.0 = Debug|Win32
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Release|x64.ActiveCfg = Release|x64
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Release|x64.Build.0 = Release|x64
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Release|x86.ActiveCfg = Release|Win32
+		{C3DD575B-67DB-48D1-86A9-593F33110EB2}.Release|x86.Build.0 = Release|Win32
 		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Debug|x64.ActiveCfg = Debug|x64
 		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Debug|x64.Build.0 = Debug|x64
-		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|Win32.ActiveCfg = Release|Win32
-		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|Win32.Build.0 = Release|Win32
-		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|x64.ActiveCfg = Release|Win32
-		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|x64.Build.0 = Release|Win32
+		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Debug|x86.ActiveCfg = Debug|Win32
+		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Debug|x86.Build.0 = Debug|Win32
+		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|x64.ActiveCfg = Release|x64
+		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|x64.Build.0 = Release|x64
+		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|x86.ActiveCfg = Release|Win32
+		{8268C4CF-6D01-44BA-B0C3-A38D006E596D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

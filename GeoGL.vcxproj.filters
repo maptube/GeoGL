@@ -1,0 +1,678 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Header Files\abm">
+      <UniqueIdentifier>{2d710c46-b734-46c8-9e3a-a7300eaa2a80}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
+    <Filter Include="Source Files\abm">
+      <UniqueIdentifier>{9d465727-3f5e-4bc6-b9a4-0bf11da969b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\abm\sensor">
+      <UniqueIdentifier>{c155c854-14a5-4615-bc59-1ad575bfb300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\abm\sensor">
+      <UniqueIdentifier>{03eeadd7-ce1b-40c2-8865-cf3a4d3c1991}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\async">
+      <UniqueIdentifier>{3a155f30-405a-41fc-a676-1005cad1f4d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\async">
+      <UniqueIdentifier>{362d6bdc-8b6e-4034-8bbd-0169d00d5388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cache">
+      <UniqueIdentifier>{c423192e-5ff6-496a-a882-029925bb33d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cache">
+      <UniqueIdentifier>{760b4aef-84c1-4129-b61e-d9be96bcffb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\clipper">
+      <UniqueIdentifier>{9fdc2b6b-7044-40fc-ba62-14596e878813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\clipper">
+      <UniqueIdentifier>{73111208-8523-4b1c-b807-6a5cd9a764d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\io">
+      <UniqueIdentifier>{c53ec930-48df-4262-b4bd-c3b190870009}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\io">
+      <UniqueIdentifier>{c904b95d-46c0-4420-b093-d4e26bf9ae45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\net">
+      <UniqueIdentifier>{56fd2726-911b-4333-b40c-9870b80489f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\net">
+      <UniqueIdentifier>{2e4d1d86-4d9b-4f29-8dc7-d4538f3a2bb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\text">
+      <UniqueIdentifier>{fea424b7-91b7-492a-b19b-630b510d4c58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\text">
+      <UniqueIdentifier>{e018eb9a-e5d9-4cc7-9505-c843ec553b45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gengine">
+      <UniqueIdentifier>{c045aa37-5e83-4da8-9f0d-02929ca6013d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gengine">
+      <UniqueIdentifier>{0d0087cc-a3eb-46a2-832e-ef8b2ea72647}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gengine\events">
+      <UniqueIdentifier>{889a91c9-2f63-42a2-9efb-c2b2383d1bdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gengine\events">
+      <UniqueIdentifier>{33dff719-f871-4a03-89e2-1e4d1a7a2818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gengine\image">
+      <UniqueIdentifier>{d02141c3-92c7-4726-89ce-fa00476bfa51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gengine\image">
+      <UniqueIdentifier>{45341a64-06be-4be3-b81b-fb86d4f91140}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{ea68b2a2-0628-44e6-8eb0-bc744c95253b}</UniqueIdentifier>
+      <Extensions>*.frag;*.vert</Extensions>
+    </Filter>
+    <Filter Include="Header Files\usr">
+      <UniqueIdentifier>{9a0c3eb2-435e-4071-83fa-350f33a78128}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\usr">
+      <UniqueIdentifier>{231c0c87-6966-4bb0-a87a-39f944a53202}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui">
+      <UniqueIdentifier>{ec09a9fb-1037-4fe5-9b06-738ca9e2f35c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{616497cd-4aee-4075-a4c5-4389289322c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\algorithms">
+      <UniqueIdentifier>{bc613c98-f2f4-4511-89e8-e1bd100fbac3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\algorithms\index">
+      <UniqueIdentifier>{d8dd52de-5cc6-4ec9-9914-f489cde734c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\algorithms">
+      <UniqueIdentifier>{ad6283f2-c966-46eb-8ee5-5c72a470bf8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\algorithms\index">
+      <UniqueIdentifier>{b422fb50-d4f0-48ea-9412-8c1ac6781ba2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gis">
+      <UniqueIdentifier>{c44b2c1d-1ac2-4438-88b0-6adb29f5fdca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gis">
+      <UniqueIdentifier>{ec5caa2f-f1ec-4c9d-aa98-b8d324dea72d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="geogl\bbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\cuboid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\cylinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\DebugUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\ellipsoid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\EllipsoidOrbitController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\extrudegeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\FlyController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\geojson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\globe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\GroundBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\LeapController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\lod.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\mesh2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\meshcube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\netgraphgeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\object3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\OrbitController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\pyramid4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\sierpinskipyramid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\tiledearth.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\trefoilknot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\triangulator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\tubegeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\turtle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\Agent.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\Agents.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\agenttime.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\sensor\geofence.cpp">
+      <Filter>Source Files\abm\sensor</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\Link.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\Model.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\Links.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\LogoVariantOwns.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\abm\utils.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\async\meshworker.cpp">
+      <Filter>Source Files\async</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\async\messagequeue.cpp">
+      <Filter>Source Files\async</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\async\messagequeueeventargs.cpp">
+      <Filter>Source Files\async</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\async\worker.cpp">
+      <Filter>Source Files\async</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\async\workermsg.cpp">
+      <Filter>Source Files\async</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\cache\DataCache.cpp">
+      <Filter>Source Files\cache</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\cache\datacacheworker.cpp">
+      <Filter>Source Files\cache</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\clipper\clipper.cpp">
+      <Filter>Source Files\clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\io\directory.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\io\file.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\net\httprequest.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\text\TextUtilities.cpp">
+      <Filter>Source Files\text</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\Camera.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\graphicscontext.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\indexbuffer.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\ogldevice.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\renderstate.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\scenedataobject.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\shader.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\shaderattribute.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\shaderattributecollection.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\shaderuniform.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\shaderuniformcollection.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\texture2d.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\textureunits.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\vertexarrayobject.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\vertexbuffer.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\vertexdata.cpp">
+      <Filter>Source Files\gengine</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\events\EventListener.cpp">
+      <Filter>Source Files\gengine\events</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\events\EventManager.cpp">
+      <Filter>Source Files\gengine\events</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\image\image2d.cpp">
+      <Filter>Source Files\gengine\image</Filter>
+    </ClCompile>
+    <ClCompile Include="geogl\gengine\image\jpeg.cpp">
+      <Filter>Source Files\gengine\image</Filter>
+    </ClCompile>
+    <ClCompile Include="usr\model_busnetwork.cpp">
+      <Filter>Source Files\usr</Filter>
+    </ClCompile>
+    <ClCompile Include="usr\model_correlate.cpp">
+      <Filter>Source Files\usr</Filter>
+    </ClCompile>
+    <ClCompile Include="usr\model_networkrail.cpp">
+      <Filter>Source Files\usr</Filter>
+    </ClCompile>
+    <ClCompile Include="usr\model_tubenetwork.cpp">
+      <Filter>Source Files\usr</Filter>
+    </ClCompile>
+    <ClCompile Include="usr\model_wxairq.cpp">
+      <Filter>Source Files\usr</Filter>
+    </ClCompile>
+    <ClCompile Include="GeoGL\algorithms\index\pointquadtree.cpp">
+      <Filter>Source Files\algorithms\index</Filter>
+    </ClCompile>
+    <ClCompile Include="GeoGL\gis\envelope2d.cpp">
+      <Filter>Source Files\gis</Filter>
+    </ClCompile>
+    <ClCompile Include="GeoGL\agentobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="usr\model_traveltowork.cpp">
+      <Filter>Source Files\usr</Filter>
+    </ClCompile>
+    <ClCompile Include="GeoGL\abm\agentsdefaults.cpp">
+      <Filter>Source Files\abm</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="geogl\BBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\cuboid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\cylinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\DebugUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\ellipsoid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\EllipsoidOrbitController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\extrudegeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\FlyController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\geojson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\globe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\graph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\GroundBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\LeapController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\lod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\mesh2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\meshcube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\netgraphgeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\object3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\OrbitController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\pathshapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\pyramid4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\scenegraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\sierpinskipyramid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\tiledearth.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\trefoilknot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\triangulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\tubegeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\turtle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\drawobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="poly2tri\sweep\sweep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\Agent.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\Agents.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\agenttime.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\LogoVariantOwns.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\Link.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\Links.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\Model.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\utils.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\abm\sensor\geofence.h">
+      <Filter>Header Files\abm\sensor</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\async\meshworker.h">
+      <Filter>Header Files\async</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\async\messagequeue.h">
+      <Filter>Header Files\async</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\async\messagequeueeventargs.h">
+      <Filter>Header Files\async</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\async\worker.h">
+      <Filter>Header Files\async</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\async\workermsg.h">
+      <Filter>Header Files\async</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\cache\DataCache.h">
+      <Filter>Header Files\cache</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\cache\datacacheworker.h">
+      <Filter>Header Files\cache</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\clipper\clipper.hpp">
+      <Filter>Header Files\clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\io\directory.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\io\file.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\io\wildcardmatch.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\net\httprequest.h">
+      <Filter>Header Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\text\TextUtilities.h">
+      <Filter>Header Files\text</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\Camera.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\gengine.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\glbuffertypes.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\gltexturetypes.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\graphicscontext.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\indexbuffer.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\ogldevice.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\primitivetypes.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\renderstate.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\scenedataobject.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\shader.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\shaderattribute.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\shaderattributecollection.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\shaderuniform.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\shaderuniformcollection.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\texture2d.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\textureunits.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\vertexarrayobject.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\vertexbuffer.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\vertexdata.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\vertexformat.h">
+      <Filter>Header Files\gengine</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\events\EventListener.h">
+      <Filter>Header Files\gengine\events</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\events\EventManager.h">
+      <Filter>Header Files\gengine\events</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\image\image2d.h">
+      <Filter>Header Files\gengine\image</Filter>
+    </ClInclude>
+    <ClInclude Include="geogl\gengine\image\jpeg.h">
+      <Filter>Header Files\gengine\image</Filter>
+    </ClInclude>
+    <ClInclude Include="usr\model_busnetwork.h">
+      <Filter>Header Files\usr</Filter>
+    </ClInclude>
+    <ClInclude Include="usr\model_correlate.h">
+      <Filter>Header Files\usr</Filter>
+    </ClInclude>
+    <ClInclude Include="usr\model_networkrail.h">
+      <Filter>Header Files\usr</Filter>
+    </ClInclude>
+    <ClInclude Include="usr\model_tubenetwork.h">
+      <Filter>Header Files\usr</Filter>
+    </ClInclude>
+    <ClInclude Include="usr\model_wxairq.h">
+      <Filter>Header Files\usr</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\algorithms\index\pointquadtree.h">
+      <Filter>Header Files\algorithms\index</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\gis\envelope2d.h">
+      <Filter>Header Files\gis</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\agentobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="usr\model_traveltowork.h">
+      <Filter>Header Files\usr</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\abm\agentsdefaults.h">
+      <Filter>Header Files\abm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\diffuse.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\diffuse.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\diffusenormals.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\diffusenormals.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\fontshader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\fontshader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\lineshader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\lineshader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\shader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\shader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\texshader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\texshader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

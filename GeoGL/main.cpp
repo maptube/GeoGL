@@ -43,8 +43,8 @@
 #include "cylinder.h"
 #include "pyramid4.h"
 #include "turtle.h"
-#include "gui/mainwindow.h"
-#include "gtkmm/main.h"
+//#include "gui/mainwindow.h"
+//#include "gtkmm/main.h"
 
 #include "abm/Agent.h"
 #include "abm/LogoVariantOwns.h"
@@ -283,9 +283,9 @@ int main(int argc, char *argv[])
 	//delete A;
 
 	//GUI Test
-	Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "org.gtkmmm.example");
+	//Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "org.gtkmmm.example");
 	//geogl::gui::MainWindow* win = new geogl::gui::MainWindow();
-	geogl::gui::MainWindow win;
+	//geogl::gui::MainWindow win;
 	//yes, you probably want gtkglext .. there are c++ bindings to it named gtkglextmm
 	//int x = app->run(win);
 	//delete win;
@@ -324,9 +324,9 @@ int main(int argc, char *argv[])
 	//globe.AddLayerModel(cormodel);
 
 	//WX and AirQuality
-	ModelWXAirQ* wxairq = new ModelWXAirQ(globe.GetSceneGraph());
-	wxairq->Setup();
-	globe.AddLayerModel(wxairq);
+	//ModelWXAirQ* wxairq = new ModelWXAirQ(globe.GetSceneGraph());
+	//wxairq->Setup();
+	//globe.AddLayerModel(wxairq);
 
 	//Travel to work model
 	//ModelTravelToWork* traveltowork = new ModelTravelToWork(globe.GetSceneGraph());
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
 
 	//globe.LookAt("LondonUnderground");
 	//globe.LookAt(/*"_AGENTS_"*/"_LINKS_"); //generic name of agents in scene
-	globe.LookAt("_AGENTS");
+	//globe.LookAt("_AGENTS");
 	
 	//TIMING BLOCK
 	//std::ofstream out_lograw("/home/richard/main-stats.txt",std::ios::app);
@@ -443,8 +443,8 @@ int main(int argc, char *argv[])
 		globe.RenderScene();
 		auto renderEndTicks=std::chrono::high_resolution_clock::now();
 
-		while( Gtk::Main::events_pending() )
-		Gtk::Main::iteration();
+		//while( Gtk::Main::events_pending() )
+		//Gtk::Main::iteration();
 
 		//Cap the frame rate? would need to call poll events here
 		double ticksNow = glfwGetTime();

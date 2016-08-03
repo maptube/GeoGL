@@ -12,6 +12,7 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <algorithm>
 
 //#include <math.h>
 

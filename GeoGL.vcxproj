@@ -1,0 +1,389 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\openssl.1.0.1.21\build\native\openssl.props" Condition="Exists('packages\openssl.1.0.1.21\build\native\openssl.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C3DD575B-67DB-48D1-86A9-593F33110EB2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)\poly2tri;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)build\</OutDir>
+    <LibraryPath>$(SolutionDir)Debug;$(SolutionDir)packages\glew.1.9.0.1\build\native\lib\v110\Win32\Debug\dynamic;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\Win32\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\Win32\v110\Debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)poly2tri;$(SolutionDir)ExternalReferences\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)ExternalReferences\glew-2.0.0\lib\Release\x64;$(SolutionDir)packages\glfw.3.2\build\native\lib\v140\x64\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\x64\v110\Debug;$(SolutionDir)packages\jsoncpp.redist.0.6.0.1\build\native\bin\x64\v110\debug;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;$(LibraryPath)</LibraryPath>
+    <Linkage-glfw>
+    </Linkage-glfw>
+    <Linkage-glew>static</Linkage-glew>
+    <Linkage-jsoncpp>static</Linkage-jsoncpp>
+    <Linkage-curl>
+    </Linkage-curl>
+    <OutDir>$(SolutionDir)build</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)/GeoGL</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)/GeoGL</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="geogl\abm\Agent.cpp" />
+    <ClCompile Include="geogl\abm\Agents.cpp" />
+    <ClCompile Include="GeoGL\abm\agentsdefaults.cpp" />
+    <ClCompile Include="geogl\abm\agenttime.cpp" />
+    <ClCompile Include="geogl\abm\Link.cpp" />
+    <ClCompile Include="geogl\abm\Links.cpp" />
+    <ClCompile Include="geogl\abm\LogoVariantOwns.cpp" />
+    <ClCompile Include="geogl\abm\Model.cpp" />
+    <ClCompile Include="geogl\abm\sensor\geofence.cpp" />
+    <ClCompile Include="geogl\abm\utils.cpp" />
+    <ClCompile Include="GeoGL\agentobject.cpp" />
+    <ClCompile Include="GeoGL\algorithms\index\pointquadtree.cpp" />
+    <ClCompile Include="geogl\async\meshworker.cpp" />
+    <ClCompile Include="geogl\async\messagequeue.cpp" />
+    <ClCompile Include="geogl\async\messagequeueeventargs.cpp" />
+    <ClCompile Include="geogl\async\worker.cpp" />
+    <ClCompile Include="geogl\async\workermsg.cpp" />
+    <ClCompile Include="geogl\bbox.cpp" />
+    <ClCompile Include="geogl\cache\DataCache.cpp" />
+    <ClCompile Include="geogl\cache\datacacheworker.cpp" />
+    <ClCompile Include="geogl\clipper\clipper.cpp" />
+    <ClCompile Include="geogl\cuboid.cpp" />
+    <ClCompile Include="geogl\cylinder.cpp" />
+    <ClCompile Include="geogl\DebugUtils.cpp" />
+    <ClCompile Include="geogl\ellipsoid.cpp" />
+    <ClCompile Include="geogl\EllipsoidOrbitController.cpp" />
+    <ClCompile Include="geogl\extrudegeometry.cpp" />
+    <ClCompile Include="geogl\FlyController.cpp" />
+    <ClCompile Include="geogl\gengine\Camera.cpp" />
+    <ClCompile Include="geogl\gengine\events\EventListener.cpp" />
+    <ClCompile Include="geogl\gengine\events\EventManager.cpp" />
+    <ClCompile Include="geogl\gengine\graphicscontext.cpp" />
+    <ClCompile Include="geogl\gengine\image\image2d.cpp" />
+    <ClCompile Include="geogl\gengine\image\jpeg.cpp" />
+    <ClCompile Include="geogl\gengine\indexbuffer.cpp" />
+    <ClCompile Include="geogl\gengine\ogldevice.cpp" />
+    <ClCompile Include="geogl\gengine\renderstate.cpp" />
+    <ClCompile Include="geogl\gengine\scenedataobject.cpp" />
+    <ClCompile Include="geogl\gengine\shader.cpp" />
+    <ClCompile Include="geogl\gengine\shaderattribute.cpp" />
+    <ClCompile Include="geogl\gengine\shaderattributecollection.cpp" />
+    <ClCompile Include="geogl\gengine\shaderuniform.cpp" />
+    <ClCompile Include="geogl\gengine\shaderuniformcollection.cpp" />
+    <ClCompile Include="geogl\gengine\texture2d.cpp" />
+    <ClCompile Include="geogl\gengine\textureunits.cpp" />
+    <ClCompile Include="geogl\gengine\vertexarrayobject.cpp" />
+    <ClCompile Include="geogl\gengine\vertexbuffer.cpp" />
+    <ClCompile Include="geogl\gengine\vertexdata.cpp" />
+    <ClCompile Include="geogl\geojson.cpp" />
+    <ClCompile Include="GeoGL\gis\envelope2d.cpp" />
+    <ClCompile Include="geogl\globe.cpp" />
+    <ClCompile Include="geogl\GroundBox.cpp" />
+    <ClCompile Include="geogl\io\directory.cpp" />
+    <ClCompile Include="geogl\io\file.cpp" />
+    <ClCompile Include="geogl\LeapController.cpp" />
+    <ClCompile Include="geogl\lod.cpp" />
+    <ClCompile Include="geogl\main.cpp" />
+    <ClCompile Include="geogl\mesh.cpp" />
+    <ClCompile Include="geogl\mesh2.cpp" />
+    <ClCompile Include="geogl\meshcube.cpp" />
+    <ClCompile Include="geogl\netgraphgeometry.cpp" />
+    <ClCompile Include="geogl\net\httprequest.cpp" />
+    <ClCompile Include="geogl\object3d.cpp" />
+    <ClCompile Include="geogl\OrbitController.cpp" />
+    <ClCompile Include="geogl\pyramid4.cpp" />
+    <ClCompile Include="geogl\sierpinskipyramid.cpp" />
+    <ClCompile Include="geogl\sphere.cpp" />
+    <ClCompile Include="geogl\stdafx.cpp" />
+    <ClCompile Include="geogl\text\TextUtilities.cpp" />
+    <ClCompile Include="geogl\tiledearth.cpp" />
+    <ClCompile Include="geogl\trefoilknot.cpp" />
+    <ClCompile Include="geogl\triangulator.cpp" />
+    <ClCompile Include="geogl\tubegeometry.cpp" />
+    <ClCompile Include="geogl\turtle.cpp" />
+    <ClCompile Include="usr\model_busnetwork.cpp" />
+    <ClCompile Include="usr\model_correlate.cpp" />
+    <ClCompile Include="usr\model_networkrail.cpp" />
+    <ClCompile Include="usr\model_traveltowork.cpp" />
+    <ClCompile Include="usr\model_tubenetwork.cpp" />
+    <ClCompile Include="usr\model_wxairq.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="geogl\abm\Agent.h" />
+    <ClInclude Include="geogl\abm\Agents.h" />
+    <ClInclude Include="GeoGL\abm\agentsdefaults.h" />
+    <ClInclude Include="geogl\abm\agenttime.h" />
+    <ClInclude Include="geogl\abm\Link.h" />
+    <ClInclude Include="geogl\abm\Links.h" />
+    <ClInclude Include="geogl\abm\LogoVariantOwns.h" />
+    <ClInclude Include="geogl\abm\Model.h" />
+    <ClInclude Include="geogl\abm\sensor\geofence.h" />
+    <ClInclude Include="geogl\abm\utils.h" />
+    <ClInclude Include="GeoGL\agentobject.h" />
+    <ClInclude Include="GeoGL\algorithms\index\pointquadtree.h" />
+    <ClInclude Include="geogl\async\meshworker.h" />
+    <ClInclude Include="geogl\async\messagequeue.h" />
+    <ClInclude Include="geogl\async\messagequeueeventargs.h" />
+    <ClInclude Include="geogl\async\worker.h" />
+    <ClInclude Include="geogl\async\workermsg.h" />
+    <ClInclude Include="geogl\BBox.h" />
+    <ClInclude Include="geogl\cache\DataCache.h" />
+    <ClInclude Include="geogl\cache\datacacheworker.h" />
+    <ClInclude Include="geogl\clipper\clipper.hpp" />
+    <ClInclude Include="geogl\cuboid.h" />
+    <ClInclude Include="geogl\cylinder.h" />
+    <ClInclude Include="geogl\DebugUtils.h" />
+    <ClInclude Include="geogl\ellipsoid.h" />
+    <ClInclude Include="geogl\EllipsoidOrbitController.h" />
+    <ClInclude Include="geogl\extrudegeometry.h" />
+    <ClInclude Include="geogl\FlyController.h" />
+    <ClInclude Include="geogl\gengine\Camera.h" />
+    <ClInclude Include="geogl\gengine\drawobject.h" />
+    <ClInclude Include="geogl\gengine\events\EventListener.h" />
+    <ClInclude Include="geogl\gengine\events\EventManager.h" />
+    <ClInclude Include="geogl\gengine\gengine.h" />
+    <ClInclude Include="geogl\gengine\glbuffertypes.h" />
+    <ClInclude Include="geogl\gengine\gltexturetypes.h" />
+    <ClInclude Include="geogl\gengine\graphicscontext.h" />
+    <ClInclude Include="geogl\gengine\image\image2d.h" />
+    <ClInclude Include="geogl\gengine\image\jpeg.h" />
+    <ClInclude Include="geogl\gengine\indexbuffer.h" />
+    <ClInclude Include="geogl\gengine\ogldevice.h" />
+    <ClInclude Include="geogl\gengine\primitivetypes.h" />
+    <ClInclude Include="geogl\gengine\renderstate.h" />
+    <ClInclude Include="geogl\gengine\scenedataobject.h" />
+    <ClInclude Include="geogl\gengine\shader.h" />
+    <ClInclude Include="geogl\gengine\shaderattribute.h" />
+    <ClInclude Include="geogl\gengine\shaderattributecollection.h" />
+    <ClInclude Include="geogl\gengine\shaderuniform.h" />
+    <ClInclude Include="geogl\gengine\shaderuniformcollection.h" />
+    <ClInclude Include="geogl\gengine\texture2d.h" />
+    <ClInclude Include="geogl\gengine\textureunits.h" />
+    <ClInclude Include="geogl\gengine\vertexarrayobject.h" />
+    <ClInclude Include="geogl\gengine\vertexbuffer.h" />
+    <ClInclude Include="geogl\gengine\vertexdata.h" />
+    <ClInclude Include="geogl\gengine\vertexformat.h" />
+    <ClInclude Include="geogl\geojson.h" />
+    <ClInclude Include="GeoGL\gis\envelope2d.h" />
+    <ClInclude Include="geogl\globe.h" />
+    <ClInclude Include="geogl\graph.h" />
+    <ClInclude Include="geogl\GroundBox.h" />
+    <ClInclude Include="geogl\io\directory.h" />
+    <ClInclude Include="geogl\io\file.h" />
+    <ClInclude Include="geogl\io\wildcardmatch.h" />
+    <ClInclude Include="geogl\LeapController.h" />
+    <ClInclude Include="geogl\lod.h" />
+    <ClInclude Include="geogl\main.h" />
+    <ClInclude Include="geogl\mesh.h" />
+    <ClInclude Include="geogl\mesh2.h" />
+    <ClInclude Include="geogl\meshcube.h" />
+    <ClInclude Include="geogl\netgraphgeometry.h" />
+    <ClInclude Include="geogl\net\httprequest.h" />
+    <ClInclude Include="geogl\object3d.h" />
+    <ClInclude Include="geogl\OrbitController.h" />
+    <ClInclude Include="geogl\pathshapes.h" />
+    <ClInclude Include="geogl\pyramid4.h" />
+    <ClInclude Include="geogl\scenegraph.h" />
+    <ClInclude Include="geogl\sierpinskipyramid.h" />
+    <ClInclude Include="geogl\sphere.h" />
+    <ClInclude Include="geogl\stdafx.h" />
+    <ClInclude Include="geogl\targetver.h" />
+    <ClInclude Include="geogl\text\TextUtilities.h" />
+    <ClInclude Include="geogl\tiledearth.h" />
+    <ClInclude Include="geogl\trefoilknot.h" />
+    <ClInclude Include="geogl\triangulator.h" />
+    <ClInclude Include="geogl\tubegeometry.h" />
+    <ClInclude Include="geogl\turtle.h" />
+    <ClInclude Include="poly2tri\sweep\sweep.h" />
+    <ClInclude Include="usr\model_busnetwork.h" />
+    <ClInclude Include="usr\model_correlate.h" />
+    <ClInclude Include="usr\model_networkrail.h" />
+    <ClInclude Include="usr\model_traveltowork.h" />
+    <ClInclude Include="usr\model_tubenetwork.h" />
+    <ClInclude Include="usr\model_wxairq.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="shaders\diffuse.frag" />
+    <None Include="shaders\diffuse.vert" />
+    <None Include="shaders\diffusenormals.frag" />
+    <None Include="shaders\diffusenormals.vert" />
+    <None Include="shaders\fontshader.frag" />
+    <None Include="shaders\fontshader.vert" />
+    <None Include="shaders\lineshader.frag" />
+    <None Include="shaders\lineshader.vert" />
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
+    <None Include="shaders\texshader.frag" />
+    <None Include="shaders\texshader.vert" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\glew.redist.1.9.0.1\build\native\glew.redist.targets" Condition="Exists('packages\glew.redist.1.9.0.1\build\native\glew.redist.targets')" />
+    <Import Project="packages\glfw.redist.3.2\build\native\glfw.redist.targets" Condition="Exists('packages\glfw.redist.3.2\build\native\glfw.redist.targets')" />
+    <Import Project="packages\glfw.3.2\build\native\glfw.targets" Condition="Exists('packages\glfw.3.2\build\native\glfw.targets')" />
+    <Import Project="packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets" Condition="Exists('packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets')" />
+    <Import Project="packages\freetype.2.6.5.1\build\native\freetype.targets" Condition="Exists('packages\freetype.2.6.5.1\build\native\freetype.targets')" />
+    <Import Project="packages\glm.0.9.7.1\build\native\glm.targets" Condition="Exists('packages\glm.0.9.7.1\build\native\glm.targets')" />
+    <Import Project="packages\dirent.1.13.1\build\native\dirent.targets" Condition="Exists('packages\dirent.1.13.1\build\native\dirent.targets')" />
+    <Import Project="packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets" Condition="Exists('packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets')" />
+    <Import Project="packages\libjpeg.9.2.0.1\build\native\libjpeg.targets" Condition="Exists('packages\libjpeg.9.2.0.1\build\native\libjpeg.targets')" />
+    <Import Project="packages\curl.redist.7.30.0.2\build\native\curl.redist.targets" Condition="Exists('packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" />
+    <Import Project="packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets" Condition="Exists('packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" />
+    <Import Project="packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets" Condition="Exists('packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" />
+    <Import Project="packages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets" Condition="Exists('packages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" />
+    <Import Project="packages\zlib.1.2.8.1\build\native\zlib.targets" Condition="Exists('packages\zlib.1.2.8.1\build\native\zlib.targets')" />
+    <Import Project="packages\openssl.1.0.1.21\build\native\openssl.targets" Condition="Exists('packages\openssl.1.0.1.21\build\native\openssl.targets')" />
+    <Import Project="packages\libssh2.1.4.3.1\build\native\libssh2.targets" Condition="Exists('packages\libssh2.1.4.3.1\build\native\libssh2.targets')" />
+    <Import Project="packages\curl.7.30.0.2\build\native\curl.targets" Condition="Exists('packages\curl.7.30.0.2\build\native\curl.targets')" />
+    <Import Project="packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets" Condition="Exists('packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" />
+    <Import Project="packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets" Condition="Exists('packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets')" />
+    <Import Project="packages\glew.1.9.0.1\build\native\glew.targets" Condition="Exists('packages\glew.1.9.0.1\build\native\glew.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\glew.redist.1.9.0.1\build\native\glew.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glew.redist.1.9.0.1\build\native\glew.redist.targets'))" />
+    <Error Condition="!Exists('packages\glfw.redist.3.2\build\native\glfw.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.redist.3.2\build\native\glfw.redist.targets'))" />
+    <Error Condition="!Exists('packages\glfw.3.2\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.3.2\build\native\glfw.targets'))" />
+    <Error Condition="!Exists('packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets'))" />
+    <Error Condition="!Exists('packages\freetype.2.6.5.1\build\native\freetype.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freetype.2.6.5.1\build\native\freetype.targets'))" />
+    <Error Condition="!Exists('packages\glm.0.9.7.1\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.0.9.7.1\build\native\glm.targets'))" />
+    <Error Condition="!Exists('packages\dirent.1.13.1\build\native\dirent.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\dirent.1.13.1\build\native\dirent.targets'))" />
+    <Error Condition="!Exists('packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets'))" />
+    <Error Condition="!Exists('packages\libjpeg.9.2.0.1\build\native\libjpeg.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libjpeg.9.2.0.1\build\native\libjpeg.targets'))" />
+    <Error Condition="!Exists('packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\curl.redist.7.30.0.2\build\native\curl.redist.targets'))" />
+    <Error Condition="!Exists('packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets'))" />
+    <Error Condition="!Exists('packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets'))" />
+    <Error Condition="!Exists('packages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\zlib.redist.1.2.8.7\build\native\zlib.redist.targets'))" />
+    <Error Condition="!Exists('packages\zlib.1.2.8.1\build\native\zlib.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\zlib.1.2.8.1\build\native\zlib.targets'))" />
+    <Error Condition="!Exists('packages\openssl.1.0.1.21\build\native\openssl.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\openssl.1.0.1.21\build\native\openssl.props'))" />
+    <Error Condition="!Exists('packages\openssl.1.0.1.21\build\native\openssl.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\openssl.1.0.1.21\build\native\openssl.targets'))" />
+    <Error Condition="!Exists('packages\libssh2.1.4.3.1\build\native\libssh2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libssh2.1.4.3.1\build\native\libssh2.targets'))" />
+    <Error Condition="!Exists('packages\curl.7.30.0.2\build\native\curl.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\curl.7.30.0.2\build\native\curl.targets'))" />
+    <Error Condition="!Exists('packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets'))" />
+    <Error Condition="!Exists('packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets'))" />
+    <Error Condition="!Exists('packages\glew.1.9.0.1\build\native\glew.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glew.1.9.0.1\build\native\glew.targets'))" />
+  </Target>
+</Project>

@@ -7,6 +7,12 @@
  *      Author: richard
  */
 
+#ifdef WIN32
+#define NOMINMAX
+#include <windows.h>
+#endif
+
+
 #include <ctime>
 #include <string>
 #include <set>
