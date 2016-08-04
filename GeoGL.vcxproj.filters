@@ -115,6 +115,15 @@
     <Filter Include="Source Files\gis">
       <UniqueIdentifier>{ec5caa2f-f1ec-4c9d-aa98-b8d324dea72d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\jsoncpp">
+      <UniqueIdentifier>{79e58ad2-057d-44b2-96da-1a0dfb61d430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\jsoncpp">
+      <UniqueIdentifier>{1dea7bc8-7704-4c22-981f-0a8550f91ed0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\jsoncpp\json">
+      <UniqueIdentifier>{0c307736-0652-4b17-ba86-3b68f8cac283}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="geogl\bbox.cpp">
@@ -356,6 +365,9 @@
     </ClCompile>
     <ClCompile Include="GeoGL\abm\agentsdefaults.cpp">
       <Filter>Source Files\abm</Filter>
+    </ClCompile>
+    <ClCompile Include="GeoGL\jsoncpp\jsoncpp.cpp">
+      <Filter>Source Files\jsoncpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -634,6 +646,12 @@
     </ClInclude>
     <ClInclude Include="GeoGL\abm\agentsdefaults.h">
       <Filter>Header Files\abm</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\jsoncpp\json\json.h">
+      <Filter>Header Files\jsoncpp\json</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\jsoncpp\json\json-forwards.h">
+      <Filter>Header Files\jsoncpp\json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

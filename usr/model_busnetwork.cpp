@@ -17,7 +17,7 @@
 //#include <math.h>
 
 #include "json/json.h"
-#include "json/reader.h"
+//#include "json/reader.h"
 
 #include "ellipsoid.h"
 #include "netgraphgeometry.h"

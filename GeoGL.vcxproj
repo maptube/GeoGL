@@ -65,27 +65,28 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\poly2tri;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\poly2tri;$(SolutionDir)ExternalReferences\jpeg-9b;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)build\</OutDir>
-    <LibraryPath>$(SolutionDir)Debug;$(SolutionDir)packages\glew.1.9.0.1\build\native\lib\v110\Win32\Debug\dynamic;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\Win32\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\Win32\v110\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Debug;$(SolutionDir)ExternalReferences\redist\jpeg-9b\Win32\Debug;$(SolutionDir)packages\glew.1.9.0.1\build\native\lib\v110\Win32\Debug\dynamic;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\Win32\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\Win32\v110\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)poly2tri;$(SolutionDir)ExternalReferences\glew-2.0.0\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)ExternalReferences\glew-2.0.0\lib\Release\x64;$(SolutionDir)packages\glfw.3.2\build\native\lib\v140\x64\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\x64\v110\Debug;$(SolutionDir)packages\jsoncpp.redist.0.6.0.1\build\native\bin\x64\v110\debug;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)poly2tri;$(SolutionDir)GeoGL\jsoncpp;$(SolutionDir)ExternalReferences\glew-2.0.0-src\include;$(SolutionDir)ExternalReferences\jpeg-9b;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)ExternalReferences\redist\jpeg-9b\x64\Debug;$(SolutionDir)ExternalReferences\redist\glew-2.0.0\x64\Debug;$(SolutionDir)packages\glfw.3.2\build\native\lib\v140\x64\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\x64\v110\Debug;$(SolutionDir)packages\jsoncpp.redist.0.6.0.1\build\native\bin\x64\v110\debug;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;$(LibraryPath)</LibraryPath>
     <Linkage-glfw>
     </Linkage-glfw>
     <Linkage-glew>static</Linkage-glew>
     <Linkage-jsoncpp>static</Linkage-jsoncpp>
     <Linkage-curl>
     </Linkage-curl>
-    <OutDir>$(SolutionDir)build</OutDir>
+    <OutDir>$(SolutionDir)build\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)ExternalReferences\glew-2.0.0-src\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -201,6 +202,7 @@
     <ClCompile Include="geogl\GroundBox.cpp" />
     <ClCompile Include="geogl\io\directory.cpp" />
     <ClCompile Include="geogl\io\file.cpp" />
+    <ClCompile Include="GeoGL\jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="geogl\LeapController.cpp" />
     <ClCompile Include="geogl\lod.cpp" />
     <ClCompile Include="geogl\main.cpp" />
@@ -291,6 +293,8 @@
     <ClInclude Include="geogl\io\directory.h" />
     <ClInclude Include="geogl\io\file.h" />
     <ClInclude Include="geogl\io\wildcardmatch.h" />
+    <ClInclude Include="GeoGL\jsoncpp\json\json-forwards.h" />
+    <ClInclude Include="GeoGL\jsoncpp\json\json.h" />
     <ClInclude Include="geogl\LeapController.h" />
     <ClInclude Include="geogl\lod.h" />
     <ClInclude Include="geogl\main.h" />
@@ -339,15 +343,12 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="packages\glew.redist.1.9.0.1\build\native\glew.redist.targets" Condition="Exists('packages\glew.redist.1.9.0.1\build\native\glew.redist.targets')" />
     <Import Project="packages\glfw.redist.3.2\build\native\glfw.redist.targets" Condition="Exists('packages\glfw.redist.3.2\build\native\glfw.redist.targets')" />
     <Import Project="packages\glfw.3.2\build\native\glfw.targets" Condition="Exists('packages\glfw.3.2\build\native\glfw.targets')" />
     <Import Project="packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets" Condition="Exists('packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets')" />
     <Import Project="packages\freetype.2.6.5.1\build\native\freetype.targets" Condition="Exists('packages\freetype.2.6.5.1\build\native\freetype.targets')" />
     <Import Project="packages\glm.0.9.7.1\build\native\glm.targets" Condition="Exists('packages\glm.0.9.7.1\build\native\glm.targets')" />
     <Import Project="packages\dirent.1.13.1\build\native\dirent.targets" Condition="Exists('packages\dirent.1.13.1\build\native\dirent.targets')" />
-    <Import Project="packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets" Condition="Exists('packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets')" />
-    <Import Project="packages\libjpeg.9.2.0.1\build\native\libjpeg.targets" Condition="Exists('packages\libjpeg.9.2.0.1\build\native\libjpeg.targets')" />
     <Import Project="packages\curl.redist.7.30.0.2\build\native\curl.redist.targets" Condition="Exists('packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" />
     <Import Project="packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets" Condition="Exists('packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" />
     <Import Project="packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets" Condition="Exists('packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" />
@@ -356,23 +357,17 @@
     <Import Project="packages\openssl.1.0.1.21\build\native\openssl.targets" Condition="Exists('packages\openssl.1.0.1.21\build\native\openssl.targets')" />
     <Import Project="packages\libssh2.1.4.3.1\build\native\libssh2.targets" Condition="Exists('packages\libssh2.1.4.3.1\build\native\libssh2.targets')" />
     <Import Project="packages\curl.7.30.0.2\build\native\curl.targets" Condition="Exists('packages\curl.7.30.0.2\build\native\curl.targets')" />
-    <Import Project="packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets" Condition="Exists('packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" />
-    <Import Project="packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets" Condition="Exists('packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets')" />
-    <Import Project="packages\glew.1.9.0.1\build\native\glew.targets" Condition="Exists('packages\glew.1.9.0.1\build\native\glew.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\glew.redist.1.9.0.1\build\native\glew.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glew.redist.1.9.0.1\build\native\glew.redist.targets'))" />
     <Error Condition="!Exists('packages\glfw.redist.3.2\build\native\glfw.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.redist.3.2\build\native\glfw.redist.targets'))" />
     <Error Condition="!Exists('packages\glfw.3.2\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.3.2\build\native\glfw.targets'))" />
     <Error Condition="!Exists('packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freetype.redist.2.6.5.1\build\native\freetype.redist.targets'))" />
     <Error Condition="!Exists('packages\freetype.2.6.5.1\build\native\freetype.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freetype.2.6.5.1\build\native\freetype.targets'))" />
     <Error Condition="!Exists('packages\glm.0.9.7.1\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.0.9.7.1\build\native\glm.targets'))" />
     <Error Condition="!Exists('packages\dirent.1.13.1\build\native\dirent.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\dirent.1.13.1\build\native\dirent.targets'))" />
-    <Error Condition="!Exists('packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libjpeg.redist.9.2.0.1\build\native\libjpeg.redist.targets'))" />
-    <Error Condition="!Exists('packages\libjpeg.9.2.0.1\build\native\libjpeg.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libjpeg.9.2.0.1\build\native\libjpeg.targets'))" />
     <Error Condition="!Exists('packages\curl.redist.7.30.0.2\build\native\curl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\curl.redist.7.30.0.2\build\native\curl.redist.targets'))" />
     <Error Condition="!Exists('packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libssh2.redist.1.4.3.1\build\native\libssh2.redist.targets'))" />
     <Error Condition="!Exists('packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\openssl.redist.1.0.1.25\build\native\openssl.redist.targets'))" />
@@ -382,8 +377,5 @@
     <Error Condition="!Exists('packages\openssl.1.0.1.21\build\native\openssl.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\openssl.1.0.1.21\build\native\openssl.targets'))" />
     <Error Condition="!Exists('packages\libssh2.1.4.3.1\build\native\libssh2.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libssh2.1.4.3.1\build\native\libssh2.targets'))" />
     <Error Condition="!Exists('packages\curl.7.30.0.2\build\native\curl.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\curl.7.30.0.2\build\native\curl.targets'))" />
-    <Error Condition="!Exists('packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\jsoncpp.redist.0.6.0.1\build\native\jsoncpp.redist.targets'))" />
-    <Error Condition="!Exists('packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\jsoncpp.0.6.0.1\build\native\jsoncpp.targets'))" />
-    <Error Condition="!Exists('packages\glew.1.9.0.1\build\native\glew.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glew.1.9.0.1\build\native\glew.targets'))" />
   </Target>
 </Project>

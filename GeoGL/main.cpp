@@ -298,9 +298,9 @@ int main(int argc, char *argv[])
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
 	//globe method
-	//ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
-	//tn->Setup(); //who's responsible for this? globe or me?
-	//globe.AddLayerModel(tn);
+	ModelTubeNetwork* tn = new ModelTubeNetwork(globe.GetSceneGraph());
+	tn->Setup(); //who's responsible for this? globe or me?
+	globe.AddLayerModel(tn);
 	//std::vector<ABM::Agent*> nodes = tn->_agents.Ask("node");
 	//std::vector<ABM::Agent*> drivers = tn->_agents.Ask("driver");
 	//std::cout<<"TubeModel: node="<<nodes.size()<<std::endl; //280 stations

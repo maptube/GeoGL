@@ -527,7 +527,7 @@ void Globe::RenderScene(void)
 
 	//TODO: need to get this gl reference out!!!
 	//glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
-	glClearColor(1.0,0,0,0); //space is black
+	glClearColor(0,0,0,0); //space is black
 	GC->Clear();
 
 	glm::dvec3 vCam = camera.GetCameraPos();

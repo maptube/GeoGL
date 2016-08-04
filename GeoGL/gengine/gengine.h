@@ -98,17 +98,21 @@
 //WIN32
 //#pragma comment(lib, "glew32.lib")
 //WIN64
-#pragma comment(lib, "glew.lib")
+//#pragma comment(lib, "glew32d.lib")
+//OK, this is a dynamic library... I really wanted static?
+#pragma comment(lib, "glew32d.lib")
 #pragma comment(lib, "opengl32.lib")
 ////#pragma comment(lib, "glfw3.lib")
 //#pragma comment(lib, "SDL2.lib")
 //#pragma comment(lib, "SDL2main.lib")
 
+#pragma comment(lib, "jpeg.lib")
+
 #pragma comment(lib, "libcurl.lib")
 
 #pragma comment(lib, "poly2tri.lib")
 
-#pragma comment(lib, "jsoncpp.lib")
+//#pragma comment(lib, "jsoncpp.lib")
 
 #endif
 ///////////////////////////////////////////////////////////////////

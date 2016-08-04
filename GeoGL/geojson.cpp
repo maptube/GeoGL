@@ -8,7 +8,7 @@
 #include <random>
 
 #include "json/json.h"
-#include "json/reader.h"
+//#include "json/reader.h"
 
 #include "mesh2.h"
 #include "gengine/vertexformat.h"
@@ -65,7 +65,7 @@ void GeoJSON::LoadFile(std::string Filename)
 	//Used geotools to clean the geojson file first.
 
 	cout<<"GeoJSON loading "<<Filename<<endl;
-/*
+
 	ifstream inputfile(Filename.c_str());
     std::string to_parse;
     int count;
@@ -101,7 +101,7 @@ void GeoJSON::LoadFile(std::string Filename)
 	//"type" : "FeatureCollection" ???
 	//NOTE: always pass back references to json entities as it avoids copying large parts of the tree which takes lots of time
 	const Json::Value& jsFeatures = (*root)["features"]; //root["features"];
-	for (Json::Value::iterator it = jsFeatures.begin(); it!=jsFeatures.end(); ++it) {
+	for (Json::Value::const_iterator it = jsFeatures.begin(); it!=jsFeatures.end(); ++it) {
 		//cout<<"Feature"<<endl;
 		//cout<<"Feature "<<feature_count<<endl;
 		++feature_count;
@@ -126,7 +126,7 @@ void GeoJSON::LoadFile(std::string Filename)
 	//cout<<"GeoJSON vertices="<<vertex_count<<" faces="<<face_count<<endl;
 	//cout<<"GeoJSON loaded "<<Children.size()<<" features"<<endl;
 	cout<<"GeoJSON loaded"<<endl;
-*/
+
 }
 
 /**
@@ -140,7 +140,7 @@ void GeoJSON::LoadFile(std::string Filename)
 /// <param name="jsGeometry">The features[i].geometry part of the GeoJSON FeatureCollection</param>
 /// <returns>A mesh object containing the geometry</returns>
 /*Mesh2**/void GeoJSON::ParseJSONGeometry(const Json::Value& jsGeometry) {
-/*
+
 	//Mesh2* geom = new Mesh2();
 
 	const Json::Value& jsType = jsGeometry["type"];
@@ -172,7 +172,7 @@ void GeoJSON::LoadFile(std::string Filename)
 		//cout<<"MultiPolygon"<<endl;
 		//geometry contains an attribute "coordinates" which is an array of polygons
 		const Json::Value& jsCoordinates = jsGeometry["coordinates"];
-		for (Json::Value::iterator it = jsCoordinates.begin(); it!=jsCoordinates.end(); ++it) {
+		for (Json::Value::const_iterator it = jsCoordinates.begin(); it!=jsCoordinates.end(); ++it) {
 			//const Json::Value& poly = *it;
 			
 //			ParseJSONPolygon(*geom,*it);
@@ -184,7 +184,7 @@ void GeoJSON::LoadFile(std::string Filename)
 
 	//geom->CreateBuffers();
 	//return geom;
-*/
+
 }
 
 //OLD CODE
@@ -314,9 +314,9 @@ void GeoJSON::LoadFile(std::string Filename)
 /// Parse a GeoJSON polygon into a 2D shape object which is then pushed on to the list of shape features
 /// </summary>
 void GeoJSON::ParseJSONPolygon2(const Json::Value& jsPolygon) {
-/*	PathShape shape;
+	PathShape shape;
 	int count=0;
-	for (Json::Value::iterator ringIT=jsPolygon.begin(); ringIT!=jsPolygon.end(); ++ringIT) {
+	for (Json::Value::const_iterator ringIT=jsPolygon.begin(); ringIT!=jsPolygon.end(); ++ringIT) {
 		const Json::Value& jsRing = *ringIT;
 		LinearRing ring;
 		int pcount=jsRing.size();
@@ -331,7 +331,7 @@ void GeoJSON::ParseJSONPolygon2(const Json::Value& jsPolygon) {
 		++count;
 	}
 	_Features.push_back(shape);
-*/
+
 }
 
 //testing extrusion function
