@@ -46,8 +46,8 @@ const std::string ModelTubeNetwork::Filename_TrackernetPositions =
 		/*"data/trackernet_20140127_154200.csv";*/
 		"../data/trackernet_20140127_154200.csv"; //train positions
 const std::string ModelTubeNetwork::Filename_AnimationDir =
-		/*"../data/tube-anim-strike/28";*/
-		"../data/trackernet/2014/12/8";
+		"../data/tube-anim-strike/28";
+		/*"../data/trackernet/2014/12/8";*/
 		/*"/run/media/richard/SAMSUNG2/trackernet-cache/2014/2/1"*/
 const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
