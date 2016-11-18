@@ -114,6 +114,8 @@
 
 //#pragma comment(lib, "jsoncpp.lib")
 
+#pragma comment(lib, "ZipLib.lib")
+
 #endif
 ///////////////////////////////////////////////////////////////////
 

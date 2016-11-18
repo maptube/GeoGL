@@ -7,7 +7,7 @@
  *	@organisation	Centre for Advanced Spatial Analysis (CASA), University College London
  *	@website		http://www.casa.ucl.ac.uk
  *	@date			9 May 2014
- *	@licence		Free for all commercial and academic use (including teaching). Not for commercial use. All rights are held by the author.
+ *	@licence		Free for all non-commercial and academic use (including teaching). Not for commercial use. All rights are held by the author.
  */
 
 //must include this first due to glew, opengl and glm include dependencies

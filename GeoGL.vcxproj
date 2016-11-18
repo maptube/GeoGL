@@ -71,8 +71,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)poly2tri;$(SolutionDir)GeoGL\jsoncpp;$(SolutionDir)ExternalReferences\glew-2.0.0-src\include;$(SolutionDir)ExternalReferences\jpeg-9b;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)ExternalReferences\redist\jpeg-9b\x64\Debug;$(SolutionDir)ExternalReferences\redist\glew-2.0.0\x64\Debug;$(SolutionDir)packages\glfw.3.2\build\native\lib\v140\x64\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\x64\v110\Debug;$(SolutionDir)packages\jsoncpp.redist.0.6.0.1\build\native\bin\x64\v110\debug;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)poly2tri;$(SolutionDir)GeoGL\jsoncpp;$(SolutionDir)ExternalReferences\glew-2.0.0-src\include;$(SolutionDir)ExternalReferences\jpeg-9b;$(SolutionDir)ExternalReferences\redist\ziplib\Source;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)ExternalReferences\redist\jpeg-9b\x64\Debug;$(SolutionDir)ExternalReferences\redist\glew-2.0.0\x64\Debug;$(SolutionDir)ExternalReferences\redist\ziplib\bin\x64\Debug;$(SolutionDir)packages\glfw.3.2\build\native\lib\v140\x64\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\x64\v110\Debug;$(SolutionDir)packages\jsoncpp.redist.0.6.0.1\build\native\bin\x64\v110\debug;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;$(LibraryPath)</LibraryPath>
     <Linkage-glfw>
     </Linkage-glfw>
     <Linkage-glew>static</Linkage-glew>
@@ -171,6 +171,8 @@
     <ClCompile Include="geogl\clipper\clipper.cpp" />
     <ClCompile Include="geogl\cuboid.cpp" />
     <ClCompile Include="geogl\cylinder.cpp" />
+    <ClCompile Include="GeoGL\data\gtfs\GTFSFile.cpp" />
+    <ClCompile Include="GeoGL\data\gtfs\GTFSUtils.cpp" />
     <ClCompile Include="geogl\DebugUtils.cpp" />
     <ClCompile Include="geogl\ellipsoid.cpp" />
     <ClCompile Include="geogl\EllipsoidOrbitController.cpp" />
@@ -318,6 +320,8 @@
     <ClInclude Include="geogl\triangulator.h" />
     <ClInclude Include="geogl\tubegeometry.h" />
     <ClInclude Include="geogl\turtle.h" />
+    <ClInclude Include="GeoGL\data\gtfs\GTFSFile.h" />
+    <ClInclude Include="GeoGL\data\gtfs\GTFSUtils.h" />
     <ClInclude Include="poly2tri\sweep\sweep.h" />
     <ClInclude Include="usr\model_busnetwork.h" />
     <ClInclude Include="usr\model_correlate.h" />

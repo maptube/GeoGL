@@ -124,6 +124,18 @@
     <Filter Include="Header Files\jsoncpp\json">
       <UniqueIdentifier>{0c307736-0652-4b17-ba86-3b68f8cac283}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\data">
+      <UniqueIdentifier>{d79abe65-ebb1-411b-9d4b-83d72a6b0e40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\data\gtfs">
+      <UniqueIdentifier>{b4eab137-6f03-4161-997b-a5d2bc5c909f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\data">
+      <UniqueIdentifier>{28b62425-a028-4528-b79f-4ac1ab1cb82b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\data\gtfs">
+      <UniqueIdentifier>{c93915ae-cc7e-4cbc-992a-d993b6e8734d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="geogl\bbox.cpp">
@@ -368,6 +380,12 @@
     </ClCompile>
     <ClCompile Include="GeoGL\jsoncpp\jsoncpp.cpp">
       <Filter>Source Files\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="GeoGL\data\gtfs\GTFSFile.cpp">
+      <Filter>Source Files\data\gtfs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeoGL\data\gtfs\GTFSUtils.cpp">
+      <Filter>Source Files\data\gtfs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -652,6 +670,12 @@
     </ClInclude>
     <ClInclude Include="GeoGL\jsoncpp\json\json-forwards.h">
       <Filter>Header Files\jsoncpp\json</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\data\gtfs\GTFSFile.h">
+      <Filter>Header Files\data\gtfs</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\data\gtfs\GTFSUtils.h">
+      <Filter>Header Files\data\gtfs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

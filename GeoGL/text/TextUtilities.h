@@ -11,6 +11,7 @@
 #include <functional>
 #include <cctype>
 #include <locale>
+#include <vector>
 
 namespace geogl {
 namespace text {
@@ -45,6 +46,13 @@ public:
 	static inline std::string &trim(std::string &s) {
 		return ltrim(rtrim(s));
 	}
+
+	/// <summary>
+	/// split a string on a delimiter (i.e. comma, colon or space?)
+	/// </summary>
+	static std::vector<std::string> split(const std::string& str, const std::string& delim);
+
+	//TODO: put a parse csv line here... or add a complete csv parsing class?
 };
 
 } // namespace text
