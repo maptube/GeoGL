@@ -50,9 +50,9 @@ namespace data {
 			}*/
 
 			ZipArchive::Ptr archive = ZipFile::Open(Filename);
-			//ZipArchiveEntry::Ptr entry = archive->GetEntry("routes.txt");
-			//std::istream* decompressStream = entry->GetDecompressionStream();
-			//ParseRoutes(decompressStream);
+			ZipArchiveEntry::Ptr entry = archive->GetEntry("routes.txt");
+			std::istream* decompressStream = entry->GetDecompressionStream();
+			ParseRoutes(decompressStream);
 
 		}
 

@@ -26,6 +26,7 @@ FREETYPE_INCLUDE=/usr/include/freetype2
 #PIX-BUF_INCLUDE=/usr/include/gdk-pixbuf-2.0
 #ATK_INCLUDE=/usr/include/atk-1.0
 #GTKMM_INCLUDE=/usr/include/gtkmm-3.0
+WBENNY_LIBZIP_HOME=/home/richard/projects/github/GeoGL/externals/wbenny-ziplib
 
 CC=gcc
 CXX=g++
@@ -37,18 +38,18 @@ CPPFLAGS=-g -std=c++11 -DLINUX
 #note json cpp coming from projects folder i.e. not installed
 #-ljson_linux-gcc-4.8.2_libmt -lLeap
 LDFLAGS=-Wall -lstdc++ -lm -lGL -lGLU -lglut -lGLEW -lglfw -ljsoncpp \
--lpoly2tri -lfreetype -ljpeg -lcurl `pkg-config gtkmm-3.0 --libs` -lpthread
-LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY2TRI_HOME) -L$(LIBJPEG_HOME)
+-lpoly2tri -lfreetype -ljpeg -lcurl `pkg-config gtkmm-3.0 --libs` -lpthread -lzip
+LDLIBS=-L$(JSONCPP_HOME)/libs/linux-gcc-4.8.2 -L$(LEAPSDK_HOME)/lib/x64 -L$(POLY2TRI_HOME) -L$(LIBJPEG_HOME) -L$(WBENNY_LIBZIP_HOME)/Bin
 #-I$(JSONCPP_HOME)/include
 #-I$(LEAPSDK_HOME)/include
 #-I$(LIBJPEG_HOME)
 INCLUDEDIRS=-IGeoGL `pkg-config jsoncpp --cflags` -I$(POLY2TRI_HOME) -I$(FREETYPE_INCLUDE) -I$(LIBJPEG_HOME) \
-`pkg-config gtkmm-3.0 --cflags`
+`pkg-config gtkmm-3.0 --cflags` -I$(WBENNY_LIBZIP_HOME)/Source
 SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL/gengine/image/*.cpp) \
 $(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/cache/*.cpp) $(wildcard GeoGL/async/*.cpp) \
 $(wildcard GeoGL/net/*.cpp) $(wildcard GeoGL/gui/*.cpp) $(wildcard GeoGL/clipper/*.cpp) \
 $(wildcard GeoGL/abm/*.cpp) $(wildcard GeoGL/abm/sensor/*.cpp) $(wildcard GeoGL/io/*.cpp) $(wildcard usr/*.cpp) \
-$(wildcard GeoGL/algorithms/index/*.cpp) $(wildcard GeoGL/gis/*.cpp)
+$(wildcard GeoGL/algorithms/index/*.cpp) $(wildcard GeoGL/gis/*.cpp) $(wildcard GeoGL/text/*.cpp) $(wildcard GeoGL/data/gtfs/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=bin/GeoGLProgram
 
