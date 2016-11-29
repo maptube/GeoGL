@@ -114,6 +114,10 @@
 
 //#pragma comment(lib, "jsoncpp.lib")
 
+//all for ZipLib to unzip GTFS files
+#pragma comment(lib, "bzip2.lib")
+#pragma comment(lib, "lzma.lib")
+#pragma comment(lib, "zlib.lib")
 #pragma comment(lib, "ZipLib.lib")
 
 #endif
