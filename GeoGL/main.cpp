@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
 	//london->SetColour(glm::vec3(1.0f,1.0f,1.0f));
 
 
-	//globe.FitViewToLayers(); //now all the data has been loaded, initialise the camera to its default position and zoom
+	globe.FitViewToLayers(); //now all the data has been loaded, initialise the camera to its default position and zoom
 
 	////////////////////////End of scene graph creation
 	

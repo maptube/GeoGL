@@ -14,6 +14,7 @@ public:
 	AgentTime(void);
 	~AgentTime(void);
 
+	static AgentTime Now();
 	static AgentTime FromString(const std::string& Text);
 	static AgentTime FromString2(const std::string& Text);
 	static std::string ToString(const AgentTime& ATime);

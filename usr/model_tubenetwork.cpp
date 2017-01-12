@@ -29,6 +29,8 @@ using namespace std;
 #include "ellipsoid.h"
 #include "netgraphgeometry.h"
 #include "graph.h"
+#include "net/httprequest.h"
+#include "data/datatable.h"
 
 #include "abm/Link.h"
 #include "abm/Agent.h"
@@ -49,6 +51,8 @@ const std::string ModelTubeNetwork::Filename_AnimationDir =
 		"../data/tube-anim-strike/28";
 		/*"../data/trackernet/2014/12/8";*/
 		/*"/run/media/richard/SAMSUNG2/trackernet-cache/2014/2/1"*/
+const std::string ModelTubeNetwork::RealTimePositionsURL =
+		"http://loggerhead.casa.ucl.ac.uk/api/f/trackernet?pattern=trackernet_*.csv";
 const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
@@ -62,19 +66,11 @@ const float ModelTubeNetwork::TrainSize = 300.0f; //size of train geometry objec
 /// Reference to the scene graph that the Tube Network will be added to and which the ABM code will control.
 /// </param>
 ModelTubeNetwork::ModelTubeNetwork(SceneGraphType* SceneGraph) : ABM::Model(SceneGraph) {
-	//tube_graph = new Graph(true);
-	//tube_stations = new map<string,struct TubeStationWGS84>();
-	//tube_stations = new unordered_map<string,struct GraphNameXYZ>(); //old code not used now in favour of node agents
+	AnimateMode = EAnimationType::RealTime;
 }
 
 /// <summary>Destructor</summary>
 ModelTubeNetwork::~ModelTubeNetwork() {
-	//delete tube_graph;
-	//old code not used now in favour of node agents and links graph
-	//for (std::unordered_map<char,Graph*>::iterator it=tube_graphs.begin(); it!=tube_graphs.end(); ++it) {
-	//	delete (it->second);
-	//}
-	//delete tube_stations;
 }
 
 
@@ -130,6 +126,10 @@ glm::vec3 ModelTubeNetwork::LineCodeToVectorColour(char Code) {
 	default: return glm::vec3(1.0f,1.0f,1.0f); //white
 	}
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Datamining section
 
 /// <summary>
 /// Called when new data is loaded to maintain the hash tables for where destination codes are being used.
@@ -301,6 +301,9 @@ void ModelTubeNetwork::dataminePrintRoutes() {
 	}
 }
 
+//End of datamining section
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /// <summary>
 /// Load the station names and positions from the CSV file. Create an agent of Breed "node" and name=stationcode at each station.
 /// The agent is also tagged with "LineCodes" which is a string containing the lines that this station serves.
@@ -340,67 +343,8 @@ void ModelTubeNetwork::loadStations(std::string Filename) {
 		}
 		return a;
 	});
-
 }
 
-
-/// <summary>
-/// Load the station names and positions from the CSV file. Create an agent of Breed "node" and name=stationcode at each station.
-/// This allows us to look up stations when creating the network graph.
-/// Call this first, before loadLinks.
-/// TODO: this needs to use the new lambda loading function
-/// </summary>
-/// <param name="Filename">The CSV file containing the stations data</param>
-void ModelTubeNetwork::loadStationsOLD(std::string Filename) {
-/*	//OK, now on to loading part two - load the stations file containing the lat/lon of all the tube stations which form vertices in the graph
-	//ifstream in_csv("C:\\richard\\projects\\VC++\\GeoGL\\GeoGL\\data\\station-codes.csv");
-	ifstream in_csv(Filename.c_str());
-	//#code,NPTGCode,lines,lon,lat,name
-	//ACT,9400ZZLUACT1,DP,-0.28025120353611,51.50274977300050,Acton Town
-	if (in_csv.is_open()) {
-		string line;
-		while (!in_csv.eof()) {
-			line.clear();
-			std::getline(in_csv,line);
-			if ((line.length()==0)||(line[0]=='#')) continue; //blank line or comment line
-			//parse the line as a string stream separated by ,
-			stringstream ss(line);
-			std::vector<string> items;
-			while (ss.good()) {
-				string elem;
-				std::getline(ss,elem,',');
-				items.push_back(elem);
-			}
-			if (items.size()>=6) {
-				string code1;
-				float lon,lat;
-				code1 = items[0];
-				lon = std::stof(items[3]);
-				lat = std::stof(items[4]);
-				//TubeStationWGS84 pos = {lon,lat};
-				GraphNameXYZ pos;
-				//pos.Name=code1; pos.P.x=lon; pos.P.y=lat; pos.P.z=0; 
-				pos.Name=code1; pos.P=_pEllipsoid->toVector(glm::radians(lon),glm::radians(lat),0);
-				tube_stations->insert(make_pair/ *<string,struct GraphNameXYZ>* /(code1,pos));
-				
-				//and create the node agent
-				vector<ABM::Agent*> AList = PatchesPatchXYSprout((int)pos.P.x,(int)pos.P.y,1,"node");
-				ABM::Agent *a = AList.front();
-				
-				//ABM::Agent* a = _agents.Hatch("node"); //alternative method to sprout
-				
-				a->SetXYZ(pos.P.x,pos.P.y,pos.P.z);
-				a->Name=code1;
-				//std::cout<<"agent "<<code1<<" "<<pos.P.x<<","<<pos.P.y<<","<<pos.P.z<<std::endl;
-				//and set him to a sphere?
-			}
-
-			//std::istringstream(line)>>code1>>code2>>tubelines>>lon>>lat;
-			//sscanf(line.c_str(),"%s,%s,%s,%f,%f",code1,code2,tubelines,lon,lat);
-		}
-		in_csv.close();
-	}*/
-}
 
 /// <summary>
 /// Load the links between stations into the graph/links structure.
@@ -428,7 +372,6 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 	//const string dirs[] = { string("0") }; //uni-directional
 
 	for (int i=0; i<10; i++) {
-//		Graph *G = new Graph(true);
 		std::map<std::string,int> VertexNames; //lookup between vertex names and ids in the network graph (need a new lookup each time a new graph is started)
 		const Json::Value& jsLine = root[linecodes[i]];
 		for (int dir=0; dir<=1; dir++) { //HACK for unidirectional
@@ -436,51 +379,15 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 			std::string Label = linecodes[i]+"_"+dirs[dir]; //e.g. V_0 for Victoria Northbound or V_1 for Southbound
 			std::string BreedName = linecodes[i]; //e.g. V for Victoria in any direction
 			//create a breed and a default colour
-			//std::cout<<"SetDefaultColour: "<<Label<<" "<<linecodes[i]<<std::endl;
 			SetDefaultColour(BreedName,LineCodeToVectorColour(BreedName[0]));
 			for (unsigned int v = 0; v < jsLineDir.size(); ++v ) {
-				//cout<<"data:"<<jsLineDir[v]<<endl;
-				//OutputDebugStringW(L"data:");
-				//OutputDebugStringW(jsLineDir[v].asString().c_str()); //how? _T _W
-				//OutputDebugStringA(jsLineDir[v].asString().c_str());
-				// "o", "d", "r"
 				//velocity = dist/runlink
 				const Json::Value& node = jsLineDir[v];
 				string o = node["o"].asString();
 				string d = node["d"].asString();
 				int r = node["r"].asInt();
-				//OutputDebugStringA("Node: ");
-				//OutputDebugStringA(o.c_str());
-				//OutputDebugStringA("\n");
-				//add the vertices to the graph and connect them (in a directional sense)
-				//need to lookup the vertex id from the 3 letter station code string which we keep in VertexNames map as the graph is built
-				//TODO: need to handle lines and directions properly (label edges?)
-//				Vertex *VOrigin, *VDestination;
-//				std::map<std::string,int>::const_iterator it;
-//				it = VertexNames.find(o);
-//				if (it==VertexNames.end()) {
-//					//not found, so create a new vertex
-//					VOrigin = G->AddVertex();
-//					VOrigin->_Name=o; //station 3 letter code
-//					//VertexNames.insert(pair<string,int>(o,VOrigin->_VertexId)); //push name and vertex id onto hash
-//					VertexNames[o]=VOrigin->_VertexId; //push name and vertex id onto hash
-//				}
-//				else VOrigin = G->_Vertices[it->second];
-//				//destination
-//				it = VertexNames.find(d);
-//				if (it==VertexNames.end()) {
-//					//not found, so create a new vertex
-//					VDestination = G->AddVertex();
-//					VDestination->_Name=d; //station 3 letter code
-//					//VertexNames.insert(pair<string,int>(d,VDestination->_VertexId)); //push name and vertex id onto hash
-//					VertexNames[d]=VDestination->_VertexId; //push name and vertex id onto hash
-//				}
-//				else VDestination = G->_Vertices[it->second];
-//				//now connect the pair - THIS RETURNS THE EDGE IF YOU NEED IT
-//				G->ConnectVertices(VOrigin,VDestination,Label,(float)r); //node weight is the runlink in seconds
 				
-				//Everything up to this point is direct manipulation of an internal graph structure. The following is another method
-				//using the ABM structure i.e. this creates a second, separate graph - user should only use ABM interface.
+				//Use the ABM structure to create the network graph - user should only use ABM interface.
 				ABM::Agent* agent_o = _agents.With("name",o).front();
 				ABM::Agent* agent_d = _agents.With("name",d).front();
 				//ABM::Link* L = _links.CreateLink("line",agent_o,agent_d);
@@ -499,7 +406,6 @@ void ModelTubeNetwork::loadLinks(std::string NetworkJSONFilename) {
 				L->Set<float>("velocity",(float)(dist/(float)r));
 			}
 		}
-//		tube_graphs.insert(pair<char,Graph*>(linecodes[i].c_str()[0],G));
 	}
 }
 
@@ -526,7 +432,6 @@ void ModelTubeNetwork::loadPositions(std::string Filename) {
 				items.push_back(elem);
 			}
 			if (items.size()==15) {
-				//do stuff here
 				//line,trip,set,lat,lon,east,north,timetostation,location,stationcode,stationname,platform,platformdirectioncode,destination,destinationcode
 				for (std::vector<std::string>::iterator it=items.begin(); it!=items.end(); ++it) {
 					//data[j]=data[j].replace(/\"/g,'') #remove quotes from all columns
@@ -549,12 +454,9 @@ void ModelTubeNetwork::loadPositions(std::string Filename) {
 				std::string setcode = items[2];
 				std::string stationcode = items[9];
 				int dir = std::atoi(items[12].c_str());
-				//ABM::Agent* agent_d = @nodes.with("o.name=='"+stationcode+"'") //destination node station
 				std::vector<ABM::Agent*> agent_d = _agents.With("name",stationcode); //destination node station - do you need the breed name as well?
 				//find a link with the correct linecode that connects o to d
-				//console.log(agent_d)
 				if (agent_d.size()>0) {
-					//console.log("found: ",agent_d[0])
 					std::vector<ABM::Link*> links = agent_d.front()->InLinks();
 					for (std::vector<ABM::Link*>::iterator itLinks = links.begin(); itLinks!=links.end(); ++itLinks)
 					{
@@ -611,67 +513,17 @@ void ModelTubeNetwork::LoadAnimatePositions() {
 	time_t Frame0DT = GetFirstAnimationTime();
 	map<string,struct tube_anim_record> Frame0 = tube_anim_frames[Frame0DT];
 	cout<<"initialising animation with first frame time of "<<AgentTime::ToString(Frame0DT)<<" and "<<Frame0.size()<<" agents"<<endl;
-	
-	//now go through all the vehicles in frame zero and create them in the correct positions and orientations
-//	for (map<string,struct tube_anim_record>::iterator it = Frame0.begin(); it!=Frame0.end(); ++it)
-//	{
-//		string UniqueName = it->first;
-//		tube_anim_record rec = it->second;
-//		string strLineCode = "X";
-//		strLineCode[0]=rec.LineCode; //how else are you supposed to create a string from a char?
-//		std::vector<ABM::Agent*> agent_d = _agents.With("name",rec.StationCode); //destination node station - do you need the breed name as well?
-//		//find a link with the correct linecode that connects o to d
-//		if (agent_d.size()>0) {
-//			std::vector<ABM::Link*> links = agent_d.front()->InLinks();
-//			for (std::vector<ABM::Link*>::iterator itLinks = links.begin(); itLinks!=links.end(); ++itLinks)
-//			{
-//				ABM::Link* l = *itLinks;
-//				
-//				if ((l->Get<std::string>("lineCode")==strLineCode) && (l->Get<int>("direction")==rec.Direction))
-//				{
-//					//OK, so l is the link that this tube is on and we just have to position between end1 and end2
-//					//now hatch a new agent driver from this node and place in correct location
-//					//nominally, the link direction is end1 to end2
-//					std::vector<ABM::Agent*> a_list = l->end1->Hatch(1,"driver");
-//					ABM::Agent* a = a_list[0];
-//					a->Name = UniqueName; //unique name to match up to next data download
-//					a->Set<ABM::Agent*>("fromNode", l->end1);
-//					a->Set<ABM::Agent*>("toNode", l->end2);
-//					a->Face(*a->Get<ABM::Agent*>("toNode"));
-////what am I doing with the velocity?
-//					a->Set<float>("v", l->Get<float>("velocity")); //use pre-created velocity for this link
-//					a->Set<int>("direction", l->Get<int>("direction"));
-//					a->Set<std::string>("lineCode", l->Get<std::string>("lineCode"));
-//					a->SetColour(LineCodeToVectorColour(rec.LineCode));
-//					//cout<<"created agent "<<a->Name<<endl;
-//			//TODO: this hasn't actually interpolated the positions!
-//				}	
-//			}
-//		}
-//	}
 
 	for (map<string,struct tube_anim_record>::iterator it = Frame0.begin(); it!=Frame0.end(); ++it)
 	{
 		string UniqueName = it->first;
 		tube_anim_record rec = it->second;
-		////string strLineCode = "X";
-		////strLineCode[0]=rec.LineCode; //how else are you supposed to create a string from a char?
-		//ABM::Agent* a = _agents.Hatch("driver");
-		//a->Name = UniqueName; //unique name to match up to next data download
-		//a->SetColour(LineCodeToVectorColour(rec.LineCode));
-		//if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,(int)rec.Direction))
-		//{
-		//	if (!PositionAgent(a,rec.LineCode,rec.TimeToStation,rec.StationCode,1-(int)rec.Direction)) //try other direction - shouldn't happen, but it does
-		//	{
-		//		cerr<<"Error hatching agent "<<UniqueName<<endl;
-		//		a->Die();
-		//	}
-		//}
 		HatchAgentFromAnimationRecord(UniqueName,rec); //this is a function as we need to do the same thing in the animation loop
 	}
 
 }
 
+//TODO: this needs to be removed in favour of HatchAgent
 ABM::Agent* ModelTubeNetwork::HatchAgentFromAnimationRecord(const std::string& UniqueName, const tube_anim_record& rec) {
 	ABM::Agent* a = _agents.Hatch("driver");
 	a->Name = UniqueName; //unique name to match up to next data download
@@ -800,41 +652,6 @@ void ModelTubeNetwork::LoadAnimation(const std::string& DirectoryName) {
 	cout<<"Finished processing animation frames. Found "<<tube_anim_frames.size()<<" animation frames."<<endl;
 }
 
-/// <summary>
-/// NOT USED NOW?
-/// Generate a tube (spline) geometry for a specific Underground line as defined by the LineCode.
-/// </summary>
-/// <param name="LineCode"></param>
-/// <returns></returns>
-//NetGraphGeometry* ModelTubeNetwork::GenerateLineMesh(char LineCode) {
-//	//get the graph for the requested linecode using the map
-//	std::unordered_map<char,Graph*>::iterator itG = tube_graphs.find(LineCode);
-//	Graph* G = itG->second;
-//	//find its colour
-//	glm::vec3 LineColour = LineCodeToVectorColour(LineCode);
-//	//now build the geometry
-//	NetGraphGeometry* geom = new NetGraphGeometry(G,tube_stations,LineSize/*0.00025f*/,LineTubeSegments,LineColour);
-//	geom->Name="LINE_"+LineCode; //might as well name the object in case we need to find it in the scene graph
-//
-//	return geom;
-//}
-
-
-/// <summary>
-/// NOT USED NOW?
-/// Generate one object for all the lines in the correct colours
-/// TODO: need to use the model interface for this
-/// </summary>
-/// <returns></returns>
-//Object3D* ModelTubeNetwork::GenerateMesh() {
-//	Object3D* o3d = new Object3D();
-//	o3d->Name="LondonUnderground";
-//	for (std::unordered_map<char,Graph*>::iterator it=tube_graphs.begin(); it!=tube_graphs.end(); ++it) {
-//		NetGraphGeometry* geom = GenerateLineMesh(it->first);
-//		o3d->AddChild(new AgentObject(geom));
-//	}
-//	return o3d;
-//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //ABM
@@ -848,64 +665,37 @@ void ModelTubeNetwork::Setup() {
 	//My version, closer to NetLogo: Breed("node","nodes"); and Breed("driver","drivers");
 	//SetDefaultShape("node","sphere"); //takes too long to create 300 of them
 	SetDefaultShape("node","cube");
-	SetDefaultSize("node",StationSize/*0.001f*/);
+	SetDefaultSize("node",StationSize);
 	SetDefaultShape("driver","turtle");
-	SetDefaultSize("driver",TrainSize/*0.005f*/);
-
-	////////////Set animation mode
-	AnimateMode=true;
-	AnimationTimeMultiplier=10; //run at ten times normal speed
+	SetDefaultSize("driver",TrainSize);
 
 	loadStations(Filename_StationCodes); //station locations
 	loadLinks(Filename_TubeODNetwork); //network from JSON origin destination file
-	
-	/////this needs to depend on the animate settings
-	//loadPositions(Filename_TrackernetPositions); //train positions
-	LoadAnimation(Filename_AnimationDir);
-	LoadAnimatePositions();
-	//set current animation time to the first time in the data sample
-	AnimationDT._DT=GetFirstAnimationTime();
-	AnimationDT._fraction=0;
-	FrameTimeN=AnimationDT._DT;
+
+	////////////Set real-time mode
+	AnimateMode=EAnimationType::RealTime;
+	//NOT NEEDED loadPositions(Filename_TrackernetPositions); //train positions
+	AnimationDataDT = AgentTime::Now();
+	AnimationDataDT.Add(-180); //now-3 minutes so it does an immediate download
 	/////
 
-	//OLD method for creating links in the 3D scene graph
-//	Object3D* lu = GenerateMesh();
-//	lu->Name="LondonUnderground";
-//	//you shouldn't manipulate the scene graph directly, but instead create the equivalent of an ABM.Links object
-//	_pSceneGraph->push_back(lu); //this is bad, but only until ABM can represent the network
-//	_links._pSceneRoot = lu; //set the root scene graph object for the links to this network object
+	////////////Set animation mode
+	//AnimateMode=EAnimationType::Archive;
+	//AnimationTimeMultiplier=10; //run at ten times normal speed
+	//LoadAnimation(Filename_AnimationDir);
+	//LoadAnimatePositions();
+	//set current animation time to the first time in the data sample
+	//AnimationDT._DT=GetFirstAnimationTime();
+	//AnimationDT._fraction=0;
+	//FrameTimeN=AnimationDT._DT;
+	/////
+
 
 	//ABM method of creating links in the 3D scene graph
 	_links.Create3D(_links._pSceneRoot); //TODO: need more elegant way of calling this
-	
-
-	//now create some tube trains (=drivers in netlogo and agentscript speak)
-	//the AgentScript code did this by hatching them from the station node (vertex) that they are heading towards
-	//..\\data\\trackernet_20140127_154200.csv
-	//ABM::Agent* a = _agents.Hatch("driver");
-	//a->SetXYZ(0.11464,51.46258,0); //not Brixton
-
-
-	//debug
-	//std::vector<ABM::Agent*> nodes = _agents.Ask("node");
-	//for (std::vector<ABM::Agent*>::iterator it = nodes.begin(); it!=nodes.end(); ++it) {
-	//	ABM::Agent* A = *it;
-	//	if (A->Name=="WDN") {
-	//		cout<<"Wimbledon"<<endl;
-	//		std::vector<ABM::Link*> lnks = A->OutLinks();
-	//		for (std::vector<ABM::Link*>::iterator it2 = lnks.begin(); it2!=lnks.end(); ++it2) {
-	//			ABM::Agent* end1 = (*it2)->end1;
-	//			ABM::Agent* end2 = (*it2)->end2;
-	//			cout<<end1->Name<<"->"<<end2->Name<<" ";
-	//		}
-	//		cout<<endl;
-	//	}
-	//}
-	//end debug
 
 	//we don't know if this is actually generating statistics, but this is the only place we can write the csv header
-	cout<<"Animation time,S,B,D,"
+	/*cout<<"Animation time,S,B,D,"
 			<<"BS,B1,B0,Bat,Bmvel,Bpvel,Bzerovel,Bvsum,Bvmean,"
 			<<"CS,C1,C0,Cat,Cmvel,Cpvel,Czerovel,Cvsum,Cvmean,"
 			<<"DS,D1,D0,Dat,Dmvel,Dpvel,Dzerovel,Dvsum,Dvmean,"
@@ -917,178 +707,36 @@ void ModelTubeNetwork::Setup() {
 			<<"VS,V1,V0,Vat,Vmvel,Vpvel,Vzerovel,Vvsum,Vvmean,"
 			<<"WS,W1,W0,Wat,Wmvel,Wpvel,Wzerovel,Wvsum,Wvmean,"
 			<<"all_at,all_mvel,all_pvel,all_zerovel,all_vsum,all_vmean"
-			<<endl;
+			<<endl;*/
 }
 
 /// <summary>
-/// Animation step virtual from ABM::Model. This calls one of two animation step functions based on whether we're animating from an archive, or displaying real data.
+/// Hatch a new agent from data.
 /// </summary>
-void ModelTubeNetwork::Step(double Ticks) {
-	//reset the birth and death rate for this frame
-	//_agents.Birth=0;
-	//_agents.Death=0;
-	if (AnimateMode) StepAnimation(Ticks);
-	else StepRealTime(Ticks);
-	//write out agent turnover - you could actually interrogate the data yourself to get the numbers
-	//cout<<"B,"<<_agents.Birth<<",D,"<<_agents.Death<<endl;
-}
-
-//visitor callback for filtering links by line and direction code
-//bool is_line_dir() {
-//	return false;
-//}
-
-//functor - check line and direction for driver agent, note logic is reversed as it's used in a remove_if to remove anything that's the wrong line or direction
-struct checkLineDirection {
-  const string lineCode;
-  const int direction;
-  checkLineDirection(const string& lineCode, const int direction) : lineCode(lineCode),direction(direction) {}
-  bool operator()(ABM::Link* x) { return (x->Get<std::string>("lineCode")!=lineCode) || (x->Get<int>("direction")!=direction); } //note application of De Morgan's
-};
-
-//functor - check line for driver agent, logic reversed as above
-struct checkLine {
-  const string lineCode;
-  checkLine(const string& lineCode) : lineCode(lineCode) {}
-  bool operator()(ABM::Link* x) { return x->Get<std::string>("lineCode")!=lineCode; }
-};
-
-/// <summary>ABM simulation step code</summary>
-/// <param name="Ticks">In this instance, ticks is the time interval since the last simulation step</param>
-void ModelTubeNetwork::StepRealTime(double Ticks) {
-	std::vector<ABM::Agent*> drivers = _agents.Ask("driver"); //should be drivers really, but haven't implemented plural breeds yet
-	for (std::vector<ABM::Agent*>::iterator dIT = drivers.begin(); dIT!=drivers.end(); ++dIT)
+ABM::Agent* ModelTubeNetwork::HatchAgent(const std::string& id, char lineCode, float timeToStation, const std::string& stationCode, int direction, int destinationCode, const std::string& platform)
+{
+	ABM::Agent* a = _agents.Hatch("driver");
+	a->Name = id; //unique name to match up to next data download
+	a->SetColour(LineCodeToVectorColour(lineCode));
+	if (!PositionAgent(a,lineCode,timeToStation,stationCode,direction))
 	{
-		ABM::Agent* d = *dIT;
-
-		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
-		d->Face(*toNode); //d.face d.toNode
-		d->Forward(min(d->Get<float>("v") * (float)Ticks,(float)d->Distance(*toNode))); //d.forward Math.min d.v, d.distance d.toNode
-		if (.00001f > d->Distance(*toNode)) //# or (d.distance d.toNode) < .01
+		if (!PositionAgent(a,lineCode,timeToStation,stationCode,1-direction)) //try other direction - shouldn't happen, but it does
 		{
-			ABM::Agent* pTestAgent0 = d->Get<ABM::Agent*>("toNode");
-			ABM::Agent* pTestAgent1 = d->Get<ABM::Agent*>("fromNode");
-			//cout<<"Agent: "<<d->Name<<" reached "<<d->Get<ABM::Agent*>("toNode")->Name<<" ";
-			ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode"); //not sure why, but if you join this with the line below it doesn't set d.fromNode
-			d->Set<ABM::Agent*>("fromNode",toNode); // d.fromNode = d.toNode
-			ABM::Agent* pTestAgent2 = d->Get<ABM::Agent*>("fromNode");
-			//############################################
-			//#pick a random one of the outlinks from this node
-			//#also, you can't use "with" as it returns an array
-			//lnks = (lnk for lnk in d.fromNode.myOutLinks() when lnk.lineCode==d.lineCode and lnk.direction==d.direction)
-			std::vector<ABM::Link*> lnks = d->Get<ABM::Agent*>("fromNode")->OutLinks();
-			std::string lineCode = d->Get<std::string>("lineCode");
-			int dir = d->Get<int>("direction");
-			std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLineDirection(lineCode,dir)); //note end iterator
-			//#console.log("LINKS: ",lnks)
-			size_t length = end-lnks.begin();
-			if (length>0)
-			{
-				//coffeescript - pick a new link randomly
-				//l = lnks[u.randomInt lnks.length]
-				//d.toNode = l.end2
-				//d.v = l.velocity
-				
-				//hack, I'm just going to take the first
-				//cout<<"(CONTINUE) ";
-				//debug
-				//for (vector<ABM::Link*>::iterator it=lnks.begin(); it!=end; ++it) {
-				//	cout<<"["<<(*it)->end1->Name<<" "<<(*it)->end2->Name<<"] ";
-				//}
-				//end of debug
-				//ABM::Link* l = lnks[0];
-				ABM::Link* l = lnks.at(0);
-				ABM::Agent* toNode = l->end2;
-				d->Set<ABM::Agent*>("toNode",toNode);
-				d->Set<float>("v",l->Get<float>("velocity"));
-			}
-			else
-			{
-				//#condition when we've got to the end of the line and need to change direction - drop the direction constraint
-				//lnks = (lnk for lnk in d.fromNode.myOutLinks() when lnk.lineCode==d.lineCode)
-				std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLine(lineCode)); //note end iterator
-				size_t length = end-lnks.begin();
-				if (length>0)
-				{
-					//cout<<"(NEW DIR) ";
-					//l = lnks[0]
-					//d.direction=l.direction //#don't forget to change the direction - otherwise everybody gets stuck on the last link
-					//d.toNode = l.end2
-					//d.v = l.velocity
-					ABM::Link* l = lnks[0];
-					d->Set<int>("direction",l->Get<int>("direction")); //don't forget to change the direction - otherwise everybody gets stuck on the last link
-					ABM::Agent* toNode = l->end2;
-					d->Set<ABM::Agent*>("toNode",toNode);
-					d->Set<float>("v",l->Get<float>("velocity"));
-				}
-				else
-				{
-					//#should never happen
-					//console.log("ERROR: no end of line choice for driver: ",d)
-					//#d.die ?
-					ABM::Agent* toNode=d->Get<ABM::Agent*>("toNode");
-					int dir=d->Get<int>("direction");
-					//cout<<"Agent "<<d->Name<<" no options "<<toNode->Name<<" dir="<<dir<<endl;
-					
-					//debug
-					//for (vector<ABM::Link*>::iterator it=lnks.begin(); it!=lnks.end(); ++it) {
-					//	cout<<"["<<(*it)->end1->Name<<" "<<(*it)->end2->Name<<"] ";
-					//}
-					//cout<<endl;
-					//end of debug
-				}
-			}
-			//string fromNodeName = d->Get<ABM::Agent*>("fromNode")->Name;
-			//string toNodeName = d->Get<ABM::Agent*>("toNode")->Name;
-			//cout<<" now travelling from "<<fromNodeName<<" to "<<toNodeName<<endl;
+			cerr<<"Error hatching agent "<<id<<endl;
+			a->Die();
+			return nullptr;
 		}
 	}
+	//set additional information on the agent that's not used in the positioning
+	a->Set("DestinationCode",destinationCode);
+	a->Set("Platform",platform);
+	a->Set("PreviousStation","");
+	a->Set("DetailsStation",stationCode);
+	return a;
 }
 
 /// <summary>
-/// return the time of the first animation frame that we have data for
-/// </summary>
-time_t ModelTubeNetwork::GetFirstAnimationTime()
-{
-	time_t DT = tube_anim_frames.begin()->first;
-	return DT;
-}
-
-/// <summary>
-/// return the next animation frame time which is >=Now
-/// If Now is past the end of the animation, then it returns the first frame time i.e. it loops
-/// </summary>
-//time_t ModelTubeNetwork::GetNextAnimationTimeFrom(const time_t Now)
-//{
-//}
-
-/// <summary>
-/// return the next animation time period from the current one and wraps around to the beginning if necessary i.e. it loops
-//TODO: the looping is broken and it could do with some improvement
-/// </summary>
-time_t ModelTubeNetwork::GetNextAnimationTime(const time_t Current)
-{
-	/*time_t TimeN;
-	map<time_t,std::map<std::string,struct tube_anim_record>>::iterator it = tube_anim_frames.find(Current);
-	if (it==tube_anim_frames.end())
-		TimeN = tube_anim_frames.begin()->first; //Current not found, so return first anim frame time
-	else {
-		++it;
-		if (it==tube_anim_frames.end())
-			TimeN = tube_anim_frames.begin()->first; //Current+1 not found, so return first anim frame time
-		else
-			TimeN = it->first; //return Current+1 time
-	}*/
-	time_t TimeN;
-	for (map<time_t,std::map<std::string,struct tube_anim_record>>::iterator it = tube_anim_frames.begin(); it!=tube_anim_frames.end(); ++it) {
-		TimeN = it->first;
-		if (TimeN>Current) break;
-	}
-	return TimeN;
-}
-
-/// <summary>
-/// position an agent with a position expressed as 30s from [StationName] on line B in direction [D]
+/// Position an agent with a position expressed as 30s from [StationName] on line B in direction [D]
 /// The problem comes when it's "At Platform" as we don't know the next node (route?). In that case, just set to and from nodes equal.
 /// </summary>
 /// <returns>returns true if agent position was found and the agent data was updated</returns>
@@ -1125,21 +773,26 @@ bool ModelTubeNetwork::PositionAgent(ABM::Agent* agent,char LineCode, float Time
 					agent->SetColour(LineCodeToVectorColour(LineCode));
 					//interpolate position based on runlink and time to station
 					float dist = l->end2->Distance(*(l->end1));
-					agent->Set<float>("v", dist/TimeToStation); //calculate velocity needed to get to the next node when it says we should
+					//NOTE: dist/TimeToStation is wrong for the velocity - this is for the full link distance, but we're using the time to station to position based on velocity (runlink and distance)
+					//agent->Set<float>("v",dist/TimeToStation); //calculate velocity needed to get to the next node when it says we should
 					float runlink = l->Get<float>("runlink");
-					if (TimeToStation>runlink) {
+					float velocity = dist/runlink;
+					agent->Set<float>("v",velocity); //this is the timetabled speed for this runlink
+					if (TimeToStation>=runlink) {
 						//cerr<<"Error: TimeToStation greater than runlink! "<<agent->Name<<endl;
 						//in the annoying case when the time to station is greater than the time it's supposed to take to get there, position at the fromNode
-						glm::dvec3 Pend = l->end1->GetXYZ();
-						agent->SetXYZ(Pend.x,Pend.y,Pend.z);
+						glm::dvec3 Pfrom = l->end1->GetXYZ();
+						agent->SetXYZ(Pfrom.x,Pfrom.y,Pfrom.z);
 					}
 					else {
-						glm::dvec3 delta = l->end1->GetXYZ() - l->end2->GetXYZ(); //note this is the reverse direction end2 to end1
+						glm::dvec3 Pfrom = l->end1->GetXYZ();
+						glm::dvec3 Pto = l->end2->GetXYZ();
+						glm::dvec3 delta = Pto-Pfrom;
 						double scale = TimeToStation/runlink;
-						glm::dvec3 Pend = l->end2->GetXYZ();
-						agent->SetXYZ(Pend.x+scale*delta.x,Pend.y+scale*delta.y,Pend.z+scale*delta.z); //linear interpolation X seconds back from target node based on runlink
+						agent->SetXYZ(Pto.x-scale*delta.x,Pto.y-scale*delta.y,Pto.z-scale*delta.z); //linear interpolation X seconds back from target node based on runlink
 					}
-					agent->Face(*agent->Get<ABM::Agent*>("toNode")); //put the face last as we need the position
+					//agent->Face(*agent->Get<ABM::Agent*>("toNode")); //put the face last as we need the position
+					agent->Face(*l->end2);
 					Success=true;
 					break;
 				}
@@ -1150,6 +803,224 @@ bool ModelTubeNetwork::PositionAgent(ABM::Agent* agent,char LineCode, float Time
 	}
 	return Success;
 }
+
+
+/// <summary>
+/// Animation step virtual from ABM::Model. This calls one of two animation step functions based on whether we're animating from an archive, or displaying real data.
+/// </summary>
+void ModelTubeNetwork::Step(double Ticks) {
+	//reset the birth and death rate for this frame
+	_agents.Birth=0;
+	_agents.Death=0;
+	switch (AnimateMode) {
+		case EAnimationType::RealTime :
+			StepRealTime(Ticks);
+			break;
+		case EAnimationType::Archive :
+			StepAnimation(Ticks);
+			break;
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Real-time code
+
+//visitor callback for filtering links by line and direction code
+//bool is_line_dir() {
+//	return false;
+//}
+
+//functor - check line and direction for driver agent, note logic is reversed as it's used in a remove_if to remove anything that's the wrong line or direction
+struct checkLineDirection {
+  const string lineCode;
+  const int direction;
+  checkLineDirection(const string& lineCode, const int direction) : lineCode(lineCode),direction(direction) {}
+  bool operator()(ABM::Link* x) { return (x->Get<std::string>("lineCode")!=lineCode) || (x->Get<int>("direction")!=direction); } //note application of De Morgan's
+};
+
+//functor - check line for driver agent, logic reversed as above
+struct checkLine {
+  const string lineCode;
+  checkLine(const string& lineCode) : lineCode(lineCode) {}
+  bool operator()(ABM::Link* x) { return x->Get<std::string>("lineCode")!=lineCode; }
+};
+
+/// <summary>ABM simulation step code</summary>
+/// <param name="Ticks">In this instance, ticks is the time interval since the last simulation step in seconds</param>
+void ModelTubeNetwork::StepRealTime(double Ticks) {
+	AnimationDT = AgentTime::Now();
+	//New data acquisition check and download
+	if (AgentTime::DifferenceSeconds(AnimationDT,AnimationDataDT)>10/*180.0f*/) { //new data available every 3 minutes
+		if (AgentTime::DifferenceSeconds(AnimationDT,LastDownloadDT)>30.0f) { //don't download more than once every 30s
+			LastDownloadDT = AgentTime::Now();
+			//TODO: acquire new data here - this needs to be fully async, so you need a message queue
+			long ResponseCode;
+			std::vector<char> data = geogl::net::HttpRequest::Download(RealTimePositionsURL,&ResponseCode); //blocks until data downloaded
+			//TODO: I need http headers from this
+			if (ResponseCode==200) {
+				AnimationDataDT = AgentTime::Now();
+				std::cout<<"ModelTubeNetwork::StepRealTime New real-time data: "<<AgentTime::ToString(AnimationDataDT)<<std::endl;
+				//handle the new data here - you have a block of characters representing a CSV file which need to be compared against the current list of agents
+				data::DataTable dt = data::DataTable::FromCSV(data);
+				//now do the agent update here
+				std::set<std::string> LiveAgents;
+				for (auto rowIT = dt.Rows.begin(); rowIT!=dt.Rows.end(); ++rowIT) {
+					//line,trip,set,lat,lon,east,north,timetostation,location,stationcode,stationname,platform,platformdirectioncode,destination,destinationcode
+					std::string id = (*rowIT)[0]+"_"+(*rowIT)[1]+"_"+(*rowIT)[2];
+					LiveAgents.insert(id);
+					std::string strLineCode = (*rowIT)[0];
+					char lineCode = strLineCode[0];
+					std::string stationcode = (*rowIT)[9];
+					std::string strTimeToStation = (*rowIT)[7];
+					std::string strDestinationCode = (*rowIT)[14];
+					float timeToStation = std::stof(strTimeToStation);
+					std::string nextStation = (*rowIT)[9];
+					std::string strDirection = (*rowIT)[12];
+					int direction = std::stoi(strDirection);
+					int destinationCode = std::stoi(strDestinationCode);
+					std::string platform = (*rowIT)[11];
+					std::cout<<"New data: "<<id<<std::endl;
+					//then match up data, create new and destroy any missing
+					std::vector<ABM::Agent*> a = _agents.With("name",id);
+					if (a.size()>0) {
+						//position agent - also, you could just speed up its velocity, but that might be worse than a jump?
+						bool success = PositionAgent(a[0],lineCode,timeToStation,nextStation,direction);
+						if (!success) std::cout<<"Position Agent Failed "<<lineCode<<" "<<timeToStation<<" "<<nextStation<<" "<<direction<<std::endl;
+						else std::cout<<"Position Agent success "<<lineCode<<" "<<timeToStation<<" "<<nextStation<<" "<<direction<<std::endl;
+					}
+					else {
+						//it's a new agent, so hatch it
+						HatchAgent(id,lineCode,timeToStation,nextStation,direction,destinationCode,platform);
+					}
+				}
+				//now match agents from the csv data against all current agents, if I have one not on the LiveAgents list, then it has to be destroyed
+				std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+				int livecount=0;
+				for (auto aIT = drivers.begin(); aIT!=drivers.end(); ++aIT) {
+					if (LiveAgents.find((*aIT)->Name)==LiveAgents.end())
+					{
+						//std::cout<<"Die: "<<(*aIT)->Name<<std::endl;
+						(*aIT)->Die();
+					}
+					else {
+						//std::cout<<"Die: "<<(*aIT)->Name<<" OK"<<std::endl;
+						++livecount;
+					}
+				}
+				std::cout<<"Live Agents count="<<livecount<<std::endl;
+				return; //exit after this as the data is valid for this point in time and we don't need to animate
+			}
+		}
+	}
+
+	//now on to the animation
+	std::vector<ABM::Agent*> drivers = _agents.Ask("driver"); //should be drivers really, but haven't implemented plural breeds yet
+	for (std::vector<ABM::Agent*>::iterator dIT = drivers.begin(); dIT!=drivers.end(); ++dIT)
+	{
+		ABM::Agent* d = *dIT;
+
+		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
+		d->Face(*toNode); //d.face d.toNode
+		d->Forward(min(d->Get<float>("v") * (float)Ticks,(float)d->Distance(*toNode))); //d.forward Math.min d.v, d.distance d.toNode
+		if (.00001f > d->Distance(*toNode)) //# or (d.distance d.toNode) < .01
+		{
+			ABM::Agent* pTestAgent0 = d->Get<ABM::Agent*>("toNode");
+			ABM::Agent* pTestAgent1 = d->Get<ABM::Agent*>("fromNode");
+			//cout<<"Agent: "<<d->Name<<" reached "<<d->Get<ABM::Agent*>("toNode")->Name<<" ";
+			ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode"); //not sure why, but if you join this with the line below it doesn't set d.fromNode
+			d->Set<ABM::Agent*>("fromNode",toNode); // d.fromNode = d.toNode
+			ABM::Agent* pTestAgent2 = d->Get<ABM::Agent*>("fromNode");
+			//############################################
+			//#pick a random one of the outlinks from this node
+			//#also, you can't use "with" as it returns an array
+			//lnks = (lnk for lnk in d.fromNode.myOutLinks() when lnk.lineCode==d.lineCode and lnk.direction==d.direction)
+			std::vector<ABM::Link*> lnks = d->Get<ABM::Agent*>("fromNode")->OutLinks();
+			std::string lineCode = d->Get<std::string>("lineCode");
+			int dir = d->Get<int>("direction");
+			std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLineDirection(lineCode,dir)); //note end iterator
+			//#console.log("LINKS: ",lnks)
+			size_t length = end-lnks.begin();
+			if (length>0)
+			{
+				ABM::Link* l = lnks.at(0);
+				ABM::Agent* toNode = l->end2;
+				d->Set<ABM::Agent*>("toNode",toNode);
+				d->Set<float>("v",l->Get<float>("velocity"));
+			}
+			else
+			{
+				//#condition when we've got to the end of the line and need to change direction - drop the direction constraint
+				//lnks = (lnk for lnk in d.fromNode.myOutLinks() when lnk.lineCode==d.lineCode)
+				std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLine(lineCode)); //note end iterator
+				size_t length = end-lnks.begin();
+				if (length>0)
+				{
+					//cout<<"(NEW DIR) ";
+					//l = lnks[0]
+					//d.direction=l.direction //#don't forget to change the direction - otherwise everybody gets stuck on the last link
+					//d.toNode = l.end2
+					//d.v = l.velocity
+					ABM::Link* l = lnks[0];
+					d->Set<int>("direction",l->Get<int>("direction")); //don't forget to change the direction - otherwise everybody gets stuck on the last link
+					ABM::Agent* toNode = l->end2;
+					d->Set<ABM::Agent*>("toNode",toNode);
+					d->Set<float>("v",l->Get<float>("velocity"));
+				}
+				else
+				{
+					//#should never happen
+					//console.log("ERROR: no end of line choice for driver: ",d)
+					//#d.die ?
+					ABM::Agent* toNode=d->Get<ABM::Agent*>("toNode");
+					int dir=d->Get<int>("direction");
+					//cout<<"Agent "<<d->Name<<" no options "<<toNode->Name<<" dir="<<dir<<endl;
+
+				}
+			}
+		}
+	}
+}
+
+//End of Real-time code
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+/// <summary>
+/// return the time of the first animation frame that we have data for
+/// </summary>
+time_t ModelTubeNetwork::GetFirstAnimationTime()
+{
+	time_t DT = tube_anim_frames.begin()->first;
+	return DT;
+}
+
+/// <summary>
+/// return the next animation time period from the current one and wraps around to the beginning if necessary i.e. it loops
+//TODO: the looping is broken and it could do with some improvement
+/// </summary>
+time_t ModelTubeNetwork::GetNextAnimationTime(const time_t Current)
+{
+	/*time_t TimeN;
+	map<time_t,std::map<std::string,struct tube_anim_record>>::iterator it = tube_anim_frames.find(Current);
+	if (it==tube_anim_frames.end())
+		TimeN = tube_anim_frames.begin()->first; //Current not found, so return first anim frame time
+	else {
+		++it;
+		if (it==tube_anim_frames.end())
+			TimeN = tube_anim_frames.begin()->first; //Current+1 not found, so return first anim frame time
+		else
+			TimeN = it->first; //return Current+1 time
+	}*/
+	time_t TimeN;
+	for (map<time_t,std::map<std::string,struct tube_anim_record>>::iterator it = tube_anim_frames.begin(); it!=tube_anim_frames.end(); ++it) {
+		TimeN = it->first;
+		if (TimeN>Current) break;
+	}
+	return TimeN;
+}
+
+
 
 //internal function used by NextNodeOnPath
 void Traverse(const std::string& LineCode, ABM::Agent* Begin, ABM::Agent* End, vector<ABM::Agent*>& list)

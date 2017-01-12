@@ -3,6 +3,7 @@
 #include <ctime>
 #include <sstream>
 #include <iomanip>
+#include <chrono>
 
 #include <math.h>
 
@@ -16,6 +17,21 @@ AgentTime::AgentTime(void)
 
 AgentTime::~AgentTime(void)
 {
+}
+
+/// <summary>
+/// Return an AgentTime representing the time now as reported by the real-time clock
+/// </summary>
+AgentTime AgentTime::Now()
+{
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	AgentTime DT;
+	//TODO: here...
+
+	DT._DT = std::chrono::system_clock::to_time_t(now);
+	DT._fraction = 0;
+
+	return DT;
 }
 
 /// <summary>

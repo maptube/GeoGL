@@ -49,7 +49,7 @@ SOURCES=$(wildcard GeoGL/*.cpp) $(wildcard GeoGL/gengine/*.cpp) $(wildcard GeoGL
 $(wildcard GeoGL/gengine/events/*.cpp) $(wildcard GeoGL/cache/*.cpp) $(wildcard GeoGL/async/*.cpp) \
 $(wildcard GeoGL/net/*.cpp) $(wildcard GeoGL/gui/*.cpp) $(wildcard GeoGL/clipper/*.cpp) \
 $(wildcard GeoGL/abm/*.cpp) $(wildcard GeoGL/abm/sensor/*.cpp) $(wildcard GeoGL/io/*.cpp) $(wildcard usr/*.cpp) \
-$(wildcard GeoGL/algorithms/index/*.cpp) $(wildcard GeoGL/gis/*.cpp) $(wildcard GeoGL/text/*.cpp) $(wildcard GeoGL/data/gtfs/*.cpp)
+$(wildcard GeoGL/algorithms/index/*.cpp) $(wildcard GeoGL/gis/*.cpp) $(wildcard GeoGL/text/*.cpp) $(wildcard GeoGL/data/*.cpp) $(wildcard GeoGL/data/gtfs/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=bin/GeoGLProgram
 

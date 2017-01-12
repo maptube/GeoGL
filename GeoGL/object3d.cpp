@@ -40,8 +40,12 @@ void Object3D::GetPos(double& X, double& Y, double& Z)
 /// <param name="Z"></param>
 void Object3D::SetPos(double X, double Y, double Z) {
 	//TODO:
+	float cx = modelMatrix[3][0];
+	float cy = modelMatrix[3][1];
+	float cz = modelMatrix[3][2];
+
 	//Also, you need to translate the bounding box as well
-	glm::dvec3 Txyz(X, Y, Z);
+	glm::dvec3 Txyz(X-cx, Y-cy, Z-cz);
 	//modelMatrix = glm::translate(modelMatrix,Txyz); //TODO: check what this does!!!! it's a relative translation not absolute
 	//direct manipulation of position
 	modelMatrix[3][0]=(float)X;

@@ -140,9 +140,9 @@ Globe::Globe(void)
 
 //HACK - turned off ground boxes here!
 	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-	GroundBox* buildings = new GroundBox(_workerGC);
-	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
-	SceneGraph.push_back(buildings);
+//	GroundBox* buildings = new GroundBox(_workerGC);
+//	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+//	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);
@@ -629,7 +629,7 @@ void Globe::Step(void)
 	if (delta<0.001) delta=0.001; //limit minimum delta time to 1ms, so you will never get any timesteps less than this e.g. on the first run
 	//call step on each attached model layer in turn
 	for (vector<ABM::Model*>::iterator modelIT = modelLayers.begin(); modelIT!=modelLayers.end(); ++modelIT) {
-		(*modelIT)->Step(delta*10);
+		(*modelIT)->Step(delta); //was *10 - why?
 	}
 	_lastModelRunTime = timeNow;
 }

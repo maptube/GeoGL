@@ -146,11 +146,26 @@ namespace ABM {
 		agentMatrix[3][0]=(float)position.x;
 		agentMatrix[3][1]=(float)position.y;
 		agentMatrix[3][2]=(float)position.z;
-		agentMatrix = glm::translate(agentMatrix,glm::vec3(0,0,-d));
+
+		//original code
+		//agentMatrix = glm::translate(agentMatrix,glm::vec3(0,0,-d));
 		//now get the position back
-		position.x=(float)agentMatrix[3][0];
-		position.y=(float)agentMatrix[3][1];
-		position.z=(float)agentMatrix[3][2];
+		//position.x=(float)agentMatrix[3][0];
+		//position.y=(float)agentMatrix[3][1];
+		//position.z=(float)agentMatrix[3][2];
+
+
+		//new
+		glm::vec4 f = agentMatrix * glm::vec4(0,0,-d,0);
+		position.x=position.x+f.x; position.y=position.y+f.y; position.z=position.z+f.z;
+		agentMatrix[3][0]=position.x;
+		agentMatrix[3][1]=position.y;
+		agentMatrix[3][2]=position.z;
+		//end new
+
+
+
+
 		//and set the mesh if it exists
 		if (_pAgentMesh)
 			_pAgentMesh->SetMatrix(agentMatrix);

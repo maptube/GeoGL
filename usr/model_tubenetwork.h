@@ -12,16 +12,11 @@
 #include <unordered_map>
 #include <unordered_set>
 
-//#include "graph.h"
 #include "netgraphgeometry.h"
 
 #include "abm/Model.h"
 #include "abm/agenttime.h"
 
-//struct TubeStationWGS84
-//{
-//	float lonlat[2];
-//};
 
 //forward declarations
 class Graph;
@@ -45,11 +40,17 @@ struct dm_route_record {
 	int Count;
 };
 
+/// <summary>
+/// Used to switch between a real-time animation and animation from archive data
+/// </summary>
+enum EAnimationType { RealTime, Archive };
+
 //TODO: how about an event definition for the analytics? time, trip, set, station code, platform, destination code, (time to station?)
 
-/**
-* If you create one of these then you're creating a real working tube network
-*/
+/// <summary>
+/// ModelTubeNetwork
+/// If you create one of these then you're creating a real working tube network
+/// </summary>
 class ModelTubeNetwork : public ABM::Model {
 protected:
 	//datamining tables
@@ -70,41 +71,34 @@ public:
 	static const std::string Filename_TubeODNetwork; //network from JSON origin destination file
 	static const std::string Filename_TrackernetPositions; //train positions
 	static const std::string Filename_AnimationDir; //directory containing animation data as csv files
+	static const std::string RealTimePositionsURL; //url which returns a csv file containing the current positions of tubes
 	static const float LineSize; //size of track
 	static const int LineTubeSegments; //number of segments making up the tube geometry
 	static const float StationSize; //size of station geometry object
 	static const float TrainSize; //size of train geometry object
 
-	bool AnimateMode; //set to true to make positions come from tube_anim_frames
-	//struct tm AnimateDT; //current animation time
-	//time_t AnimationDT; //current animation time
+	EAnimationType AnimateMode; //switch between real-time and archive data animations
 	AgentTime AnimationDT; //current animation time
+	AgentTime AnimationDataDT; //time of the last data downloaded for real-time
+	AgentTime LastDownloadDT; //time data was last downloaded in real-time mode
 	time_t FrameTimeN; //frame of animation data that we're currently working towards i.e. next frame after time now
 	float AnimationTimeMultiplier; //so you can run the animation at 2x, 4x, anything you like
-
-	//old code not used now in favour of node agents and links graph
-	//Graph* tube_graph;
-	//std::unordered_map<char,Graph*> tube_graphs; //one for each line
-	//std::unordered_map<std::string,struct GraphNameXYZ>* tube_stations;
 
 	//animation
 	std::map<time_t,std::map<std::string,struct tube_anim_record>> tube_anim_frames;
 
-	//std::map<string,struct TubeStationWGS84>* tube_stations;
 
 	ModelTubeNetwork(SceneGraphType* SceneGraph);
 	~ModelTubeNetwork();
 	unsigned int LineCodeToColour(char Code);
 	glm::vec3 LineCodeToVectorColour(char Code);
-	void loadStationsOLD(std::string Filename);
 	void loadStations(std::string Filename);
 	void loadLinks(std::string NetworkJSONFilename);
 	void loadPositions(std::string Filename);
 	void LoadAnimatePositions();
-	ABM::Agent* HatchAgentFromAnimationRecord(const std::string& UniqueName, const tube_anim_record& rec);
+	ABM::Agent* HatchAgentFromAnimationRecord(const std::string& UniqueName, const tube_anim_record& rec); //TODO: this needs to be removed in favour of the other version below
+	ABM::Agent* HatchAgent(const std::string& id, char lineCode, float timeToStation, const std::string& stationCode, int direction, int destinationCode, const std::string& platform);
 	void LoadAnimation(const std::string& DirectoryName);
-	//NetGraphGeometry* GenerateLineMesh(char LineCode);
-	//Object3D* GenerateMesh();
 
 	bool PositionAgent(ABM::Agent* agent,char LineCode, float TimeToStation, std::string StationName, int Direction);
 
