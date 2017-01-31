@@ -55,8 +55,8 @@ const std::string ModelTubeNetwork::RealTimePositionsURL =
 		"http://loggerhead.casa.ucl.ac.uk/api/f/trackernet?pattern=trackernet_*.csv";
 const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
-const float ModelTubeNetwork::StationSize = 100.0f; //size of station geometry object
-const float ModelTubeNetwork::TrainSize = 300.0f; //size of train geometry object
+const float ModelTubeNetwork::StationSize = 50.0f; //size of station geometry object
+const float ModelTubeNetwork::TrainSize = 150.0f; //size of train geometry object
 
 /// <summary>
 /// Create a Tube Network containing a model of the tube and train agents which run around the track. You have to call load() with the relevant file names to load the
@@ -112,6 +112,8 @@ unsigned int ModelTubeNetwork::LineCodeToColour(char Code) {
 /// <param name="Code">Line Code</param>
 /// <returns>A hexadecimal colour vector (0..1) for the line</returns>
 glm::vec3 ModelTubeNetwork::LineCodeToVectorColour(char Code) {
+	//return a random colour for testing
+	//return glm::vec3((rand()%256)/256.0f, (rand()%256)/256.0f, (rand()%256)/256.0f);
 	switch (Code) {
 	case 'B': return glm::vec3(0.69f,0.38f,0.06f); //Bakerloo
 	case 'C': return glm::vec3(0.94f,0.18f,0.14f); //Central
@@ -663,8 +665,8 @@ void ModelTubeNetwork::Setup() {
 
 	//AgentScript: agentBreeds "nodes" "drivers"
 	//My version, closer to NetLogo: Breed("node","nodes"); and Breed("driver","drivers");
-	//SetDefaultShape("node","sphere"); //takes too long to create 300 of them
-	SetDefaultShape("node","cube");
+	SetDefaultShape("node","sphere"); //or cube?
+	SetDefaultColour("node",glm::vec3(1.0f,1.0f,1.0f));
 	SetDefaultSize("node",StationSize);
 	SetDefaultShape("driver","turtle");
 	SetDefaultSize("driver",TrainSize);
@@ -717,7 +719,8 @@ ABM::Agent* ModelTubeNetwork::HatchAgent(const std::string& id, char lineCode, f
 {
 	ABM::Agent* a = _agents.Hatch("driver");
 	a->Name = id; //unique name to match up to next data download
-	a->SetColour(LineCodeToVectorColour(lineCode));
+	//a->SetColour(LineCodeToVectorColour(lineCode));
+	a->SetColour(glm::vec3((rand()%256)/256.0f, (rand()%256)/256.0f, (rand()%256)/256.0f)); //random colour for testing
 	if (!PositionAgent(a,lineCode,timeToStation,stationCode,direction))
 	{
 		if (!PositionAgent(a,lineCode,timeToStation,stationCode,1-direction)) //try other direction - shouldn't happen, but it does
@@ -732,12 +735,16 @@ ABM::Agent* ModelTubeNetwork::HatchAgent(const std::string& id, char lineCode, f
 	a->Set("Platform",platform);
 	a->Set("PreviousStation","");
 	a->Set("DetailsStation",stationCode);
+	//std::cout<<"Hatch agent: "<<a->Name<<" "<<(a->Get<std::string>("fromNode"))<<" to "<<(a->Get<std::string>("toNode"))<<" time to station="<<timeToStation<<std::endl;
 	return a;
 }
 
 /// <summary>
 /// Position an agent with a position expressed as 30s from [StationName] on line B in direction [D]
 /// The problem comes when it's "At Platform" as we don't know the next node (route?). In that case, just set to and from nodes equal.
+/// IMPORTANT NOTE: this doesn't take account of the data time, which introduces an offset in the time to station. What you have to do
+/// is to take the difference between now and the file time from the server off of the time to station. If it's negative, then it's
+/// obviously got to the station already.
 /// </summary>
 /// <returns>returns true if agent position was found and the agent data was updated</returns>
 bool ModelTubeNetwork::PositionAgent(ABM::Agent* agent,char LineCode, float TimeToStation, std::string NextStation, int Direction) {
@@ -746,14 +753,16 @@ bool ModelTubeNetwork::PositionAgent(ABM::Agent* agent,char LineCode, float Time
 	std::vector<ABM::Agent*> agent_d = _agents.With("name",NextStation); //destination node station
 	if (agent_d.size()>0) {
 		if (TimeToStation<=0) {
-			//agent is currently "At Platform", so all we can do is set to and from node here
+			//Agent is currently "At Platform", so we don't have a to node - set to=from and a dummy velocity plus direction
+			//and let the animate code figure out the next station. We need to do this, otherwise tubes are going to sit in
+			//the same location until the next data frame
 			ABM::Agent* fromNode = agent_d.front();
 			agent->Set<ABM::Agent*>("fromNode", fromNode);
 			agent->Set<ABM::Agent*>("toNode", fromNode); //yes, really fromNode
-			agent->Set<float>("v", 0); //put in zero velocity!
+			agent->Set<float>("v", 5); //put in a fake velocity - 5ms-1 should do it - all we need to do is to trigger the arrived at station code in the animate loop
 			agent->Set<int>("direction", Direction);
 			agent->Set<std::string>("lineCode", strLineCode);
-			agent->SetColour(LineCodeToVectorColour(LineCode));
+//			agent->SetColour(LineCodeToVectorColour(LineCode)); //NO! Colour only set on hatch
 			glm::dvec3 P = fromNode->GetXYZ();
 			agent->SetXYZ(P.x,P.y,P.z); //position agent on its toNode
 			Success=true;
@@ -770,11 +779,11 @@ bool ModelTubeNetwork::PositionAgent(ABM::Agent* agent,char LineCode, float Time
 					//agent->Set<float>("v", l->Get<float>("velocity")); //use pre-created velocity for this link
 					agent->Set<int>("direction", l->Get<int>("direction"));
 					agent->Set<std::string>("lineCode", strLineCode);
-					agent->SetColour(LineCodeToVectorColour(LineCode));
+//					agent->SetColour(LineCodeToVectorColour(LineCode)); //NO! Colour only set on hatch
 					//interpolate position based on runlink and time to station
 					float dist = l->end2->Distance(*(l->end1));
 					//NOTE: dist/TimeToStation is wrong for the velocity - this is for the full link distance, but we're using the time to station to position based on velocity (runlink and distance)
-					//agent->Set<float>("v",dist/TimeToStation); //calculate velocity needed to get to the next node when it says we should
+					//float velocity = dist/(float)TimeToStation; //calculate velocity needed to get to the next node when it says we should
 					float runlink = l->Get<float>("runlink");
 					float velocity = dist/runlink;
 					agent->Set<float>("v",velocity); //this is the timetabled speed for this runlink
@@ -801,7 +810,31 @@ bool ModelTubeNetwork::PositionAgent(ABM::Agent* agent,char LineCode, float Time
 		//if !Success, then do it again, but relax the direction? Would cover situation where agent has got to the end of the line and turned around
 		//you could always do this yourself though
 	}
+	if ((Success)&&(LineCode=='V')) std::cout<<"PositionAgent "<<agent->Name<<" fromNode="<<agent->Get<ABM::Agent*>("fromNode")->Name
+			<<" toNode="<<agent->Get<ABM::Agent*>("toNode")->Name<<" TimeToStn="<<TimeToStation
+			<<" Direction="<<Direction<<" v="<<agent->Get<float>("v")<<std::endl;
 	return Success;
+}
+
+/// <summary>
+/// Upate an agent's velcity based on new data. This is an alternative to the PositionAgent algorithm which jumps a tube to the new "best" location based
+/// on new information. This version changes the tube's velocity so that it will make it's new waypoint on time, which results in a smoother animation, but
+/// at the expense of not getting the exact positions right as quickly.
+/// Remember to take deltaT off of time to station!
+/// </summary>
+bool ModelTubeNetwork::UpdateAgentVelocity(ABM::Agent* agent,float timeToStation)
+{
+	ABM::Agent* toNode = agent->Get<ABM::Agent*>("toNode"); //don't change the toNode, even if nextStation is different - we still have to get there first
+	float dist = agent->Distance(*toNode); //assuming a single link - this should be network distance from current XYZ, but it'll all work out in the end
+	float velocity=5.0f;
+	if ((timeToStation<=0)||(dist<=0)) {
+		velocity=20.0f; //20ms-1 fast to catch up - NOTE: the at station might not be the toNode station
+	}
+	else {
+		float velocity = dist/(timeToStation);
+	}
+	agent->Set<float>("v",velocity);
+	return true; //this is bad, but it doesn't ever fail
 }
 
 
@@ -825,10 +858,6 @@ void ModelTubeNetwork::Step(double Ticks) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Real-time code
 
-//visitor callback for filtering links by line and direction code
-//bool is_line_dir() {
-//	return false;
-//}
 
 //functor - check line and direction for driver agent, note logic is reversed as it's used in a remove_if to remove anything that's the wrong line or direction
 struct checkLineDirection {
@@ -845,23 +874,44 @@ struct checkLine {
   bool operator()(ABM::Link* x) { return x->Get<std::string>("lineCode")!=lineCode; }
 };
 
+/// <summary>Parse the set of headers from the http response looking for a Content-Disposition one that contains a trackernet filename which has the data validity time.</summary>
+/// <param name="response">The http response containing the Headers member.</param>
+AgentTime ParseHttpHeaderTime(const geogl::net::HttpResponse &response)
+{
+	//This is what we're looking for to get the file time. Left of ===== is the header, to the right is its value
+	//Content-Disposition ===== attachment; filename="trackernet_20170123_204500.csv"
+	AgentTime now = AgentTime::Now();
+	auto it = response.Headers.find("Content-Disposition");
+	if (it!=response.Headers.end()) {
+		std::string value = it->second;
+		size_t pos = value.find("trackernet_");
+		if (pos>=0) {
+			pos+=11; //now points to char after _
+			now = AgentTime::FromString(value.substr(pos,15)); //parse YYYYMMDD_HHMMSS
+			std::cout<<"ParseHttpHeaderTime:: now="<<AgentTime::ToStringYYYYMMDD_hhmmss(now)<<std::endl;
+		}
+	}
+	return now;
+}
+
 /// <summary>ABM simulation step code</summary>
 /// <param name="Ticks">In this instance, ticks is the time interval since the last simulation step in seconds</param>
 void ModelTubeNetwork::StepRealTime(double Ticks) {
 	AnimationDT = AgentTime::Now();
 	//New data acquisition check and download
-	if (AgentTime::DifferenceSeconds(AnimationDT,AnimationDataDT)>10/*180.0f*/) { //new data available every 3 minutes
+	if (AgentTime::DifferenceSeconds(AnimationDT,AnimationDataDT)>180.0f) { //new data available every 3 minutes
 		if (AgentTime::DifferenceSeconds(AnimationDT,LastDownloadDT)>30.0f) { //don't download more than once every 30s
 			LastDownloadDT = AgentTime::Now();
 			//TODO: acquire new data here - this needs to be fully async, so you need a message queue
-			long ResponseCode;
-			std::vector<char> data = geogl::net::HttpRequest::Download(RealTimePositionsURL,&ResponseCode); //blocks until data downloaded
+			geogl::net::HttpResponse response = geogl::net::HttpRequest::Download(RealTimePositionsURL); //blocks until data downloaded
 			//TODO: I need http headers from this
-			if (ResponseCode==200) {
-				AnimationDataDT = AgentTime::Now();
-				std::cout<<"ModelTubeNetwork::StepRealTime New real-time data: "<<AgentTime::ToString(AnimationDataDT)<<std::endl;
+			if (response.ResponseCode==200) {
+				AnimationDataDT = ParseHttpHeaderTime(response);
+				int deltaT = AgentTime::DifferenceSeconds(AnimationDT,AnimationDataDT); //difference between now and when the data was valid
+				std::cout<<"ModelTubeNetwork::StepRealTime New real-time data: "<<AgentTime::ToString(AnimationDataDT)<<" deltaT="<<deltaT<<" seconds"<<std::endl;
+				if (deltaT<0) deltaT=0; //it can happen if one of the clocks is wrong
 				//handle the new data here - you have a block of characters representing a CSV file which need to be compared against the current list of agents
-				data::DataTable dt = data::DataTable::FromCSV(data);
+				data::DataTable dt = data::DataTable::FromCSV(response.ResponseData);
 				//now do the agent update here
 				std::set<std::string> LiveAgents;
 				for (auto rowIT = dt.Rows.begin(); rowIT!=dt.Rows.end(); ++rowIT) {
@@ -879,14 +929,21 @@ void ModelTubeNetwork::StepRealTime(double Ticks) {
 					int direction = std::stoi(strDirection);
 					int destinationCode = std::stoi(strDestinationCode);
 					std::string platform = (*rowIT)[11];
-					std::cout<<"New data: "<<id<<std::endl;
+					//std::cout<<"New data: "<<id<<std::endl;
 					//then match up data, create new and destroy any missing
 					std::vector<ABM::Agent*> a = _agents.With("name",id);
 					if (a.size()>0) {
 						//position agent - also, you could just speed up its velocity, but that might be worse than a jump?
-						bool success = PositionAgent(a[0],lineCode,timeToStation,nextStation,direction);
-						if (!success) std::cout<<"Position Agent Failed "<<lineCode<<" "<<timeToStation<<" "<<nextStation<<" "<<direction<<std::endl;
-						else std::cout<<"Position Agent success "<<lineCode<<" "<<timeToStation<<" "<<nextStation<<" "<<direction<<std::endl;
+						//NOTE: I've put the code for both methods here so that they can be switched over - each has pros and cons
+
+						//Method 1 - This is the jump position code
+						//bool success = PositionAgent(a[0],lineCode,timeToStation-deltaT,nextStation,direction);
+
+						//Method 2 - This is the alternative change the velocity to make the new waypoint on time code
+						bool Success = UpdateAgentVelocity(a[0],timeToStation-deltaT);
+
+						//if (!success) std::cout<<"Position Agent Failed "<<lineCode<<" "<<timeToStation<<" "<<nextStation<<" "<<direction<<std::endl;
+						//else std::cout<<"Position Agent success "<<lineCode<<" "<<timeToStation<<" "<<nextStation<<" "<<direction<<std::endl;
 					}
 					else {
 						//it's a new agent, so hatch it
@@ -907,7 +964,7 @@ void ModelTubeNetwork::StepRealTime(double Ticks) {
 						++livecount;
 					}
 				}
-				std::cout<<"Live Agents count="<<livecount<<std::endl;
+				std::cout<<"Live Agents count="<<livecount<<" birth: "<<_agents.Birth<<" death: "<<_agents.Death<<std::endl;
 				return; //exit after this as the data is valid for this point in time and we don't need to animate
 			}
 		}
@@ -920,9 +977,13 @@ void ModelTubeNetwork::StepRealTime(double Ticks) {
 		ABM::Agent* d = *dIT;
 
 		ABM::Agent* toNode = d->Get<ABM::Agent*>("toNode");
-		d->Face(*toNode); //d.face d.toNode
-		d->Forward(min(d->Get<float>("v") * (float)Ticks,(float)d->Distance(*toNode))); //d.forward Math.min d.v, d.distance d.toNode
-		if (.00001f > d->Distance(*toNode)) //# or (d.distance d.toNode) < .01
+		float velocity = d->Get<float>("v");
+		float distToNode = (float)d->Distance(*toNode);
+		if (velocity>0) d->Face(*toNode); //d.face d.toNode
+		float distMoved = min(velocity * (float)Ticks,distToNode);
+		if (velocity>0) d->Forward(distMoved); //d.forward Math.min d.v, d.distance d.toNode
+		distToNode-=distMoved; //move the distance nearer so we don't have to work out the real distance twice (sqrt)
+		if ((velocity>0)&&(.00001f > distToNode)) //if we're moving and we're right on top of it...
 		{
 			ABM::Agent* pTestAgent0 = d->Get<ABM::Agent*>("toNode");
 			ABM::Agent* pTestAgent1 = d->Get<ABM::Agent*>("fromNode");
@@ -942,6 +1003,7 @@ void ModelTubeNetwork::StepRealTime(double Ticks) {
 			size_t length = end-lnks.begin();
 			if (length>0)
 			{
+				//TODO: you actually need to pick the right link here - this is the ML bit!
 				ABM::Link* l = lnks.at(0);
 				ABM::Agent* toNode = l->end2;
 				d->Set<ABM::Agent*>("toNode",toNode);
@@ -949,7 +1011,8 @@ void ModelTubeNetwork::StepRealTime(double Ticks) {
 			}
 			else
 			{
-				//#condition when we've got to the end of the line and need to change direction - drop the direction constraint
+				d->Die();
+			/*	//#condition when we've got to the end of the line and need to change direction - drop the direction constraint
 				//lnks = (lnk for lnk in d.fromNode.myOutLinks() when lnk.lineCode==d.lineCode)
 				std::vector<ABM::Link*>::iterator end = std::remove_if(lnks.begin(),lnks.end(),checkLine(lineCode)); //note end iterator
 				size_t length = end-lnks.begin();
@@ -976,6 +1039,7 @@ void ModelTubeNetwork::StepRealTime(double Ticks) {
 					//cout<<"Agent "<<d->Name<<" no options "<<toNode->Name<<" dir="<<dir<<endl;
 
 				}
+			*/
 			}
 		}
 	}

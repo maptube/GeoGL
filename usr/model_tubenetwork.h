@@ -101,6 +101,7 @@ public:
 	void LoadAnimation(const std::string& DirectoryName);
 
 	bool PositionAgent(ABM::Agent* agent,char LineCode, float TimeToStation, std::string StationName, int Direction);
+	bool UpdateAgentVelocity(ABM::Agent* agent,float timeToStation);
 
 	time_t GetFirstAnimationTime();
 	//time_t ModelTubeNetwork::GetNextAnimationTimeFrom(const time_t Now);
