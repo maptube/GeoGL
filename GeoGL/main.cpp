@@ -55,11 +55,6 @@
 #include <iostream>
 #include <fstream>
 
-//extern "C" {
-//#include "GLFW/glfw3.h"
-//GLFWAPI void glfwTerminate(void);
-//GLFWAPI double glfwGetTime(void);
-//}
 
 //#define PROGRAM_NAME "GeoGL"
 
@@ -67,66 +62,7 @@ using namespace gengine;
 
 const int FRAMES_PER_SECOND = 60;
 
-//OpenGLContext openglContext; // Our OpenGL Context class
 
-
-
-//new entry point for platform independent code
-//NOTE: SDL nastiness in #defining main as SDL_main to overload its own initialisation. Also needs C linkage.
-//Code is a copy from: http://www.opengl.org/wiki/Tutorial1:_Creating_a_Cross_Platform_OpenGL_3.2_Context_in_SDL_(C_/_SDL)
-/*#ifdef __cplusplus
-extern "C"
-#endif
-int main(int argc, char *argv[])
-{
-	openglContext.create30ContextSDL(); // Create a window and an OpenGL context to run in it
-	openglContext.setupScene(); // Setup our OpenGL scene
-	
-	int startTicks=SDL_GetTicks();
-	bool running = true;
-	SDL_Event evt;
-	while (running)
-	{
-		while(SDL_PollEvent(&evt)) {
-			if (evt.type == SDL_QUIT)
-            {
-				//quit is flagged on a window close
-                running=false;
-            }
-			//check if the event type is a window
-			else if (evt.type == SDL_WINDOWEVENT) {
-				switch (evt.window.event) {
-					case SDL_WINDOWEVENT_RESIZED:
-						openglContext.reshapeWindow(evt.window.data1, evt.window.data2); // Send the new window size to our OpenGLContext
-					break;
-				}
-			}
-			//check if event type is keyboard press
-			else if (evt.type == SDL_KEYDOWN){
-				if(evt.key.keysym.sym == SDLK_ESCAPE){
-					running = false;
-				}
-			}
-		}
-
-		//no messages to process, so render in the idle
-		openglContext.renderScene();
-
-		//Cap the frame rate
-		int ticksNow = SDL_GetTicks();
-		float fps = (ticksNow-startTicks)/1000;
-        if ((ticksNow-startTicks) < 1000 / FRAMES_PER_SECOND )
-        {
-            SDL_Delay( ( 1000 / FRAMES_PER_SECOND ) - (ticksNow-startTicks) );
-        }
-
-	}
-
-	openglContext.destroyContextSDL();
-	
-	return 0;
-}
-*/
 
 
 //////////////////////////////////////////////////////////////////////
@@ -232,32 +168,7 @@ int main(int argc, char *argv[])
 	//for (int i=0; i<300; ++i) delete spheres[i];
 	//end of profile code
 
-	//agent variant testing
-	//ABM::Agent* A = new ABM::Agent();
-	//A->Set<int>("Test1",4);
-	//int Test1 = A->Get<int>("Test1");
-	//std::cout<<"Test1="<<Test1<<std::endl;
 
-	//std::cout<<(typeid(std::string).hash_code())<<" "<<(typeid(std::string*).hash_code())<<std::endl;
-
-	//A->Set<bool>("Test2",false);
-	//bool Test2 = A->Get<bool>("Test2");
-	//std::cout<<"Test2="<<Test2<<std::endl;
-
-	//A->Set<float>("Test3",0.123f);
-	//float Test3 = A->Get<float>("Test3");
-	//std::cout<<"Test3="<<Test3<<std::endl;
-
-	//std::string str = "test 4 lvar test";
-	//ABM::LogoVariant LVar("const string test");
-	//std::string Test41 = LVar.Get<std::string>();
-	//std::cout<<"Lvar="<<Test41<<std::endl;
-
-	//std::string str2 = "test 4 string test";
-	//A->Set<std::string>("Test4","test 4 string test");
-	//std::string Test4 = A->Get<std::string>("Test4");
-	//std::cout<<"Test4="<<Test4<<std::endl;
-	//delete A;
 
 	//GUI Test
 	//Glib::RefPtr<Gtk::Application> app = Gtk::Application::create(argc, argv, "org.gtkmmm.example");
@@ -269,7 +180,6 @@ int main(int argc, char *argv[])
 
 
 	Globe globe;
-
 	
 	//build scene graph
 	//OK, enough of the test objects, on to some real data. Let's start with London Underground.
@@ -332,7 +242,7 @@ int main(int argc, char *argv[])
 	//buildings->FromOBJ("../data/vectortiles/14_8188_10537.obj"/*"../cache/14_8188_10537.obj"*/);
 	//buildings->CreateBuffers();
 	//buildings->AttachShader(globe.GetShader(3),true); //this is the vertex colour normal shader for geojson
-	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+	//buildings->SetColour(glm::vec3(1.0f,1.0f,1.0f));
 	////buildings->debug_DrawNormals(32.0f); //force mesh to draw per vertex formals as lines
 	//globe.GetSceneGraph()->push_back(buildings);
 
@@ -345,23 +255,6 @@ int main(int argc, char *argv[])
 
 	////////////////////////End of scene graph creation
 	
-	//EventManager& eventmanager = EventManager::getInstance(); //singleton pattern
-	//eventmanager.SetWindow(globe.openglContext.window); //initialise event system with OpenGL window handle
-	//eventmanager.AddWindowSizeEventListener(&openglContext);
-	
-	
-	//Camera camera;
-	//camera.SetupPerspective(openglContext.GetWindowWidth(), openglContext.GetWindowHeight(), 0.01f, 200.0f);  // Create our perspective matrix
-	//camera.viewMatrix = openglContext.fitViewMatrix();
-	//above was the live block - now in globe
-	
-	//camera.SetCameraPos(glm::vec3(-1.0f,0.0f,5.0f)); //looking straight at the box
-	//camera.LookAt(glm::vec3(-1.0f,0.0f,0.0f));
-	//camera.SetCameraPos(glm::vec3(-0.1,50,0));
-	//camera.LookAt(glm::vec3(-0.11464,51.46258,0));
-
-	//glm::vec3 vCamera = camera.GetCameraPos();
-	//std::cout<<"Camera: "<<vCamera.x<<" "<<vCamera.y<<" "<<vCamera.z<<std::endl;
 	
 	//this was the live block
 	//OrbitController controller(&camera);
@@ -384,35 +277,17 @@ int main(int argc, char *argv[])
 	//globe.LookAt(/*"_AGENTS_"*/"_LINKS_"); //generic name of agents in scene
 	//globe.LookAt("_AGENTS");
 	
-	//TIMING BLOCK
-	//std::ofstream out_lograw("/home/richard/main-stats.txt",std::ios::app);
-	//out_lograw<<"TIMING, fps, modeltime us, rendertime us, drivers, birth, death"<<std::endl;
 
 	while (globe.IsRunning()) {
 		double startTicks = glfwGetTime();
 
 		glfwPollEvents(); //or glfwWaitEvents(); ?
 
-		//tri._ModelMatrix=glm::rotate(tri._ModelMatrix,0.001f,glm::vec3(0,1,0));
-
-		//todo: need to get the clear colour out!
-		//glClearColor(0.4f, 0.6f, 0.9f, 0.0f); // Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
-		//GC->Clear();
-		//GC->Render(tri,sdo);
-		//GC->Render(mesh2->drawObject,sdo);
-		//GC->SwapBuffers();
-
 		//model update
 		auto modelStartTicks=std::chrono::high_resolution_clock::now();
 		globe.Step();
 		auto modelEndTicks=std::chrono::high_resolution_clock::now();
 
-		//set viewpoint to first agent
-		//V_3_211 or V_3_202 or D_1_24 or D_1_42
-		//std::vector<ABM::Agent*> a = tn->_agents.With("name","D_1_42");
-		//globe.camera.LookAt(a[0]->GetXYZ());
-		//glm::mat4 m = a[0]->_pAgentMesh->modelMatrix;
-		//globe.camera.SetCameraMatrix(glm::dmat4(m));
 
 		//rendering
 		auto renderStartTicks=std::chrono::high_resolution_clock::now();
@@ -430,15 +305,9 @@ int main(int argc, char *argv[])
 		//globe._debugMessage = strTime;
 
 		//TIMING BLOCK
-		//std::cout<<"TIMING,"<<startTicks<<","<<modelStartTicks<<","<<modelEndTicks<<","<<renderStartTicks<<","<<renderEndTicks<<","<<ticksNow<<std::endl;
 		auto modelMS=std::chrono::duration_cast<std::chrono::microseconds>(modelEndTicks-modelStartTicks);
 		auto renderMS=std::chrono::duration_cast<std::chrono::microseconds>(renderEndTicks-renderStartTicks);
-		//std::vector<ABM::Agent*> drivers = tn->_agents.Ask("driver"); //how long does this take?
-		//out_lograw<<AgentTime::ToString(tn->AnimationDT)<<","<<fps<<","<<modelMS.count()<<","<<renderMS.count()<<","<<drivers.size()<<","<<tn->_agents.Birth<<","<<tn->_agents.Death<<std::endl;
 	}
-
-	//TIMING BLOCK
-	//out_lograw.close();
 
 	return 0;
 }

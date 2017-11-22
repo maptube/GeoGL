@@ -719,8 +719,8 @@ ABM::Agent* ModelTubeNetwork::HatchAgent(const std::string& id, char lineCode, f
 {
 	ABM::Agent* a = _agents.Hatch("driver");
 	a->Name = id; //unique name to match up to next data download
-	//a->SetColour(LineCodeToVectorColour(lineCode));
-	a->SetColour(glm::vec3((rand()%256)/256.0f, (rand()%256)/256.0f, (rand()%256)/256.0f)); //random colour for testing
+	a->SetColour(LineCodeToVectorColour(lineCode));
+	//a->SetColour(glm::vec3((rand()%256)/256.0f, (rand()%256)/256.0f, (rand()%256)/256.0f)); //random colour for testing
 	if (!PositionAgent(a,lineCode,timeToStation,stationCode,direction))
 	{
 		if (!PositionAgent(a,lineCode,timeToStation,stationCode,1-direction)) //try other direction - shouldn't happen, but it does

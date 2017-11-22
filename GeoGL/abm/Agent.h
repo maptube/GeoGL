@@ -271,6 +271,7 @@ namespace ABM {
 
 		//measurement, calculation
 		double Distance(Agent& A);
+		bool InBox(Agent& A,double Distance);
 
 		//drawing, style
 		void PenUp(void);

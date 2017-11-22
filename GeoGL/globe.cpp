@@ -127,7 +127,7 @@ Globe::Globe(void)
 	TiledEarth* te = new TiledEarth();
 	//attribute in_Color=red?
 	//te->AttachShader(shader,true);
-	te->AttachTexture(0,texture);
+	//te->AttachTexture(0,texture); //this makes the top level texture into something else
 	te->AttachShader(texshader,true); //strangely enough, this works!
 	SceneGraph.push_back(te);
 
@@ -140,9 +140,9 @@ Globe::Globe(void)
 
 //HACK - turned off ground boxes here!
 	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-//	GroundBox* buildings = new GroundBox(_workerGC);
-//	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
-//	SceneGraph.push_back(buildings);
+	//GroundBox* buildings = new GroundBox(_workerGC);
+	//buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+	//SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);

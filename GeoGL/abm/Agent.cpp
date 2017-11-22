@@ -382,7 +382,7 @@ namespace ABM {
 	/// <summary>
 	/// Calculate the distance between this agent and the other one.
 	/// TODO: this is simple Euclidean - need to include CRS in a proper calculation?
-	/// <summary>
+	/// </summary>
 	double Agent::Distance(Agent& A)
 	{
 		glm::dvec3 P1 = GetXYZ();
@@ -393,6 +393,17 @@ namespace ABM {
 		//}
 		//if ((P1.x-P2.x+P1.y-P2.y+P1.z-P2.z)<glm::epsilon<double>()) return 0;
 		return glm::distance<double>(P1,P2);
+	}
+
+	/// <summary>
+	/// Returns true if the agent is within a box Distance units around this agent (actually, within (-D,-D,-D) and (+D,+D,+D), so 2*Distance )
+	/// </summary>
+	bool Agent::InBox(Agent& A,double Distance)
+	{
+		double dx = abs(A.position.x-position.x);
+		double dy = abs(A.position.y-position.y);
+		double dz = abs(A.position.z-position.z);
+		return (dx<=Distance)||(dy<=Distance)||(dz<=Distance);
 	}
 
 }

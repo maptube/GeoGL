@@ -50,6 +50,16 @@ void Turtle::init(float TurtleSize, gengine::VertexFormat VF)
 		glm::vec3(  0.0,  0.1,  1.0/6.0)  //4, + centroid top
 	};
 
+	//normals
+	glm::vec3 n[] = {
+		glm::vec3( -0.707, 0, 0.707),
+		glm::vec3( 0.707, 0, 0.707),
+		glm::vec3( 0, 0, -1.0),
+
+		glm::vec3( 0, -1.0, 0),
+		glm::vec3( 0, 1.0, 0)
+	};
+
 	//add faces - don't actually need all these colours, but useful for testing
 	glm::vec3 red(1.0,0.0,0.0);
 	glm::vec3 green(0.0,1.0,0.0);
@@ -59,14 +69,14 @@ void Turtle::init(float TurtleSize, gengine::VertexFormat VF)
 	glm::vec3 magenta(1.0,0.0,1.0);
 
 	//top
-	AddFace(p[4],p[2],p[0],green,green,green);
-	AddFace(p[4],p[1],p[2],green,green,green);
+	AddFace(p[4],p[2],p[0],green,green,green,n[4],n[2],n[0]);
+	AddFace(p[4],p[1],p[2],green,green,green,n[4],n[1],n[2]);
 	//base
-	AddFace(p[3],p[0],p[2],red,red,red);
-	AddFace(p[3],p[2],p[1],red,red,red);
+	AddFace(p[3],p[0],p[2],red,red,red,n[3],n[0],n[2]);
+	AddFace(p[3],p[2],p[1],red,red,red,n[3],n[2],n[1]);
 	//back
-	AddFace(p[0],p[3],p[4],blue,blue,blue);
-	AddFace(p[1],p[4],p[3],blue,blue,blue);
+	AddFace(p[0],p[3],p[4],blue,blue,blue,n[0],n[3],n[4]);
+	AddFace(p[1],p[4],p[3],blue,blue,blue,n[1],n[4],n[3]);
 
 	//multiply vertices up by Size
 	ScaleVertices(Size,Size,Size);

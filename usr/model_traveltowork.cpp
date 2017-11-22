@@ -30,7 +30,7 @@ ModelTravelToWork::~ModelTravelToWork() {
 
 void ModelTravelToWork::Setup() {
 	SetDefaultShape("worker","turtle");
-	SetDefaultSize("worker",5000);
+	SetDefaultSize("worker",2500);
 	SetDefaultShape("msoa","none"); //was cube
 	SetDefaultSize("msoa",100);
 	NumberOfAgents = 5000;
@@ -158,9 +158,10 @@ void ModelTravelToWork::Step(double Ticks) {
 
 		ABM::Agent* toNode = worker->Get<ABM::Agent*>("toNode");
 		//TODO: save the distance on the agent properties
-		double dist = worker->Distance(*toNode);
-		float speed = 250.0f*(float)Ticks;
-		if (dist<speed)
+		//double dist = worker->Distance(*toNode);
+		float speed = 5000.0f*(float)Ticks; //250.0f*(float)Ticks;
+		//if (dist<speed)
+		if (worker->InBox(*toNode,speed)) //optimisation - faster test than real distance, which involves sqrt
 		{
 			worker->Die();
 		}

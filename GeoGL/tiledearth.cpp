@@ -22,7 +22,7 @@
 using namespace gengine;
 
 //these constants define the resolution of the data at each LOD level and the number of levels created
-const int TiledEarth::LODDepth=3; //5; //4; //3; //4;
+const int TiledEarth::LODDepth=5; //5; //4; //3; //4;
 const int TiledEarth::LODWidthSegments=40; //40
 const int TiledEarth::LODHeightSegments=40; //40
 
