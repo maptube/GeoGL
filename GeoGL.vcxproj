@@ -171,6 +171,7 @@
     <ClCompile Include="geogl\clipper\clipper.cpp" />
     <ClCompile Include="geogl\cuboid.cpp" />
     <ClCompile Include="geogl\cylinder.cpp" />
+    <ClCompile Include="GeoGL\data\datatable.cpp" />
     <ClCompile Include="GeoGL\data\gtfs\GTFSFile.cpp" />
     <ClCompile Include="GeoGL\data\gtfs\GTFSUtils.cpp" />
     <ClCompile Include="geogl\DebugUtils.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="geogl\clipper\clipper.hpp" />
     <ClInclude Include="geogl\cuboid.h" />
     <ClInclude Include="geogl\cylinder.h" />
+    <ClInclude Include="GeoGL\data\datatable.h" />
     <ClInclude Include="geogl\DebugUtils.h" />
     <ClInclude Include="geogl\ellipsoid.h" />
     <ClInclude Include="geogl\EllipsoidOrbitController.h" />

@@ -68,9 +68,10 @@ void Turtle::init(float TurtleSize, gengine::VertexFormat VF)
 	glm::vec3 cyan(0.0,1.0,1.0);
 	glm::vec3 magenta(1.0,0.0,1.0);
 
+	//NOTE: I've slightly fiddled the normals on the top faces to make the agents look more stylised
 	//top
-	AddFace(p[4],p[2],p[0],green,green,green,n[4],n[2],n[0]);
-	AddFace(p[4],p[1],p[2],green,green,green,n[4],n[1],n[2]);
+	AddFace(p[4], p[2], p[0], green, green, green, n[0], n[4], n[0]); // n[4], n[2], n[0]);
+	AddFace(p[4], p[1], p[2], green, green, green, n[0], n[0], n[4]); // n[4], n[1], n[2]);
 	//base
 	AddFace(p[3],p[0],p[2],red,red,red,n[3],n[0],n[2]);
 	AddFace(p[3],p[2],p[1],red,red,red,n[3],n[2],n[1]);

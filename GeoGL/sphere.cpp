@@ -84,17 +84,20 @@ void Sphere::init2(double A, double B, double C, int WidthSegments, int HeightSe
 			int ilat2=(ilat+1)%HeightSegments; int ilon2=(ilon+1)%WidthSegments;
 			//work out four patch coordinates based on current lat/lon angles +- each combination of next lat/lon coord
 			glm::vec3 Pa,Pb,Pc,Pd;
+			glm::vec3 Na, Nb, Nc, Nd; //normals
 			//TODO: you might want to check the orientation of the point
 			Pa.x=sinlon[ilon];		Pa.y=coslon[ilon]*sinlat[ilat];			Pa.z=coslon[ilon]*coslat[ilat];
 			Pb.x=sinlon[ilon2];		Pb.y=coslon[ilon2]*sinlat[ilat];		Pb.z=coslon[ilon2]*coslat[ilat];
 			Pc.x=sinlon[ilon2];		Pc.y=coslon[ilon2]*sinlat[ilat2];		Pc.z=coslon[ilon2]*coslat[ilat2];
 			Pd.x=sinlon[ilon];		Pd.y=coslon[ilon]*sinlat[ilat2];		Pd.z=coslon[ilon]*coslat[ilat2];
 			//TODO: could do with texture and normals being calculated here
+			Na = Pa; Nb = Pb; Nc = Pc; Nd = Pd;
 			//NOTE: the mesh AddVertex code takes care of the VertexFormat if we're not using all the vertex data (i.e. colour/texture/normal absent)
 			
 			//Pa,Pb,Pc,Pd are clockwise, so add in reverse
-			AddFace(Pa,Pd,Pc,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0));
-			AddFace(Pa,Pc,Pb,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0));
+			//TODO: you need to check the vertex format here and add in normals if needed - this can make a nice smooth sphere
+			AddFace(Pa,Pd,Pc,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),Na,Nd,Nc);
+			AddFace(Pa,Pc,Pb,glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),glm::vec3(0,1.0,0),Na,Nc,Nb);
 		}
 	}
 

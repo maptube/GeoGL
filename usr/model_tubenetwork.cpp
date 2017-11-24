@@ -56,7 +56,7 @@ const std::string ModelTubeNetwork::RealTimePositionsURL =
 const float ModelTubeNetwork::LineSize = 25; //size of track - was 50
 const int ModelTubeNetwork::LineTubeSegments = 10; //number of segments making up the tube geometry
 const float ModelTubeNetwork::StationSize = 50.0f; //size of station geometry object
-const float ModelTubeNetwork::TrainSize = 150.0f; //size of train geometry object
+const float ModelTubeNetwork::TrainSize = 300.0f; // 150.0f; //size of train geometry object
 
 /// <summary>
 /// Create a Tube Network containing a model of the tube and train agents which run around the track. You have to call load() with the relevant file names to load the

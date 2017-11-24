@@ -1034,7 +1034,7 @@ void Mesh2::SetMatrix(const glm::mat4& matrix) {
 /// <summary>
 void Mesh2::AttachTexture(unsigned int TextureUnitNum, gengine::Texture2D* Texture) {
 	drawObject._textures[TextureUnitNum]=Texture;
-	cout<<"Num textures = "<<drawObject._textures.size()<<endl;
+//	cout<<"Num textures = "<<drawObject._textures.size()<<endl;
 }
 
 /// <summary>

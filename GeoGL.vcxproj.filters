@@ -387,6 +387,9 @@
     <ClCompile Include="GeoGL\data\gtfs\GTFSUtils.cpp">
       <Filter>Source Files\data\gtfs</Filter>
     </ClCompile>
+    <ClCompile Include="GeoGL\data\datatable.cpp">
+      <Filter>Source Files\data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geogl\BBox.h">
@@ -676,6 +679,9 @@
     </ClInclude>
     <ClInclude Include="GeoGL\data\gtfs\GTFSUtils.h">
       <Filter>Header Files\data\gtfs</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoGL\data\datatable.h">
+      <Filter>Header Files\data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

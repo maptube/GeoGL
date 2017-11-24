@@ -43,7 +43,7 @@ namespace ABM {
 		//create agent mesh lookup - a better way of doing this might be to create the shape when the breed is created i.e. dynamically,
 		//but, since there are a limited number at the moment, we might as well do it here...
 		_AgentMeshes["turtle"]=new Turtle(1.0,gengine::PositionColourNormal);
-		_AgentMeshes["sphere"]=new Sphere(1.0,10,10);
+		_AgentMeshes["sphere"]=new Sphere(1.0,1.0,1.0,10,10,gengine::PositionColourNormal);
 		_AgentMeshes["cube"]=new Cuboid(1.0,1.0,1.0);
 		_AgentMeshes["cylinder"]=new Cylinder(1.0,1.0,8);
 		_AgentMeshes["pyramid4"]=new Pyramid4(1.0,1.0,1.0);
