@@ -251,21 +251,25 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 
 					//load pre-computed obj file - this should also be in a thread
 					//this is the bit that needs to push a mesh worker message
-					//Mesh2* mesh = new Mesh2();
-					//mesh->_VertexFormat=gengine::PositionColourNormal;
-					//mesh->FromOBJ(LocalFilename);
-					//mesh->CreateBuffers();
-					//mesh->AttachShader(_Shader,true);
-					//mesh->SetColour(glm::vec3(1.0f,0.0f,0.0f));
-					//_gndboxes[i].mesh=mesh;
+					Mesh2* mesh = new Mesh2();
+					std::unique_ptr<Mesh2> p(mesh);
+					mesh->_VertexFormat=gengine::PositionColourNormal;
+					mesh->FromOBJ(LocalFilename);
+					mesh->CreateBuffers();
+					mesh->AttachShader(_Shader,true);
+					mesh->SetColour(glm::vec3(1.0f,0.0f,0.0f));
+					mesh->debug_DrawNormals(100);
+					_gndboxes[i].mesh=std::move(p);
+					_gndboxes[i].IsEmpty=false;
+					_gndboxes[i].IsLoading=false;
 					//cout<<"Mesh Loaded"<<endl;
-					_requestQueue.Post(new geogl::async::MeshWorkerMsg(LocalFilename,_gndboxes[i].TileX,_gndboxes[i].TileY,_gndboxes[i].TileZ));
-					//_gndboxes[i].IsEmpty=true; //set flag to false until it's loaded - it's already false (see above)
-					_gndboxes[i].IsLoading=true; //so we don't try and load it again while it's still in flight
+//					_requestQueue.Post(new geogl::async::MeshWorkerMsg(LocalFilename,_gndboxes[i].TileX,_gndboxes[i].TileY,_gndboxes[i].TileZ));
+//					//_gndboxes[i].IsEmpty=true; //set flag to false until it's loaded - it's already false (see above)
+//					_gndboxes[i].IsLoading=true; //so we don't try and load it again while it's still in flight
 
 					//DEBUG - push a coloured ground square to show the grid
-					//geoj->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
-					//geoj->AttachShader(_Shader,true);
+					mesh->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
+					mesh->AttachShader(_Shader,true);
 					//END DEBUG
 					//_gndboxes[i].IsEmpty=false; //don't forget to set the flag
 				}
