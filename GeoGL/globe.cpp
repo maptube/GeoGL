@@ -101,13 +101,13 @@ Globe::Globe(void)
 //	sphere->AttachShader(texshader,false);
 	//Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
 	//This is the real one vvvvv
-	Texture2D* texture=OGLDevice::CreateTexture2DFromFile("../textures/land_ocean_ice_2048_I.jpg" /*"../textures/land_ocean_ice_350_I.jpg"*/ /*"../textures/test-blue.jpg"*/);
+//	Texture2D* texture=OGLDevice::CreateTexture2DFromFile("../textures/land_ocean_ice_2048_I.jpg" /*"../textures/land_ocean_ice_350_I.jpg"*/ /*"../textures/test-blue.jpg"*/);
 	//This is the Mars one! vvvvv
 	//Texture2D* texture=OGLDevice::CreateTexture2DFromFile("../textures/mars/marsmap2k_I.jpg");
-	texture->SetWrapS(TexClampToEdge);
-	texture->SetWrapT(TexClampToEdge);
-	texture->SetMinFilter(TexMinFilterLinear);
-	texture->SetMagFilter(TexMagFilterLinear);
+//	texture->SetWrapS(TexClampToEdge);
+//	texture->SetWrapT(TexClampToEdge);
+//	texture->SetMinFilter(TexMinFilterLinear);
+//	texture->SetMagFilter(TexMagFilterLinear);
 	//set uniform collection the new way...
 	ShaderUniformCollection* uniforms=texshader->_shaderUniforms;
 	//texshader->_shaderUniforms->SetUniform1i("u_texture0",0);
@@ -140,9 +140,9 @@ Globe::Globe(void)
 
 //HACK - turned off ground boxes here!
 	//Add OS TQ Buildings Layer as a ground box - TODO: maybe this should move?
-	//GroundBox* buildings = new GroundBox(_workerGC);
-	//buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
-	//SceneGraph.push_back(buildings);
+	GroundBox* buildings = new GroundBox(_workerGC);
+	buildings->SetShader(normalshader); //shader; //diffuse; //normalshader; //this is the key element, need a shader for the buildings
+	SceneGraph.push_back(buildings);
 
 	//this is the orientation cube which I put around the Earth
 	//Cuboid* cuboid=new Cuboid(ellipsoid.A()*1.5,ellipsoid.B()*1.5,ellipsoid.C()*1.5);

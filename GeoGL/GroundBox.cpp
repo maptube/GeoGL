@@ -83,6 +83,7 @@ void GroundBox::LonLatToTileXY(glm::dvec3 RadGeodetic3D,int& TileX,int& TileY) {
 	//2046 2635
 	//HACK! Always use the same tile for testing
 	//TileX=2048; TileY=2629;
+	//TileX = 8165; TileY = 10503;
 	//debug
 	//cout<<"lon="<<glm::degrees(RadGeodetic3D.x)<<" lat="<<glm::degrees(RadGeodetic3D.y)<<" TileX="<<TileX<<" TileY="<<TileY<<endl;
 }
