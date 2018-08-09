@@ -93,11 +93,11 @@ Globe::Globe(void)
 	_Shaders.push_back(texshader);
 
 	//add sphere representing the earth and shade using diffuse shader
-	//Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40); //old version with diffuse shading
+	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40); //old version with diffuse shading
 //	Sphere* sphere=new Sphere(ellipsoid.A(),ellipsoid.B(),ellipsoid.C(),40,40,Position); //sphere with just position vertices
 	//sphere->SetColour(glm::vec3(0.0,0.4,0.05));
-	//sphere->SetColour(glm::vec3(1.0,1.0,1.0));
-	//sphere->AttachShader(diffuse,false);
+	sphere->SetColour(glm::vec3(0.5,0.5,0.5));
+	sphere->AttachShader(diffuse,false);
 //	sphere->AttachShader(texshader,false);
 	//Texture2D* texture=OGLDevice::CreateTexture2D(g->bitmap.width,g->bitmap.rows,TexPixelAlpha);
 	//This is the real one vvvvv
@@ -119,17 +119,17 @@ Globe::Globe(void)
 	//texshader->_shaderUniforms->SetUniform1f("u_oneOverTwoPi",glm::one_over_pi<float>()/2.0f); //uniform float u_oneOverTwoPi;
 	(*uniforms)["u_oneOverTwoPi"]=glm::one_over_pi<float>()/2.0f;
 
-//	sphere->AttachTexture(0,texture);
+	//sphere->AttachTexture(0,texture);
 	//TODO: texture is going to go out of scope and not be freed!!!
-	//SceneGraph.push_back(sphere);
+	SceneGraph.push_back(sphere);
 
 	/////////NEW! Tiled Earth
-	TiledEarth* te = new TiledEarth();
-	//attribute in_Color=red?
-	//te->AttachShader(shader,true);
-	//te->AttachTexture(0,texture); //this makes the top level texture into something else
-	te->AttachShader(texshader,true); //strangely enough, this works!
-	SceneGraph.push_back(te);
+//	TiledEarth* te = new TiledEarth();
+//	//attribute in_Color=red?
+//	//te->AttachShader(shader,true);
+//	//te->AttachTexture(0,texture); //this makes the top level texture into something else
+//	te->AttachShader(texshader,true); //strangely enough, this works!
+//	SceneGraph.push_back(te);
 
 	//create shader for diffuse lighting with normals passed in - used for buildings
 	//This is shader 3

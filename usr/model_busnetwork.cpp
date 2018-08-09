@@ -34,7 +34,7 @@
 const std::string ModelBusNetwork::Filename_StopCodes =
 		"../data/countdown/instant_V1.json"; //bus stop locations
 const std::string ModelBusNetwork::Filename_BusRoutesNetwork =
-		"../data/countdown/TfL_Bus_routes_stream_20150504.csv"; //network of bus routes based on lists of stops
+		"../data/countdown/TfL_Bus_routes_stream_20150504_mod.csv"; //network of bus routes based on lists of stops
 const std::string ModelBusNetwork::LogFilename =
 		"/home/richard/modelbusnetwork.txt";
 //const std::string ModelBusNetwork::Filename_Positions =
@@ -65,7 +65,7 @@ void ModelBusNetwork::Setup() {
 	SetDefaultShape("node","none"); //was cube
 	SetDefaultSize("node",10.0f/*StationSize*//*0.001f*/);
 	//drivers are the buses
-	SetDefaultShape("driver","none"); //was turtle
+	SetDefaultShape("driver","turtle"); //was turtle
 	SetDefaultSize("driver",400.0f/*0.005f*/);
 	//TODO: SetDefaultColour("driver",glm::dvec3(1.0,0,0));
 	//TODO: need to be able to set the links to no mesh as well.
@@ -290,15 +290,15 @@ void ModelBusNetwork::Step(double Ticks) {
 	//additional time constraints
 	AnimationDT.Add(0.1/*60*/); //need to make sure I jump it by constant steps to keep the time in sync with the +-10 mins window
 	//OK, so we only want to simulate for 10 minutes either side of the hour
-	int Hour, Minute, Second;
-	AnimationDT.GetTimeOfDay(Hour,Minute,Second);
-	if (Minute==10) {
-		WriteLogBusGeoFencedNumbers();
-		AnimationDT.Add(40*60); //if we're at 10 past the hour, then add 40 minutes to get to 10 to the next hour
-		NextTimeDT.Add(40*60); //add 40 mins to next to keep it in step
-		ClearAllSensors(); //and clear the sensors
-		SensorRecordStartDT = AnimationDT; //make a nore of when we started the sensor
-	}
+	//int Hour, Minute, Second;
+	//AnimationDT.GetTimeOfDay(Hour,Minute,Second);
+	//if (Minute==10) {
+	//	WriteLogBusGeoFencedNumbers();
+	//	AnimationDT.Add(40*60); //if we're at 10 past the hour, then add 40 minutes to get to 10 to the next hour
+	//	NextTimeDT.Add(40*60); //add 40 mins to next to keep it in step
+	//	ClearAllSensors(); //and clear the sensors
+	//	SensorRecordStartDT = AnimationDT; //make a nore of when we started the sensor
+	//}
 	//end of additional time constraints section
 
 	std::cout<<AgentTime::ToString(AnimationDT)<<" "<<AgentTime::ToString(NextTimeDT)<<std::endl;
@@ -345,8 +345,8 @@ void ModelBusNetwork::Step(double Ticks) {
 
 		}
 	}
-	SensorTests(); //force any sensors to update - TODO: need to find better way of doing this
-	WriteLogBusNumbers(AnimationDT);
+	//SensorTests(); //force any sensors to update - TODO: need to find better way of doing this
+	//WriteLogBusNumbers(AnimationDT);
 }
 
 /// <summary>
@@ -418,7 +418,8 @@ void ModelBusNetwork::LoadLinks(const std::string& RoutesFilename)
 		std::string LastRoute="";
 		int LastRun=-1;
 		while (!in_csv.eof()) {
-			//if (CountLinks>5000) break; //HACK!!!!! Limit number of links loaded
+//here!!!!
+			if (CountLinks>5000) break; //HACK!!!!! Limit number of links loaded
 			line.clear();
 			std::getline(in_csv,line);
 			if (line.length()==0) continue; //blank line
@@ -461,6 +462,7 @@ void ModelBusNetwork::LoadLinks(const std::string& RoutesFilename)
 							L->Set<std::string>("route",Route);
 							L->Set<int>("bearing",Bearing);
 							L->colour=glm::vec3(1.0f,0.0f,0.0f); //red, obviously TODO: check what the TfL official red is
+							_links.SetDefaultColour(LastRoute,glm::vec3(0.0,0.0,0.0)); //L->colour doesn't work - need to set the colour via breed default colour (HERE)
 							//Don't know runlinks for buses, but you get the information from the stream
 							//TODO: probably need to create a dummy velocity here?
 							//L->Set<float>("runlink",(float)r);
