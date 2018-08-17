@@ -78,7 +78,29 @@ namespace ABM {
 		L->_GEdge->_UserData=L; //double linking of Link to edge and edge to Link
 		L->_GEdge->_Label = Breed; //label the edge with the breed name so we can follow breeds using the label - user can always override this later
 		_myLinks.push_back(L);
+
+		isDirty = true; //flag the fact that the geometry will need to be changed to reflect this new link
 		return L;
+	}
+
+	/// <summary>
+	/// Delete a link from the graph.
+	/// </summary>
+	/// <returns> True on success </returns>
+	bool Links::DeleteLink(Link* L)
+	{
+		bool Success = false;
+		_graph->DeleteEdge(L->_GEdge); //delete the edge underlying this ABM link from the graph structure
+		auto it = std::find(_myLinks.begin(),_myLinks.end(),L);
+		if (it != _myLinks.end())
+		{
+			_myLinks.erase(it); //remove the link from the duplicate ABM master list of links
+			delete L; //and free up the memory
+			Success = true;
+		}
+
+		isDirty = true; //flag the fact that the geometry will need to be changed to reflect the absence of the link that we just deleted
+		return Success;
 	}
 
 	/// <summary>
@@ -146,6 +168,18 @@ namespace ABM {
 
 			Parent->AddChild(geom);
 		}
+	}
+
+	///<summary>
+	///Called in response to the underlying network structure changing and the grahics buffers needing to ne recreated.
+	///NOTE: you still need a shader to be set on Parent! Model::SetLinksShader
+	///</summary>
+	void Links::Recreate3D()
+	{
+		Object3D* Parent = _pSceneRoot; //root of network mesh in scene
+		Parent->RemoveAllChildren(); //remove child meshes
+		Create3D(Parent); //create all new ones
+		isDirty = false; //clear dirty flag as we're all good now
 	}
 
 

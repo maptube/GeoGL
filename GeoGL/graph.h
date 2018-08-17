@@ -229,6 +229,29 @@ public:
 		return E;
 	}
 
+	/// <summary>
+	/// Delete an edge between two vertices. Opposite of connect.
+	/// </summary>
+	/// <param name="E">The edge to delete</param>
+	/// <returns>True on success</returns>
+	bool DeleteEdge(Edge* E)
+	{
+		Vertex* VertexA = E->_FromVertex;
+		Vertex* VertexB = E->_ToVertex;
+		_Edges.remove(E); //remove edge from the master list of edges
+		//remove from VertexA out list and VertexB in list
+		VertexA->_OutEdges.remove(E);
+		VertexB->_InEdges.remove(E);
+		//In the undirected case, you need to remove it the other way around too
+		if (!_IsDirected)
+		{
+			VertexA->_InEdges.remove(E);
+			VertexB->_OutEdges.remove(E);
+		}
+		delete E;
+		return true; //OK, it never fails because it never checks that E really exists TODO: fix the error checking
+	}
+
 	/*
 	* Flatten a graph into a list of vertices with contiguous segments connected as a path and a NULL meaning break path
 	* and start a new one.

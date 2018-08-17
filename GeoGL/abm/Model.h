@@ -92,6 +92,7 @@ namespace ABM {
 		SceneGraphType* _pSceneGraph;
 
 		void SetAgentShader(gengine::Shader* pShader);
+		void SetLinksShader(gengine::Shader* pShader);
 
 		virtual void Setup();
 		virtual void Step(double Ticks);

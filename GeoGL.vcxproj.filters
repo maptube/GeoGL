@@ -390,6 +390,9 @@
     <ClCompile Include="GeoGL\data\datatable.cpp">
       <Filter>Source Files\data</Filter>
     </ClCompile>
+    <ClCompile Include="usr\model_ml_tubenetwork.cpp">
+      <Filter>Source Files\usr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geogl\BBox.h">
@@ -682,6 +685,9 @@
     </ClInclude>
     <ClInclude Include="GeoGL\data\datatable.h">
       <Filter>Header Files\data</Filter>
+    </ClInclude>
+    <ClInclude Include="usr\model_ml_tubenetwork.h">
+      <Filter>Header Files\usr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

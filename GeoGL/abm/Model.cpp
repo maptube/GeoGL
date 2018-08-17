@@ -54,6 +54,13 @@ namespace ABM {
 		_agents.SetAgentShader(pShader);
 	}
 
+	/// <summary>
+	/// Set the shader used for drawing the links network graph
+	/// </summary>
+	void Model::SetLinksShader(gengine::Shader* pShader) {
+		_links._pSceneRoot->AttachShader(pShader, true);
+	}
+
 	/// <summary>Initialisation of model - probably override this</summary>
 	void Model::Setup()
 	{

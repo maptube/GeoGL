@@ -45,10 +45,13 @@ namespace ABM {
 		Object3D* _pSceneRoot; //Root of links in scene graph. I'd like to get rid of this, but we need it to keep the 3D in step
 
 		Link* CreateLink(std::string Breed, Agent* AStart, Agent* AEnd);
+		bool DeleteLink(Link* L);
 
 		void Create3D(Object3D* Parent); //create meshes for 3D by flattening graph and creating tube geometry
+		void Recreate3D(); //calls Create3D, but removes existing geometry first and clears isDirty
 
 		size_t NumLinks() { return _myLinks.size(); }
+		bool isDirty; //true if the links have changed and the graphics need to be re-created on the next render
 
 
 	};

@@ -28,6 +28,9 @@
 #include "async/meshworker.h"
 #include "async/messagequeueeventargs.h"
 
+//debug
+#include "cuboid.h"
+
 
 using namespace std;
 
@@ -37,6 +40,7 @@ using namespace geogl;
 using namespace geogl::cache;
 
 const int GroundBox::BoxZoomLevel = 14; // zoom level used for all ground boxes to make it easy to switch
+
 
 GroundBox::GroundBox(gengine::GraphicsContext* workerGC) : _workerGC(workerGC) {
 	// TODO Auto-generated constructor stub
@@ -137,6 +141,7 @@ std::string GetGeoJSONFilename(const int TileZ, const int TileX,const int TileY)
 	//ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".geojson";
 	ss<<"../data/vectortiles/"<<TileZ<<"_"<<TileX<<"_"<<TileY<<".obj";
 	//ss<<"../data/vectortiles/14_8165_10503.obj";
+	//ss << "../data/vectortiles/14_8188_10537.obj";
 	return ss.str();
 }
 
@@ -260,17 +265,17 @@ void GroundBox::UpdateData(const gengine::SceneDataObject& sdo) {
 					mesh->AttachShader(_Shader,true);
 					mesh->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 					mesh->debug_DrawNormals(100);
-					_gndboxes[i].mesh=std::move(p);
+					_gndboxes[i].mesh = std::move(p);
 					_gndboxes[i].IsEmpty=false;
-					_gndboxes[i].IsLoading=false;
+					_gndboxes[i].IsLoading = false;
 					//cout<<"Mesh Loaded"<<endl;
 //					_requestQueue.Post(new geogl::async::MeshWorkerMsg(LocalFilename,_gndboxes[i].TileX,_gndboxes[i].TileY,_gndboxes[i].TileZ));
 //					//_gndboxes[i].IsEmpty=true; //set flag to false until it's loaded - it's already false (see above)
 //					_gndboxes[i].IsLoading=true; //so we don't try and load it again while it's still in flight
 
 					//DEBUG - push a coloured ground square to show the grid
-					mesh->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
-					mesh->AttachShader(_Shader,true);
+					//mesh->AddChild(DebugMesh(BoxZoomLevel,_gndboxes[i].TileX,_gndboxes[i].TileY));
+					//mesh->AttachShader(_Shader,true);
 					//END DEBUG
 					//_gndboxes[i].IsEmpty=false; //don't forget to set the flag
 				}
@@ -305,6 +310,9 @@ void GroundBox::Render(gengine::GraphicsContext* GC,const gengine::SceneDataObje
 			else {
 				const DrawObject& dobj = _gndboxes[i].mesh->GetDrawObject();
 				GC->Render(dobj,sdo);
+
+				
+				//_gndboxes[i].mesh->Render(GC, sdo);
 			}
 		}
 	}

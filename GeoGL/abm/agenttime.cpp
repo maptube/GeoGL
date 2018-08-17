@@ -164,6 +164,18 @@ int AgentTime::GetDayOfWeek()
 	return tmp->tm_wday;
 }
 
+/// <summary>
+/// Returns the number of seconds since the start of the day.
+/// </summary>
+int AgentTime::GetDaySeconds()
+{
+	struct tm *tmp = localtime(&_DT); //is local right here? should it be gmtime as above?
+	int Hour = tmp->tm_hour;
+	int Minute = tmp->tm_min;
+	int Second = tmp->tm_sec;
+	return Hour * 60 * 60 + Minute * 60 + Second;
+}
+
 void AgentTime::Add(const float Seconds)
 {
 	int Quotient = (int)floor(Seconds+_fraction); //number of seconds requested plus accumulated fraction so far, which we use to get the whole number of seconds

@@ -46,6 +46,7 @@ using namespace std;
 using namespace gengine;
 using namespace gengine::events;
 
+
 Globe::Globe(void)
 {	
 	_debugFPS=0;
@@ -629,7 +630,17 @@ void Globe::Step(void)
 	if (delta<0.001) delta=0.001; //limit minimum delta time to 1ms, so you will never get any timesteps less than this e.g. on the first run
 	//call step on each attached model layer in turn
 	for (vector<ABM::Model*>::iterator modelIT = modelLayers.begin(); modelIT!=modelLayers.end(); ++modelIT) {
-		(*modelIT)->Step(delta); //was *10 - why?
+		//check for altered network geometry on the layer, as we will need to recreate it
+		ABM::Model* model = *modelIT;
+		if (model->_links.isDirty) {
+			//links have changed, so we need to update the network graph geometry and graphics buffers
+			model->_links.Recreate3D();
+			//and don't forget to add the shader program
+			Shader* pLinkShader = _Shaders[0]; //I've attached the original shader which has the colours fixed in a colour buffer attached with the shader
+			//model->_links._pSceneRoot->AttachShader(pLinkShader, true);
+			model->SetLinksShader(pLinkShader);
+		}
+		model->Step(delta); //was *10 - why?
 	}
 	_lastModelRunTime = timeNow;
 }

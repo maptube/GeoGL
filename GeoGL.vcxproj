@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="packages\openssl.1.0.1.21\build\native\openssl.props" Condition="Exists('packages\openssl.1.0.1.21\build\native\openssl.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -22,28 +22,28 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C3DD575B-67DB-48D1-86A9-593F33110EB2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)poly2tri;$(SolutionDir)GeoGL\jsoncpp;$(SolutionDir)ExternalReferences\glew-2.0.0-src\include;$(SolutionDir)ExternalReferences\jpeg-9b;$(SolutionDir)ExternalReferences\redist\ziplib\Source;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)ExternalReferences\redist\jpeg-9b\x64\Debug;$(SolutionDir)ExternalReferences\redist\glew-2.0.0\x64\Debug;$(SolutionDir)ExternalReferences\redist\ziplib\bin\x64\Debug;$(SolutionDir)packages\glfw.3.2\build\native\lib\v140\x64\Debug\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\x64\v110\Debug;$(SolutionDir)packages\jsoncpp.redist.0.6.0.1\build\native\bin\x64\v110\debug;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration)\;$(SolutionDir)ExternalReferences\redist\jpeg-9b\x64\Debug;$(SolutionDir)ExternalReferences\redist\glew-2.0.0\x64\Debug;$(SolutionDir)ExternalReferences\redist\ziplib\bin\x64\Debug;D:\richard\GitHub\geogl\packages\glfw.3.2\build\native\lib\v140\x64\dynamic;$(SolutionDir)packages\jsoncpp.0.6.0.1\build\native\lib\x64\v110\Debug;$(SolutionDir)packages\jsoncpp.redist.0.6.0.1\build\native\bin\x64\v110\debug;$(SolutionDir)packages\curl.7.30.0.2\build\native\lib\v110\x64\Debug\dynamic;D:\richard\GitHub\geogl\packages\freetype.2.6.5.1\build\native\lib\x64\v140\dynamic\Debug;$(LibraryPath)</LibraryPath>
     <Linkage-glfw>
     </Linkage-glfw>
     <Linkage-glew>static</Linkage-glew>
@@ -116,6 +116,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;freetype265d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -226,6 +227,7 @@
     <ClCompile Include="geogl\triangulator.cpp" />
     <ClCompile Include="geogl\tubegeometry.cpp" />
     <ClCompile Include="geogl\turtle.cpp" />
+    <ClCompile Include="usr\model_ml_tubenetwork.cpp" />
     <ClCompile Include="usr\model_busnetwork.cpp" />
     <ClCompile Include="usr\model_correlate.cpp" />
     <ClCompile Include="usr\model_networkrail.cpp" />
@@ -327,6 +329,7 @@
     <ClInclude Include="poly2tri\sweep\sweep.h" />
     <ClInclude Include="usr\model_busnetwork.h" />
     <ClInclude Include="usr\model_correlate.h" />
+    <ClInclude Include="usr\model_ml_tubenetwork.h" />
     <ClInclude Include="usr\model_networkrail.h" />
     <ClInclude Include="usr\model_traveltowork.h" />
     <ClInclude Include="usr\model_tubenetwork.h" />

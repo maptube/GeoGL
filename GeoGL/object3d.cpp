@@ -75,10 +75,19 @@ void Object3D::RemoveChild(Object3D* Child) {
 	for (vector<Object3D*>::iterator it=Children.begin(); it!=Children.end(); ++it) {
 		Object3D* o3d = *it;
 		if (o3d==Child) {
-			Children.erase(it);
+			Children.erase(it); //DO YOU NEED TO DESTROY THIS?
 			break;
 		}
 	}
+}
+
+///<summary>Remove all the object's children.</summary>
+void Object3D::RemoveAllChildren() {
+	for (vector<Object3D*>::iterator it = Children.begin(); it != Children.end(); ++it) {
+		Object3D* child = *it;
+		delete child;
+	}
+	Children.clear();
 }
 
 

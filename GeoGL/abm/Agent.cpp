@@ -366,10 +366,10 @@ namespace ABM {
 		std::vector<Link*> OutLinks;
 	
 		Vertex* V = _GVertex;
-		if (V!=NULL) {
-			for (std::list<Edge*>::iterator edgeIT = V->_OutEdges.begin(); edgeIT!=V->_OutEdges.end(); ++edgeIT) {
-				Edge* E=*edgeIT;
-			
+		if (V != NULL) {
+			for (std::list<Edge*>::iterator edgeIT = V->_OutEdges.begin(); edgeIT != V->_OutEdges.end(); ++edgeIT) {
+				Edge* E = *edgeIT;
+
 				Link* L = (Link*)E->_UserData;
 				//push the link
 				OutLinks.push_back(L);
