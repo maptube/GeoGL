@@ -132,7 +132,7 @@ namespace ABM {
 		{
 			//std::string BreedName = itBreed->first;
 			std::string BreedName = *itBreed;
-			std::cout<<"Links::Create3D BreedName="<<BreedName<<std::endl;
+			//std::cout<<"Links::Create3D BreedName="<<BreedName<<std::endl;
 			//if (BreedName!="D") continue; //hack!
 			//Graph* G = itBreed->second;
 			TubeGeometry* geom = new TubeGeometry();

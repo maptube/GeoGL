@@ -178,7 +178,7 @@ void ModelMLTubeNetwork::LoadPositions(std::string Filename) {
 			std::string stationcode = items[9];
 			int timetostation = std::atoi(items[7].c_str());
 			int dir = std::atoi(items[12].c_str());
-//	if (dir != 0) return a; //HACK! only track the main direction
+	if (dir != 0) return a; //HACK! only track the main direction
 			std::string name = lineCode + "_" + tripcode + "_" + setcode; //unique name to match up to next data download
 			std::vector<ABM::Agent*> alist = _agents.With("name", name);
 			if (alist.size() > 0) a = alist.front(); //found agent
@@ -197,7 +197,10 @@ void ModelMLTubeNetwork::LoadPositions(std::string Filename) {
 				a->SetColour(LineCodeToVectorColour(lineCode[0]));
 				//set up the to and from nodes so all the properties are defined at creation time, even if they're null
 				std::vector<ABM::Agent*> agent_d = _agents.With("name", stationcode);
-				a->Set<ABM::Agent*>("toNode", agent_d.front());
+				if (agent_d.size()>0)
+					a->Set<ABM::Agent*>("toNode", agent_d.front());
+				else
+					a->Set<ABM::Agent*>("toNode", nullptr); //guard case for when station not found
 				a->Set<ABM::Agent*>("fromNode", nullptr);
 				a->Set<int>("time",AnimationDataDT._DT); //NOTE: a time_t is secs since 1 Jan 1970, which will fit in a single precision int
 				a->Set<int>("eta", AnimationDataDT._DT + timetostation);
@@ -206,6 +209,7 @@ void ModelMLTubeNetwork::LoadPositions(std::string Filename) {
 			ABM::Agent* fromNode = a->Get<ABM::Agent*>("fromNode");
 			ABM::Agent* toNode = a->Get<ABM::Agent*>("toNode");
 			std::vector<ABM::Agent*> agent_d = _agents.With("name", stationcode); //destination node station - do you need the breed name as well?
+			if (agent_d.size() == 0) return a; //guard case - stationcode not found, so exit
 			
 			//picked up existing tube with this name, so check for destination node changes i.e. it's arrived somewhere - note you can have zero in time to station, so we have an exact station hit
 			if (timetostation == 0) {
@@ -253,9 +257,9 @@ void ModelMLTubeNetwork::LoadPositions(std::string Filename) {
 					{
 						//but, first check that it's not masking an origin/destination that is already reachable
 						std::string BreedName = a->Get<std::string>("lineCode"); //e.g. V for Victoria in any direction
-						//int dist = Reachable(fromNode, toNode, BreedName[0], dir, 5);
-						//if (dist == -1)
-						//{
+						int dist = Reachable(fromNode, toNode, BreedName[0], dir, 10); //NOTE: 10 is a big fan out!!!!
+						if (dist == -1)
+						{
 							LinkProbTablesUpdate(a->Get<std::string>("lineCode")[0], fromNode, toNode);
 							//create a link on the graph between these two places
 							ABM::Link* L = _links.CreateLink(BreedName, fromNode, toNode); //use line code as breed name i.e. V for Victoria Northbound or Southbound (links are uni directional, so need two)
@@ -264,23 +268,24 @@ void ModelMLTubeNetwork::LoadPositions(std::string Filename) {
 							L->Set<int>("direction", dir);
 							L->Set<float>("runlink", 0); //Don't have this here - need timing
 							L->colour = a->GetColour(); // LineCodeToVectorColour(BreedName[0]); //NOTE: the colour for links comes from the default breed colour
-							std::cout << "CreateLink," << name << "," << fromNode->Name << "," << toNode->Name << std::endl;
-						//}
-						//else {
-						//	//if link is already reachable, then run along the link via the route it should have taken to increase the probabilities along that route
-						//	//we use the longest route (not necessarily the same one as from Reachable), as we want the longer routes to persist over the shorter ones
-						//	std::vector<ABM::Agent*> route = GetLongestRoute(toNode, fromNode, BreedName[0], dir, 5);
-						//	if (route.size()>0) //should always be true if Reachable worked properly above
-						//	{
-						//		std::cout << "LONGROUTE,"<<fromNode->Name<<","<<toNode->Name<<"-> ";
-						//		for (int i=0; i<route.size()-1; ++i)
-						//		{
-						//			LinkProbTablesUpdate(a->Get<std::string>("lineCode")[0], route[i], route[i+1]);
-						//			std::cout << route[i]->Name << " ";
-						//		}
-						//		std::cout << route.back()->Name << std::endl;
-						//	}
-						//}
+							if (BreedName=="V")
+								std::cout << "CreateLink," << name << "," << fromNode->Name << "," << toNode->Name << std::endl;
+						}
+						else {
+							//if link is already reachable, then run along the link via the route it should have taken to increase the probabilities along that route
+							//we use the longest route (not necessarily the same one as from Reachable), as we want the longer routes to persist over the shorter ones
+							/*std::vector<ABM::Agent*> route = GetLongestRoute(toNode, fromNode, BreedName[0], dir, 5);
+							if (route.size()>0) //should always be true if Reachable worked properly above
+							{
+								std::cout << "LONGROUTE,"<<fromNode->Name<<","<<toNode->Name<<"-> ";
+								for (int i=0; i<route.size()-1; ++i)
+								{
+									LinkProbTablesUpdate(a->Get<std::string>("lineCode")[0], route[i], route[i+1]);
+									std::cout << route[i]->Name << " ";
+								}
+								std::cout << route.back()->Name << std::endl;
+							}*/
+						}
 					}
 				}
 			}
@@ -421,9 +426,10 @@ std::vector<ABM::Agent*> ModelMLTubeNetwork::GetLongestRoute(ABM::Agent* o, ABM:
 	}
 	if (longestroute.size() > 0) {
 		for (auto node : longestroute) {
-			route.push_back(node); std::cout << node->Name << " ";
+			route.push_back(node);
+//			std::cout << node->Name << " "; //debug
 		}
-		std::cout << std::endl;
+//		std::cout << std::endl; //debug
 	}
 	return route;
 }
@@ -441,8 +447,6 @@ int ModelMLTubeNetwork::NodePrune()
 	for (auto it = nodes.begin(); it != nodes.end(); ++it)
 	{
 		ABM::Agent* node = *it;
-		std::string lineCode = node->_BreedName;
-		std::string direction = "";
 
 		std::set<ABM::Link*> DeleteLinks; //we need to keep a list of links which need deleting at the end, otherwise it messes up the iterators
 
@@ -450,8 +454,22 @@ int ModelMLTubeNetwork::NodePrune()
 		std::vector<ABM::Link*> OutLinks = node->OutLinks();
 		for (auto link : OutLinks)
 		{
-			std::vector<ABM::Agent*> longestroute = GetLongestRoute(link->end1, link->end2, lineCode[0], direction, 6);
-			if (longestroute.size() > 1) DeleteLinks.insert(link);
+			std::string lineCode = link->_BreedName;
+			int direction = link->Get<int>("direction");
+			std::vector<ABM::Agent*> longestroute = GetLongestRoute(link->end1, link->end2, lineCode[0], direction, 8);
+			if (longestroute.size() > 2) {
+				DeleteLinks.insert(link);
+				if (lineCode == "V") {
+					std::cout << "Prune Link: " << lineCode << " " << link->end1->Name << " " << link->end2->Name << " " << longestroute.size() << std::endl;
+					for (auto node : longestroute) std::cout << node->Name << " ";
+					std::cout << std::endl;
+				}
+
+			}
+			else {
+				if (lineCode=="V")
+					std::cout << "Keep Link: " << lineCode << " " << link->end1->Name << " " << link->end2->Name << " " << longestroute.size() << std::endl;
+			}
 		}
 
 		//now do the delete
@@ -564,6 +582,80 @@ int ModelMLTubeNetwork::CullLinkProbTables()
 	return deletecount;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Logging
+
+/*void ModelMLTubeNetwork::NetworkTransitionLog()
+{
+//log all link transitions so we can analyse offline
+
+}*/
+
+/// <summary>
+/// Log the state of the network to file for machine learning purposes.
+/// Write out the state of the network as of AnimationDataDT time and 0..29s and 30..59s
+/// </summary>
+void ModelMLTubeNetwork::MLLog(AgentTime& DataDT)
+{
+	std::ofstream out_log("ml_tubenetwork.txt", std::ios::app);
+
+	//dayofweek,hour,minute,30sec -> [300 stations]*(10 lines?)
+
+	//write out data here as one hot
+	int dayofweek = DataDT.GetDayOfWeek();
+	int hour, minute, second;
+	DataDT.GetTimeOfDay(hour, minute, second);
+	int s30 = 0;
+	if (second >= 30) s30 = 1; //[1,0] means 0..29 seconds, [0,1] means 30..59 seconds
+	//work out time range that we're looking for (seconds)
+	float minsecs = s30 * 30, maxsecs = minsecs + 30; //so [0,30] and [30,60] for 0..29 and 30..59
+	float onehot_time[93]; //7+24+60+2 = 93
+	for (int i = 0; i < 93; ++i) onehot_time[i] = 0;
+	onehot_time[dayofweek] = 1.0;
+	onehot_time[7 + hour] = 1.0;
+	onehot_time[7 + 24 + minute] = 1.0;
+	onehot_time[7 + 24 + 60] = 0.0; //set both 30s slots to zero, then set the correct one hot
+	onehot_time[7 + 24 + 60 + 1] = 0.0;
+	onehot_time[7 + 24 + 60 + s30] = 1.0;
+
+	//this is our output data array
+	float* stationstate = new float[NumStations];
+	for (int i = 0; i < NumStations; ++i) stationstate[i] = 0.0; //zero all the station states
+
+	//go through all the agents and any eta between now and the next 30s increment counts as at station and records a passing point for this time
+	int NumTubes = 0;
+	std::vector<ABM::Agent*> drivers = _agents.Ask("driver");
+	for (auto it : drivers)
+	{
+		AgentTime eta;
+		eta._DT = (time_t)it->Get<int>("eta");
+		eta._fraction = 0;
+		float deltasecs = AgentTime::DifferenceSeconds(eta, DataDT);
+		if ((deltasecs >= minsecs) && (deltasecs < maxsecs)) {
+			//log the station as having a train present
+			ABM::Agent* toNode = it->Get<ABM::Agent*>("toNode");
+			int id = toNode->Get<int>("id");
+			stationstate[id] = 1.0;
+			++NumTubes;
+		}
+	}
+
+	//now log the data
+	out_log << AgentTime::ToStringYYYYMMDD_hhmmss(DataDT) << "," << drivers.size()<<","<<NumTubes << ",";
+	for (int i = 0; i < 93; ++i) out_log << onehot_time[i] << ",";
+
+	out_log << "  "; //fiddle so I can see where the stations data start in the file
+
+	for (int i = 0; i < NumStations; ++i) out_log << stationstate[i] << ",";
+
+	delete[] stationstate;
+
+	out_log << std::endl;
+	out_log.close();
+
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //ABM
@@ -593,8 +685,11 @@ void ModelMLTubeNetwork::Setup()
 	InitialiseLinkProbTables(); //tables of link probabilities - must be done after the stations have been created as need the number of stations
 
 	//Setup time
-	AnimationDataDT = AgentTime::FromString("20170101_000000");
-	//AnimationDataDT = AgentTime::FromString("20170201_060000");
+	//AnimationDataDT = AgentTime::FromString("20170101_000000");
+	//AnimationDataDT = AgentTime::FromString("20170201_000000");
+	//AnimationDataDT = AgentTime::FromString("20170301_000000");
+	//AnimationDataDT = AgentTime::FromString("20170401_000000");
+	AnimationDataDT = AgentTime::FromString("20170501_000000");
 	
 	//Setup training epoch number
 	epoch = 0;
@@ -637,11 +732,19 @@ void ModelMLTubeNetwork::Step(double ticks)
 	std::string Filename = ModelMLTubeNetwork::Filename_AnimationDir + AgentTime::ToFilePath(AnimationDataDT) +"/trackernet_"+ AgentTime::ToStringYYYYMMDD_hhmmss(AnimationDataDT)+".csv";
 	LoadPositions(Filename);
 	
-	if (epoch%50==0) {
+	/*if (epoch%50==0) {
 		//int count = CoalesceLinks(); //fuse missed connections down
 		//while (count > 0) count = CoalesceLinks();
 		//int ccount = CullLinkProbTables();
 		int ncount = NodePrune();
+	}*/
+
+	//log 3 mins of train/station state date in 30s intervals before adding 3 mins to the counter to get the next data frame
+	AgentTime DataDT = AnimationDataDT;
+	for (int i = 0; i < 6; ++i)
+	{
+		MLLog(DataDT);
+		DataDT.Add(30);
 	}
 
 	AnimationDataDT.Add(3 * 60);

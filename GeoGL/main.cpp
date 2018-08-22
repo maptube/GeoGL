@@ -193,14 +193,15 @@ int main(int argc, char *argv[])
 	//std::cout<<"TubeModel: node="<<nodes.size()<<std::endl; //280 stations
 	//std::cout<<"TubeModel: driver="<<drivers.size()<<std::endl; //370 tubes
 	//std::cout<<"TubeModel: Links="<<tn->_links.NumLinks()<<std::endl; //write out the number of links between node - 716
-	ModelMLTubeNetwork* tmln = new ModelMLTubeNetwork(globe.GetSceneGraph());
-	tmln->Setup(); //who's responsible for this? globe or me?
-	globe.AddLayerModel(tmln);
+	//
+	//ModelMLTubeNetwork* tmln = new ModelMLTubeNetwork(globe.GetSceneGraph());
+	//tmln->Setup(); //who's responsible for this? globe or me?
+	//globe.AddLayerModel(tmln);
 
 	//Bus Data
-	//ModelBusNetwork* bn = new ModelBusNetwork(globe.GetSceneGraph());
-	//bn->Setup();
-	//globe.AddLayerModel(bn);
+	ModelBusNetwork* bn = new ModelBusNetwork(globe.GetSceneGraph());
+	bn->Setup();
+	globe.AddLayerModel(bn);
 	//ABM::sensor::GeoFence* MY1 = ABM::sensor::GeoFence::CreateCuboid(bn,glm::dvec3(-0.154611,51.522530,100),glm::dvec3(0.01,0.01,200));
 
 	//Network Rail Data
@@ -230,8 +231,8 @@ int main(int argc, char *argv[])
 	//GeoJSON* geoj = globe.LoadLayerGeoJSON("../data/TM_WORLD_BORDERS_SIMPL-0.3_WGS84.geojson");
 	
 	//Thames in WGS84
-	//GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
-	//thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
+	GeoJSON* thames = globe.LoadLayerGeoJSON("../data/TQ_TidalWater_503500_155500.geojson");
+	thames->SetColour(glm::vec3(0.0f,0.0f,1.0f)); //better make it blue
 
 	//Buildings in WGS84
 	//GeoJSON* buildings = globe.LoadLayerGeoJSON("../data/TQ_Building_530000_180000_WGS84.geojson");
@@ -241,14 +242,14 @@ int main(int argc, char *argv[])
 	//buildings->SetColour(glm::vec3(1.0f,0.0f,0.0f));
 
 	//Buildings from OBJ
-	Mesh2* buildings = new Mesh2();
-	buildings->_VertexFormat=PositionColourNormal;
-	buildings->FromOBJ("../data/vectortiles/14_8188_10537.obj"/*"../cache/14_8188_10537.obj"*/);
-	buildings->CreateBuffers();
-	buildings->AttachShader(globe.GetShader(3),true); //this is the vertex colour normal shader for geojson
-	buildings->SetColour(glm::vec3(1.0f,1.0f,1.0f));
-	//buildings->debug_DrawNormals(32.0f); //force mesh to draw per vertex formals as lines
-	globe.GetSceneGraph()->push_back(buildings);
+	//Mesh2* buildings = new Mesh2();
+	//buildings->_VertexFormat=PositionColourNormal;
+	//buildings->FromOBJ("../data/vectortiles/14_8188_10537.obj"/*"../cache/14_8188_10537.obj"*/);
+	//buildings->CreateBuffers();
+	//buildings->AttachShader(globe.GetShader(3),true); //this is the vertex colour normal shader for geojson
+	//buildings->SetColour(glm::vec3(1.0f,1.0f,1.0f));
+	////buildings->debug_DrawNormals(32.0f); //force mesh to draw per vertex formals as lines
+	//globe.GetSceneGraph()->push_back(buildings);
 
 	//London outline in WGS84
 	//GeoJSON* london = globe.LoadLayerGeoJSON("../data/London_dt_2001_area_WGS84.geojson");

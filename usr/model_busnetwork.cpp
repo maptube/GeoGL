@@ -34,9 +34,11 @@
 const std::string ModelBusNetwork::Filename_StopCodes =
 		"../data/countdown/instant_V1.json"; //bus stop locations
 const std::string ModelBusNetwork::Filename_BusRoutesNetwork =
-		"../data/countdown/TfL_Bus_routes_stream_20150504_mod.csv"; //network of bus routes based on lists of stops
+//"../data/countdown/TfL_Bus_routes_stream_20150504_mod.csv"; //network of bus routes based on lists of stops
+"../data/countdown/TfL_Bus_routes_stream_20150504.csv";
 const std::string ModelBusNetwork::LogFilename =
-		"/home/richard/modelbusnetwork.txt";
+//"/home/richard/modelbusnetwork.txt";
+"modelbusnetwork.txt";
 //const std::string ModelBusNetwork::Filename_Positions =
 //		"../data/countdown/2014/1/1/countdown_20140101_090000.csv";
 //const std::string ModelTubeNetwork::Filename_AnimationDir =
@@ -47,8 +49,9 @@ const std::string ModelBusNetwork::LogFilename =
 //const float ModelTubeNetwork::TrainSize = 300.0f; //size of train geometry object
 
 const std::string ModelBusNetwork::Filename_Positions =
-		"../data/countdown/";
-		//"/run/media/richard/SAMSUNG2/countdown-cache/";
+//"../data/countdown/";
+//"/run/media/richard/SAMSUNG2/countdown-cache/";
+"D:\\richard\\data\\realtime\\2017_disk\\countdown-cache\\";
 
 ModelBusNetwork::ModelBusNetwork(SceneGraphType* SceneGraph) : ABM::Model(SceneGraph) {
 	// TODO Auto-generated constructor stub
@@ -70,9 +73,9 @@ void ModelBusNetwork::Setup() {
 	//TODO: SetDefaultColour("driver",glm::dvec3(1.0,0,0));
 	//TODO: need to be able to set the links to no mesh as well.
 
-	AnimationDT = AgentTime::FromString("20140101_000000");
-	NextTimeDT = AgentTime::FromString("20140101_000000");
-	SensorRecordStartDT = AgentTime::FromString("20140101_000000");
+	AnimationDT = AgentTime::FromString("20170101_000000"/*"20140101_000000"*/);
+	NextTimeDT = AgentTime::FromString("20170101_000000"/*"20140101_000000"*/);
+	SensorRecordStartDT = AgentTime::FromString("20170101_000000"/*"20140101_000000"*/);
 
 	LoadBusStops(Filename_StopCodes); //station locations
 	LoadLinks(Filename_BusRoutesNetwork); //network from CSV lists of stops making up each route
@@ -419,7 +422,7 @@ void ModelBusNetwork::LoadLinks(const std::string& RoutesFilename)
 		int LastRun=-1;
 		while (!in_csv.eof()) {
 //here!!!!
-			if (CountLinks>5000) break; //HACK!!!!! Limit number of links loaded
+//			if (CountLinks>5000) break; //HACK!!!!! Limit number of links loaded
 			line.clear();
 			std::getline(in_csv,line);
 			if (line.length()==0) continue; //blank line

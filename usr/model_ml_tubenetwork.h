@@ -65,6 +65,8 @@ public:
 	std::vector<ABM::Agent*> GetLongestRoute(ABM::Agent* o, ABM::Agent* d, char lineCode, int direction, int limit);
 	int NodePrune();
 
+	void MLLog(AgentTime& DataDT);
+
 	//ABM::Model virtuals
 	void Setup();
 	void Step(double Ticks);
